@@ -71,6 +71,7 @@ namespace Kairou
         internal void RemoveCommand(Command command)
         {
             if (command == null) return;
+            if (_commands.Contains(command) == false) return;
             _commands.Remove(command);
             (command as ICommandInternalForPage).SetParentPage(null);
         }

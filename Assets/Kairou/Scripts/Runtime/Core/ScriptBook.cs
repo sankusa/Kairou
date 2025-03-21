@@ -34,6 +34,7 @@ namespace Kairou
         internal void RemovePage(Page page)
         {
             if (page == null) return;
+            if (_pages.Contains(page) == false) return;
             _pages.Remove(page);
             (page as IPageInternalForScriptBook).SetParentBook(null);
         }

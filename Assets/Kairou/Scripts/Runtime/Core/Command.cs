@@ -16,7 +16,7 @@ namespace Kairou
         [NonSerialized] Page _parentPage;
         public Page ParentPage => _parentPage;
 
-        public int Index => _parentPage?.Commands.IndexOf(this) ?? -1;
+        public int Index => _parentPage.Commands.IndexOf(this);
 
         void ICommandInternalForPage.SetParentPage(Page parentPage) => _parentPage = parentPage;
 
