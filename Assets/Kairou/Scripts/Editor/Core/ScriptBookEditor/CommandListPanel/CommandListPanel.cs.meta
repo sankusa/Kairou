@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: d2e6f0312760d4444bfea980690a86d3
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _commandListPaneUXML: {fileID: 9197481963319205126, guid: b228be7b4f5b3e84eb39d6f49bb0ed62, type: 3}
+  - _commandListElementUXML: {fileID: 9197481963319205126, guid: a5903872225d20d4ca2bfd0da3d9975e, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

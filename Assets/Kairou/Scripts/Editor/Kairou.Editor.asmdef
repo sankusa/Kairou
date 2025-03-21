@@ -1,0 +1,18 @@
+{
+    "name": "Kairou.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:06c66ea33735a5c4da70fc4cba1a6962"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

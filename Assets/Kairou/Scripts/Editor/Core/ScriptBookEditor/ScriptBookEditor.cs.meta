@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: a7a6f65ac27c6de4e94a527b9ed8ce4f
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - m_ViewDataDictionary: {instanceID: 0}
+  - _headerUXML: {fileID: 9197481963319205126, guid: 390a94737ec20834090553ddc89a4057, type: 3}
+  - _pageListPanelUXML: {fileID: 9197481963319205126, guid: a1422bf4f94c6fa4a82bc5c29838c639, type: 3}
+  - _commandListPanelUXML: {fileID: 9197481963319205126, guid: b228be7b4f5b3e84eb39d6f49bb0ed62, type: 3}
+  - _scriptBookOwnerObject: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
