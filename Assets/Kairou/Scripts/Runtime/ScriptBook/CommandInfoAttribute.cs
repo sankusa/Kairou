@@ -7,10 +7,10 @@ namespace Kairou
         public string CategoryPath { get; }
         public string CommandName { get; }
 
-        public CommandInfoAttribute(string categoryPath, string commandPath)
+        public CommandInfoAttribute(string categoryPath, string commandName)
         {
             CategoryPath = categoryPath;
-            CommandName = commandPath;
+            CommandName = commandName;
         }
     }
 }

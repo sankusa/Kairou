@@ -1,15 +1,19 @@
 using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 
 namespace Kairou
 {
     public abstract class AsyncCommand : Command
     {
-        public sealed override void Execute(IProcess process)
+        /// <summary>
+        /// Implement ExecuteAsync instead.
+        /// </summary>
+        public sealed override void Execute(IPageProcess process)
         {
             throw new InvalidOperationException($"Use {nameof(ExecuteAsync)} instead of Execute.");
         }
 
-        public abstract UniTask ExecuteAsync(IProcess process);
+        public abstract UniTask ExecuteAsync(IPageProcess process, CancellationToken cancellationToken);
     }
 }

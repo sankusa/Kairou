@@ -7,9 +7,6 @@ namespace Kairou
     [Serializable]
     public class ScriptBook : ISerializationCallbackReceiver
     {
-        [SerializeField] int _entryPageIndex;
-        public int EntryPageIndex => _entryPageIndex;
-
         [SerializeField] List<Page> _pages = new();
         public IReadOnlyList<Page> Pages => _pages;
 
