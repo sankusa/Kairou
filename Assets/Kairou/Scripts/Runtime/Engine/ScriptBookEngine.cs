@@ -11,13 +11,12 @@ namespace Kairou
     {
         [SerializeField] List<ScriptBookOwnerReference> _scriptBookOwners = new();
         [SerializeField] bool _runOnStart = true;
+        [SerializeField] ComponentBinding _comopnentBinding;
 
         [SerializeField] UnityEvent _onStartRunningAny;
         public UnityEvent OnStartRunningAny => _onStartRunningAny;
         [SerializeField] UnityEvent _onEndRunningAll;
         public UnityEvent OnEndRunningAll => _onEndRunningAll;
-
-        readonly ScriptBookRunner _scriptBookRunner = new();
 
         int _runningCount;
 
@@ -117,13 +116,20 @@ namespace Kairou
         {
             linkedToken.ThrowIfCancellationRequested();
 
+            RootProcess rootProcess = RootProcess.Rent();
             try
             {
-                await _scriptBookRunner.RunAsync(scriptBook, linkedToken);
+                rootProcess.AddScriptBookProcess(scriptBook);
+                rootProcess.ObjectResolver.Add(_comopnentBinding);
+                await rootProcess.StartAsync(linkedToken);
             }
             catch (OperationCanceledException e) when (e.CancellationToken != linkedToken)
             {
                 // 内発的なキャンセルは無視
+            }
+            finally
+            {
+                RootProcess.Return(rootProcess);
             }
         }
 

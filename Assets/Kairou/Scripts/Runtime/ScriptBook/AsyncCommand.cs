@@ -9,11 +9,11 @@ namespace Kairou
         /// <summary>
         /// Implement ExecuteAsync instead.
         /// </summary>
-        public sealed override void Execute(IPageProcess process)
+        public sealed override void Execute(PageProcess process)
         {
             throw new InvalidOperationException($"Use {nameof(ExecuteAsync)} instead of Execute.");
         }
 
-        public abstract UniTask ExecuteAsync(IPageProcess process, CancellationToken cancellationToken);
+        public abstract UniTask ExecuteAsync(PageProcess process, CancellationToken cancellationToken);
     }
 }

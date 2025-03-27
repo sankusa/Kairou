@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 
 namespace Kairou
 {
-    public class PageProcess : IPageProcess
+    public class PageProcess
     {
         static readonly ObjectPool<PageProcess> _pool = new(
             createFunc: () => new PageProcess(),

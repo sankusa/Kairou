@@ -75,7 +75,7 @@ namespace Kairou.Tests
 
         private class TestCommand : Command
         {
-            public override void Execute(IPageProcess process)
+            public override void Execute(PageProcess process)
             {
                 throw new System.NotImplementedException();
             }

@@ -28,6 +28,8 @@ namespace Kairou
 
         bool _isStarted;
 
+        public CompositeObjectResolver ObjectResolver { get; } = new();
+
         private RootProcess() {}
 
         void SetUp()
@@ -91,6 +93,8 @@ namespace Kairou
             
             ReleaseAllScriptBookProcess();
             _isStarted = false;
+
+            ObjectResolver.Clear();
         }
 
         void ReleaseScriptBookProcess(ScriptBookProcess process)
