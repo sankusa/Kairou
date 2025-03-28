@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.cysharp.r3": {
+      "version": "https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.modules.imgui": "1.0.0"
+      },
+      "hash": "6af3cc5c1941fe21bfe0fe3472f2c2dfaa881469"
+    },
     "com.cysharp.unitask": {
       "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
       "depth": 0,
@@ -7,8 +16,15 @@
       "dependencies": {},
       "hash": "8042b29ff87dd5506d7aad72bd6d8d7405985f27"
     },
+    "com.github-glitchenzo.nugetforunity": {
+      "version": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "fe31ad0904abee296b5ea72c6073157accba59e8"
+    },
     "com.unity.ai.navigation": {
-      "version": "2.0.5",
+      "version": "2.0.6",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -17,7 +33,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.burst": {
-      "version": "1.8.18",
+      "version": "1.8.19",
       "depth": 2,
       "source": "registry",
       "dependencies": {
@@ -71,7 +87,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.inputsystem": {
-      "version": "1.11.2",
+      "version": "1.13.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -102,7 +118,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.render-pipelines.core": {
-      "version": "17.0.3",
+      "version": "17.0.4",
       "depth": 1,
       "source": "builtin",
       "dependencies": {
@@ -117,12 +133,12 @@
       }
     },
     "com.unity.render-pipelines.universal": {
-      "version": "17.0.3",
+      "version": "17.0.4",
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.render-pipelines.core": "17.0.3",
-        "com.unity.shadergraph": "17.0.3",
+        "com.unity.render-pipelines.core": "17.0.4",
+        "com.unity.shadergraph": "17.0.4",
         "com.unity.render-pipelines.universal-config": "17.0.3"
       }
     },
@@ -145,23 +161,23 @@
       }
     },
     "com.unity.searcher": {
-      "version": "4.9.2",
+      "version": "4.9.3",
       "depth": 2,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.shadergraph": {
-      "version": "17.0.3",
+      "version": "17.0.4",
       "depth": 1,
       "source": "builtin",
       "dependencies": {
-        "com.unity.render-pipelines.core": "17.0.3",
-        "com.unity.searcher": "4.9.2"
+        "com.unity.render-pipelines.core": "17.0.4",
+        "com.unity.searcher": "4.9.3"
       }
     },
     "com.unity.test-framework": {
-      "version": "1.4.5",
+      "version": "1.4.6",
       "depth": 0,
       "source": "registry",
       "dependencies": {
