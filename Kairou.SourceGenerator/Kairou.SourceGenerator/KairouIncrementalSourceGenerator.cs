@@ -1,0 +1,156 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Microsoft.CodeAnalysis.Differencing;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Immutable;
+
+namespace Kairou.SourceGenerator;
+
+[Generator(LanguageNames.CSharp)]
+public class KairouIncrementalGenerator : IIncrementalGenerator
+{
+    public void Initialize(IncrementalGeneratorInitializationContext context)
+    {
+        var commandClassDeclarations = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                static (node, _) => node is ClassDeclarationSyntax,
+                static (context, _) => ((ClassDeclarationSyntax)context.Node, context.SemanticModel))
+            .Select(static (tuple, ct) =>
+            {
+                var (classNode, semanticModel) = tuple;
+
+                var compilation = semanticModel.Compilation;
+
+                var classSymbol = semanticModel.GetDeclaredSymbol(classNode, ct) as INamedTypeSymbol;
+                if (classSymbol == null) return null;
+
+                if (classSymbol.IsSubclassOf(Symbols.Command(compilation)) == false) return null;
+                if (classSymbol.IsAbstract) return null;
+                return classSymbol;
+            })
+            .Where(static x => x != null)
+            .Select(static (x, _) => x!)
+            .Collect();
+
+        context.RegisterSourceOutput(
+            context.CompilationProvider.Combine(commandClassDeclarations),
+            static (context, tuple) =>
+            {
+                Compilation compilation = tuple.Left;
+                ImmutableArray<INamedTypeSymbol> commandTypeSymbols = tuple.Right;
+                foreach (var commandTypeSymbol in commandTypeSymbols)
+                {
+                    Emit(context, compilation, commandTypeSymbol);
+                }
+            });
+    }
+
+    static void Emit(SourceProductionContext context, Compilation compilation, INamedTypeSymbol commandTypeSymbol)
+    {
+        bool isAsyncCommand = commandTypeSymbol.IsSubclassOf(Symbols.AsyncCommand(compilation));
+
+        INamedTypeSymbol commandExecuteAttribute = Symbols.CommandExecuteAttribute(compilation);
+
+        if (commandTypeSymbol.IsPartial() == false) return;
+
+        IMethodSymbol? executeMethod = CommandSymbolUtil.GetExecuteMethod(commandTypeSymbol, compilation);
+
+        if (executeMethod == null) return;
+
+        string typeFullName = commandTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        string typeFullNameSafe = typeFullName
+            .Replace("global::", "")
+            .Replace("<", "_")
+            .Replace(">", "_");
+
+        var ns = commandTypeSymbol.ContainingNamespace;
+
+        var fields = commandTypeSymbol
+            .GetMembers()
+            .OfType<IFieldSymbol>();
+        var parameters = executeMethod.Parameters;
+
+        var builder = new CodeBuilder();
+        builder.AppendIndentedLine("using Kairou;");
+        if (isAsyncCommand)
+        {
+            builder.AppendIndentedLine("using System.Threading;");
+            builder.AppendIndentedLine("using Cysharp.Threading.Tasks;");
+        }
+        builder.AppendLine();
+
+        if (ns.IsGlobalNamespace == false)
+        {
+            builder.AppendIndentedLine($"namespace {ns}");
+            builder.BeginBlock();
+        }
+
+        builder.AppendIndentedLine($"partial class {commandTypeSymbol.Name}");
+        using (new BlockScope(builder))
+        {
+            if (isAsyncCommand)
+            {
+                builder.AppendIndentedLine($"public override async UniTask InvokeExecuteAsync(PageProcess pageProcess, CancellationToken cancellationToken)");
+            }
+            else
+            {
+                builder.AppendIndentedLine($"public override void InvokeExecute(PageProcess pageProcess)");
+            }
+            using (new BlockScope(builder))
+            {
+                BuildInvokeExecuteBody(builder, isAsyncCommand, compilation, fields, executeMethod, parameters);
+            }
+        }
+
+        if (ns.IsGlobalNamespace == false)
+        {
+            builder.EndBlock();
+        }
+
+        context.AddSource($"{typeFullNameSafe}.Generated.g.cs", builder.ToString());
+    }
+
+    static void BuildInvokeExecuteBody(CodeBuilder builder, bool isAsyncCommand, Compilation compilation, IEnumerable<IFieldSymbol> fields, IMethodSymbol executeMethod, ImmutableArray<IParameterSymbol> parameters)
+    {
+        
+
+        var paramListBuilder = new StringBuilder();
+
+        foreach (IParameterSymbol parameter in parameters)
+        {
+            var attributes = parameter.GetAttributes();
+            if (attributes.Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, Symbols.InjectAttribute(compilation))))
+            {
+                builder.AppendIndentedLine($"var {parameter.Name} = pageProcess.Resolve<{parameter.Type.ToDisplayString()}>();");
+                if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
+                paramListBuilder.Append(parameter.Name);
+            }
+            else if (SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.PageProcess(compilation)))
+            {
+                if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
+                paramListBuilder.Append("pageProcess");
+            }
+            else if(isAsyncCommand && SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.CancellationToken(compilation)))
+            {
+                if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
+                paramListBuilder.Append("cancellationToken");
+            }
+            else
+            {
+                if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
+                paramListBuilder.Append($"default({parameter.Type.ToDisplayString()})");
+            }
+        }
+
+        builder.AppendIndent();
+        if (isAsyncCommand)
+        {
+            builder.Append("await ");
+        }
+        builder.Append($"{executeMethod.Name}(");
+        builder.Append(paramListBuilder);
+        builder.AppendLine(");");
+    }
+}
