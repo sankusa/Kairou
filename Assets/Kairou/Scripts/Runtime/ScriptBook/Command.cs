@@ -20,7 +20,7 @@ namespace Kairou
 
         void ICommandInternalForPage.SetParentPage(Page parentPage) => _parentPage = parentPage;
 
-        public abstract void Execute(PageProcess pageProcess);
+        public virtual void InvokeExecute(PageProcess pageProcess) {}
         public virtual string GetSummary() => null;
     }
 }
