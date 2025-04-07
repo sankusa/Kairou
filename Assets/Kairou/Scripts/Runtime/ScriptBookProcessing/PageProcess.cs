@@ -64,11 +64,11 @@ namespace Kairou
                     linkedCts.Token.ThrowIfCancellationRequested();
                     if (command is AsyncCommand asyncCommand)
                     {
-                        await asyncCommand.InvokeExecuteAsync(this, linkedCts.Token);
+                        await asyncCommand.ExecuteAsync(this, linkedCts.Token);
                     }
                     else
                     {
-                        command.InvokeExecute(this);
+                        command.Execute(this);
                     }
                 }
                 catch (OperationCanceledException e) when (e.CancellationToken == linkedCts.Token)

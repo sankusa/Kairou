@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "プロファイル 1": {
-      "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\Kairou.SourceGenerator.DebugConsoleApp\\Kairou.SourceGenerator.DebugConsoleApp.csproj"
-    }
-  }
-}

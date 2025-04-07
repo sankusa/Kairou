@@ -18,7 +18,7 @@ namespace Kairou.Tests
         public void AddCommand_AlreadyAdded_ThrowsArgumentException()
         {
             var page = new Page();
-            var command = new PageTests_TestCommand();
+            var command = new TestCommand();
 
             page.AddCommand(command);
 
@@ -29,7 +29,7 @@ namespace Kairou.Tests
         public void RemoveCommand_1Command_0CommandInPage()
         {
             var page = new Page();
-            var command = new PageTests_TestCommand();
+            var command = new TestCommand();
 
             page.AddCommand(command);
             page.RemoveCommand(command);
@@ -41,7 +41,7 @@ namespace Kairou.Tests
         public void RemoveCommand_CommandIsNotInPage_NoError()
         {
             var page = new Page();
-            var command = new PageTests_TestCommand();
+            var command = new TestCommand();
 
             page.RemoveCommand(command);
 
@@ -62,8 +62,8 @@ namespace Kairou.Tests
         public void MoveCommand_1Command_1CommandInPage()
         {
             var page = new Page();
-            var command1 = new PageTests_TestCommand();
-            var command2 = new PageTests_TestCommand();
+            var command1 = new TestCommand();
+            var command2 = new TestCommand();
 
             page.AddCommand(command1);
             page.AddCommand(command2);
@@ -72,14 +72,14 @@ namespace Kairou.Tests
             Assert.AreEqual(command2, page.Commands[0]);
             Assert.AreEqual(command1, page.Commands[1]);
         }
+
+        private class TestCommand : Command
+        {
+            public override void Execute(PageProcess process)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
     }
 }
 
-public partial class PageTests_TestCommand : Command
-{
-    [CommandExecute]
-    public void Execute([Inject] Command command)
-    {
-        
-    }
-}
