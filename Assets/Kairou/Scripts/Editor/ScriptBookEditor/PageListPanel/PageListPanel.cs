@@ -15,13 +15,9 @@ namespace Kairou.Editor
 
         ListView _listView;
 
-        public void Initialize(VisualElement parent, VisualTreeAsset pageListPanelUXML, Action<int> onSelectionChanged, Action onCollectionChanged)
-        {
-            Initialize_Core(parent, pageListPanelUXML, onSelectionChanged, onCollectionChanged);
-            SetScriptBookOwner(_scriptBookOwnerObject as IScriptBookOwner);
-        }
+        bool IsInitialized => _listView != null;
 
-        void Initialize_Core(VisualElement parent, VisualTreeAsset pageListPanelUXML, Action<int> onSelectionChanged, Action onCollectionChanged)
+        public void Initialize(VisualElement parent, VisualTreeAsset pageListPanelUXML, Action<int> onSelectionChanged, Action onCollectionChanged)
         {
             var pageListPanel = pageListPanelUXML.Instantiate();
             parent.Add(pageListPanel);
@@ -68,16 +64,17 @@ namespace Kairou.Editor
                 var selectedPageIndex = pageIndices.FirstOrDefault();
                 onSelectionChanged?.Invoke(selectedPageIndex);
             };
-        }
 
-        public void SetScriptBookOwner(IScriptBookOwner scriptBookOwner)
-        {
-            ThrowIfNotInitialized();
-            _scriptBookOwnerObject = scriptBookOwner?.AsObject();
             Reload();
         }
 
-        public void Reload()
+        public void SetTarget(IScriptBookOwner scriptBookOwner)
+        {
+            _scriptBookOwnerObject = scriptBookOwner?.AsObject();
+            if (IsInitialized) Reload();
+        }
+
+        void Reload()
         {
             ThrowIfNotInitialized();
 
@@ -92,7 +89,7 @@ namespace Kairou.Editor
                 _listView.enabledSelf = true;
             }
 
-            _listView.selectedIndex = -1;
+            _listView.selectedIndex = 0;
         }
 
         public void OnUndoRedoPerformed()
@@ -103,7 +100,7 @@ namespace Kairou.Editor
 
         void ThrowIfNotInitialized()
         {
-            if (_listView == null) throw new InvalidOperationException($"{nameof(PageListPanel)} is not initialized.");
+            if (IsInitialized == false) throw new InvalidOperationException($"{nameof(PageListPanel)} is not initialized.");
         }
     }
 }

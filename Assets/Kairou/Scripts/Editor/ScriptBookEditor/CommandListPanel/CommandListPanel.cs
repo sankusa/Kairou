@@ -23,13 +23,9 @@ namespace Kairou.Editor
 
         ListView _listView;
 
-        public void Initialize(VisualElement parent, VisualTreeAsset commandListPanelUXML, CommandSpecificAction onSelectionChanged)
-        {
-            Initialize_Core(parent, commandListPanelUXML, onSelectionChanged);
-            SetTarget(_scriptBookOwnerObject as IScriptBookOwner, _pageIndex);
-        }
+        bool IsInitialized => _listView != null;
 
-        void Initialize_Core(VisualElement parent, VisualTreeAsset commandListPanelUXML, CommandSpecificAction onSelectionChanged)
+        public void Initialize(VisualElement parent, VisualTreeAsset commandListPanelUXML, CommandSpecificAction onSelectionChanged, Action onCollectionChanged)
         {
             // AdvancedDropdown
             var commandAdvancedDropdown = new CommandAdvancedDropdown(_commandDropdownState);
@@ -57,6 +53,7 @@ namespace Kairou.Editor
                 if (ExistsTargetPage == false) return;
                 var rect = _listView.worldBound;
                 commandAdvancedDropdown.Show(rect);
+                onCollectionChanged?.Invoke();
             };
 
             _listView.onRemove = _ =>
@@ -64,6 +61,7 @@ namespace Kairou.Editor
                 if (ExistsTargetPage == false) return;
                 ScriptBookOwnerUtilForEditor.RemoveCommand(ScriptBookOwner, _pageIndex, _listView.selectedIndex);
                 _listView.Rebuild();
+                onCollectionChanged?.Invoke();
             };
 
             _listView.itemIndexChanged += (fromIndex, toIndex) =>
@@ -74,6 +72,9 @@ namespace Kairou.Editor
                 ScriptBookOwner.ScriptBook.Pages[_pageIndex].MoveCommand(toIndex, fromIndex);
                 ScriptBookOwnerUtilForEditor.MoveCommand(ScriptBookOwner, _pageIndex, fromIndex, toIndex);
                 _listView.Rebuild();
+                onCollectionChanged?.Invoke();
+                // When dragging and swapping ListView elements, selectedIndicesChanged is not triggered, so it is manually triggered here instead.
+                onSelectionChanged?.Invoke(ScriptBookOwner, _pageIndex, toIndex);
             };
 
             _listView.selectedIndicesChanged += commandIndices =>
@@ -82,15 +83,15 @@ namespace Kairou.Editor
                 var selectedCommandIndex = commandIndices.FirstOrDefault();
                 onSelectionChanged?.Invoke(ScriptBookOwner, _pageIndex, selectedCommandIndex);
             };
+            
+            Reload();
         }
 
         public void SetTarget(IScriptBookOwner scriptBookOwner, int pageIndex)
         {
-            ThrowIfNotInitialized();
-
             _scriptBookOwnerObject = scriptBookOwner?.AsObject();
             _pageIndex = pageIndex;
-            Reload();
+            if (IsInitialized) Reload();
         }
 
         public void Reload()
@@ -107,7 +108,7 @@ namespace Kairou.Editor
                 _listView.itemsSource = null;
                 _listView.enabledSelf = false;
             }
-            _listView.selectedIndex = -1;
+            _listView.selectedIndex = 0;
         }
 
         public void Rebuild() => _listView.Rebuild();
@@ -120,7 +121,7 @@ namespace Kairou.Editor
 
         void ThrowIfNotInitialized()
         {
-            if (_listView == null) throw new InvalidOperationException($"{nameof(CommandListPanel)} is not initialized.");
+            if (IsInitialized == false) throw new InvalidOperationException($"{nameof(CommandListPanel)} is not initialized.");
         }
     }
 }

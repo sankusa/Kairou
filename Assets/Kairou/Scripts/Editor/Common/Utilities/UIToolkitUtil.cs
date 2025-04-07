@@ -8,9 +8,12 @@ namespace Kairou.Editor
             VisualElement parent,
             int fixedPaneIndex = 0,
             float fixedPaneStartDimension = 100,
-            TwoPaneSplitViewOrientation orientation = TwoPaneSplitViewOrientation.Horizontal)
+            TwoPaneSplitViewOrientation orientation = TwoPaneSplitViewOrientation.Horizontal,
+            string viewDataKey = null)
         {
             var splitView = new TwoPaneSplitView(fixedPaneIndex, fixedPaneStartDimension, orientation);
+            if (viewDataKey != null) splitView.viewDataKey = viewDataKey;
+            
             parent.Add(splitView);
 
             var leftPane = new VisualElement();

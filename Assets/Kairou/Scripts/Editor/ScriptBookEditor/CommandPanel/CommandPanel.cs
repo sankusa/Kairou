@@ -16,12 +16,13 @@ namespace Kairou.Editor
         [SerializeField] int _commandIndex;
         IScriptBookOwner ScriptBookOwner => _scriptBookOwnerObject as IScriptBookOwner;
         bool ExistsTargetCommand => ScriptBookOwner != null
-            && ScriptBookOwner.ScriptBook.Pages.HasElementAt(_pageIndex)
-            && ScriptBookOwner.ScriptBook.Pages[_pageIndex].Commands.HasElementAt(_commandIndex);
+            && ScriptBookOwner.ScriptBook.ExistsCommandAt(_pageIndex, _commandIndex);
 
         VisualElement _parent;
 
         Action _onCommandChanged;
+
+        bool IsInitialized => _parent != null;
 
         public void Initialize(VisualElement parent, Action onCommandChanged)
         {
@@ -33,15 +34,13 @@ namespace Kairou.Editor
 
         public void SetTarget(IScriptBookOwner scriptBookOwner, int pageIndex, int commandIndex)
         {
-            ThrowIfNotInitialized();
-
             _scriptBookOwnerObject = scriptBookOwner?.AsObject();
             _pageIndex = pageIndex;
             _commandIndex = commandIndex;
-            Reload();
+            if (IsInitialized) Reload();
         }
 
-        void Reload() {
+        public void Reload() {
             ThrowIfNotInitialized();
 
             _parent.Clear();
@@ -69,7 +68,7 @@ namespace Kairou.Editor
 
         void ThrowIfNotInitialized()
         {
-            if (_parent == null) throw new InvalidOperationException($"{nameof(CommandPanel)} is not initialized.");
+            if (IsInitialized == false) throw new InvalidOperationException($"{nameof(CommandPanel)} is not initialized.");
         }
     }
 }
