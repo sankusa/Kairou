@@ -16,7 +16,7 @@ namespace Kairou.Editor
     {
         [SerializeField] Object _scriptBookOwnerObject;
         [SerializeField] int _pageIndex;
-        IScriptBookOwner ScriptBookOwner => _scriptBookOwnerObject as IScriptBookOwner;
+        IScriptBookOwner ScriptBookOwner => (IScriptBookOwner)_scriptBookOwnerObject;
         bool ExistsTargetPage => ScriptBookOwner != null && ScriptBookOwner.ScriptBook.Pages.HasElementAt(_pageIndex);
 
         [SerializeField] AdvancedDropdownState _commandDropdownState = new();
@@ -100,7 +100,7 @@ namespace Kairou.Editor
 
             if (ExistsTargetPage)
             {
-                _listView.itemsSource = ScriptBookOwner.ScriptBook.Pages[_pageIndex].Commands as IList;
+                _listView.itemsSource = (IList)ScriptBookOwner.ScriptBook.Pages[_pageIndex].Commands;
                 _listView.enabledSelf = true;
             }
             else

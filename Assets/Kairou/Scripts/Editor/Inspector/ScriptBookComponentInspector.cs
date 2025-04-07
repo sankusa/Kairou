@@ -10,7 +10,7 @@ namespace Kairou.Editor
         {
             if (GUILayout.Button("Open ScriptBookEditor"))
             {
-                ScriptBookEditor.Open(target as ScriptBookComponent);
+                ScriptBookEditor.Open((ScriptBookComponent)target);
             }
         }
     }

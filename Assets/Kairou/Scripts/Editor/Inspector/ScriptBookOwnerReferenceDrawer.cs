@@ -14,9 +14,9 @@ namespace Kairou
             SerializedProperty scriptBookOwnerProp = property.FindPropertyRelative("_scriptBookOwner");
             Object obj = ObjectField.DoObjectField(position, scriptBookOwnerProp.objectReferenceValue, typeof(Object), label, _searchContext, UnityEngine.Search.SearchViewFlags.CompactView);
             // UnitySearchではシーン上のコンポーネントを直接取得できず、代わりにコンポーネントを持つGameObjectを取得する。
-            if (obj is GameObject)
+            if (obj is GameObject gameObject)
             {
-                obj = (obj as GameObject).GetComponent<ScriptBookComponent>();
+                obj = gameObject.GetComponent<ScriptBookComponent>();
             }
             if (obj is IScriptBookOwner && obj != scriptBookOwnerProp.objectReferenceValue)
             {

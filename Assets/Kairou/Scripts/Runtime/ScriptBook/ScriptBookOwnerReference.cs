@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Search;
 using Object = UnityEngine.Object;
 
 namespace Kairou
@@ -9,6 +8,6 @@ namespace Kairou
     public class ScriptBookOwnerReference
     {
         [SerializeField] Object _scriptBookOwner;
-        public IScriptBookOwner ScriptBookOwner => _scriptBookOwner as IScriptBookOwner;
+        public IScriptBookOwner ScriptBookOwner => (IScriptBookOwner)_scriptBookOwner;
     }
 }

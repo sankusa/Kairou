@@ -22,7 +22,7 @@ namespace Kairou
             }
             else
             {
-                var component = property.objectReferenceValue as Component;
+                var component = (Component)property.objectReferenceValue;
 
                 var rects = RectUtil.SplitRect(position, EditorGUIUtility.standardVerticalSpacing, sizes: _guiSizes);
 

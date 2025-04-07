@@ -7,7 +7,7 @@ namespace Kairou.Editor
         public static void ChangeWithUndo(this IScriptBookOwner owner, string undoName, Action<IScriptBookOwner> changeAction)
         {
             owner.AsObject()
-                .ChangeWithUndo(undoName, obj => changeAction(obj as IScriptBookOwner));
+                .ChangeWithUndo(undoName, obj => changeAction((IScriptBookOwner)obj));
         }
     }
 }

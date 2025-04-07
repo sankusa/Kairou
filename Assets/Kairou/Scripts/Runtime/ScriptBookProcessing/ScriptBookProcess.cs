@@ -9,12 +9,12 @@ namespace Kairou
     public class ScriptBookProcess
     {
         static readonly ObjectPool<ScriptBookProcess> _pool = new(
-            createFunc: () => new ScriptBookProcess(),
-            onRent: process =>
+            createFunc: static () => new ScriptBookProcess(),
+            onRent: static process =>
             {
 
             },
-            onReturn: process =>
+            onReturn: static process =>
             {
                 process.Clear();
             }

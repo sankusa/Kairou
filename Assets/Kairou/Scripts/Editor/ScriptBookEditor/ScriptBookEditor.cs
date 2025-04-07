@@ -9,12 +9,12 @@ namespace Kairou.Editor
     public class ScriptBookEditor : EditorWindow
     {
 
-        public static void Open(Object scriptBookOwnerObject)
+        public static void Open(IScriptBookOwner scriptBookOwner)
         {
             var window = GetWindow<ScriptBookEditor>();
             window.titleContent = new GUIContent("ScriptBookEditor");
 
-            window.SetTarget(scriptBookOwnerObject as IScriptBookOwner);
+            window.SetTarget(scriptBookOwner);
         }
 
         [SerializeField] VisualTreeAsset _headerUXML;
@@ -60,7 +60,7 @@ namespace Kairou.Editor
                 pageIndex =>
                 {
                     _commandPanel.SetTarget(null, 0, 0);
-                    _commandListPanel.SetTarget(_scriptBookOwnerObject as IScriptBookOwner, pageIndex);
+                    _commandListPanel.SetTarget((IScriptBookOwner)_scriptBookOwnerObject, pageIndex);
                 },
                 () => _commandListPanel.Reload()
             );

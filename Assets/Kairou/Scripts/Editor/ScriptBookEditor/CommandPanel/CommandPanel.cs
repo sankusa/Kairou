@@ -14,7 +14,7 @@ namespace Kairou.Editor
         [SerializeField] Object _scriptBookOwnerObject;
         [SerializeField] int _pageIndex;
         [SerializeField] int _commandIndex;
-        IScriptBookOwner ScriptBookOwner => _scriptBookOwnerObject as IScriptBookOwner;
+        IScriptBookOwner ScriptBookOwner => (IScriptBookOwner)_scriptBookOwnerObject;
         bool ExistsTargetCommand => ScriptBookOwner != null
             && ScriptBookOwner.ScriptBook.ExistsCommandAt(_pageIndex, _commandIndex);
 

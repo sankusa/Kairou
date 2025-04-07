@@ -51,7 +51,7 @@ namespace Kairou
             foreach (Command command in _commands)
             {
                 if (command == null) continue;
-                (command as ICommandInternalForPage).SetParentPage(this);
+                ((ICommandInternalForPage)command).SetParentPage(this);
             }
         }
 
@@ -65,7 +65,7 @@ namespace Kairou
             if (command == null) throw new ArgumentNullException(nameof(command));
             if (_commands.Contains(command)) throw new ArgumentException(nameof(command) + " is already added.");
             _commands.Add(command);
-            (command as ICommandInternalForPage).SetParentPage(this);
+            ((ICommandInternalForPage)command).SetParentPage(this);
         }
 
         internal void RemoveCommand(Command command)
@@ -73,7 +73,7 @@ namespace Kairou
             if (command == null) return;
             if (_commands.Contains(command) == false) return;
             _commands.Remove(command);
-            (command as ICommandInternalForPage).SetParentPage(null);
+            ((ICommandInternalForPage)command).SetParentPage(null);
         }
 
         internal void RemoveCommandAt(int commandIndex)
@@ -81,7 +81,7 @@ namespace Kairou
             if (_commands.HasElementAt(commandIndex) == false) return;
             var command = _commands[commandIndex];
             _commands.RemoveAt(commandIndex);
-            (command as ICommandInternalForPage).SetParentPage(null);
+            ((ICommandInternalForPage)command).SetParentPage(null);
         }
 
         internal void MoveCommand(int fromIndex, int toIndex)

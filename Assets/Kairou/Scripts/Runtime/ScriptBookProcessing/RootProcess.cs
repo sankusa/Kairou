@@ -8,12 +8,12 @@ namespace Kairou
     public class RootProcess
     {
         static readonly ObjectPool<RootProcess> _pool = new(
-            createFunc: () => new RootProcess(),
-            onRent: process =>
+            createFunc: static () => new RootProcess(),
+            onRent: static process =>
             {
                 process.SetUp();
             },
-            onReturn: process =>
+            onReturn: static process =>
             {
                 process.Clear();
             }

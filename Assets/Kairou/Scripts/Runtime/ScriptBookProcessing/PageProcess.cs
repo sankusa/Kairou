@@ -7,12 +7,12 @@ namespace Kairou
     public class PageProcess
     {
         static readonly ObjectPool<PageProcess> _pool = new(
-            createFunc: () => new PageProcess(),
-            onRent: process =>
+            createFunc: static () => new PageProcess(),
+            onRent: static process =>
             {
 
             },
-            onReturn: process =>
+            onReturn: static process =>
             {
                 process.Clear();
             }

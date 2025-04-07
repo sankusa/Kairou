@@ -11,7 +11,7 @@ namespace Kairou.Editor
     public class PageListPanel
     {
         [SerializeField] Object _scriptBookOwnerObject;
-        IScriptBookOwner ScriptBookOwner => _scriptBookOwnerObject as IScriptBookOwner;
+        IScriptBookOwner ScriptBookOwner => (IScriptBookOwner)_scriptBookOwnerObject;
 
         ListView _listView;
 
@@ -39,7 +39,7 @@ namespace Kairou.Editor
             _listView.onRemove = _ =>
             {
                 if (ScriptBookOwner == null) return;
-                var selectedPage = _listView.selectedItem as Page;
+                var selectedPage = (Page)_listView.selectedItem;
                 ScriptBookOwnerUtilForEditor.RemovePage(ScriptBookOwner, selectedPage);
                 _listView.Rebuild();
                 onCollectionChanged?.Invoke();
@@ -85,7 +85,7 @@ namespace Kairou.Editor
             }
             else
             {
-                _listView.itemsSource = ScriptBookOwner.ScriptBook.Pages as IList;
+                _listView.itemsSource = (IList)ScriptBookOwner.ScriptBook.Pages;
                 _listView.enabledSelf = true;
             }
 
