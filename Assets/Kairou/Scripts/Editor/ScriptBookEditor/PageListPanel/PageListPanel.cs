@@ -11,7 +11,7 @@ namespace Kairou.Editor
     public class PageListPanel
     {
         [SerializeField] Object _scriptBookOwnerObject;
-        IScriptBookOwner ScriptBookOwner => (IScriptBookOwner)_scriptBookOwnerObject;
+        IScriptBookOwner ScriptBookOwner => _scriptBookOwnerObject as IScriptBookOwner;
 
         ListView _listView;
 

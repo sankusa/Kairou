@@ -60,7 +60,7 @@ namespace Kairou.Editor
                 pageIndex =>
                 {
                     _commandPanel.SetTarget(null, 0, 0);
-                    _commandListPanel.SetTarget((IScriptBookOwner)_scriptBookOwnerObject, pageIndex);
+                    _commandListPanel.SetTarget(_scriptBookOwnerObject as IScriptBookOwner, pageIndex);
                 },
                 () => _commandListPanel.Reload()
             );
