@@ -46,6 +46,26 @@ namespace Kairou.Editor
                 CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
                 element.Q<Label>("NameLabel").text = commandInfo.CommandName;
                 element.Q<Label>("SummaryLabel").text = command.GetSummary();
+
+                string errorMessage = string.Join('\n', command.Validate());
+                if (string.IsNullOrEmpty(errorMessage))
+                {
+                    var errorBox = element.Q<VisualElement>("ErrorBox");
+                    errorBox.style.display = DisplayStyle.None;
+                }
+                else
+                {
+                    var errorBox = element.Q<VisualElement>("ErrorBox");
+                    errorBox.style.display = DisplayStyle.Flex;
+
+                    var helpBox = errorBox.Q<HelpBox>();
+                    if (helpBox == null)
+                    {
+                        helpBox = new HelpBox(errorMessage, HelpBoxMessageType.Error);
+                        helpBox.Q<VisualElement>(className: "unity-help-box__icon").style.minHeight = 16;
+                        errorBox.Add(helpBox);
+                    }
+                }
             };
 
             _listView.onAdd = _ =>

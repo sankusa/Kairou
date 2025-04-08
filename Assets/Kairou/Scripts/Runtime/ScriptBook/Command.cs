@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Kairou
 {
@@ -22,5 +23,9 @@ namespace Kairou
 
         public virtual void InvokeExecute(PageProcess pageProcess) {}
         public virtual string GetSummary() => null;
+        public virtual IEnumerable<string> Validate()
+        {
+            yield break;
+        }
     }
 }
