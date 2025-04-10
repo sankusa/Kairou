@@ -120,7 +120,7 @@ namespace Kairou.Editor
 
             if (ExistsTargetPage)
             {
-                _listView.itemsSource = (IList)ScriptBookOwner.ScriptBook.Pages[_pageIndex].Commands;
+                _listView.itemsSource = ScriptBookOwner.ScriptBook.Pages[_pageIndex].Commands;
                 _listView.enabledSelf = true;
             }
             else

@@ -1,0 +1,13 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <editor:Toolbar>
+        <engine:Label text="Variables" style="-unity-text-align: middle-left;" />
+    </editor:Toolbar>
+    <engine:TabView>
+        <engine:Tab label="Book" name="BookTab">
+            <engine:ListView show-add-remove-footer="true" virtualization-method="DynamicHeight" reorderable="true" show-border="true" reorder-mode="Animated" show-bound-collection-size="false" />
+        </engine:Tab>
+        <engine:Tab label="Page" name="PageTab">
+            <engine:ListView show-add-remove-footer="true" virtualization-method="DynamicHeight" reorderable="true" show-border="true" reorder-mode="Animated" show-bound-collection-size="false" />
+        </engine:Tab>
+    </engine:TabView>
+</engine:UXML>

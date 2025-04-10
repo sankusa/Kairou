@@ -8,7 +8,10 @@ namespace Kairou
     public class ScriptBook : ISerializationCallbackReceiver
     {
         [SerializeField] List<Page> _pages = new();
-        public IReadOnlyList<Page> Pages => _pages;
+        public List<Page> Pages => _pages;
+
+        [SerializeReference] List<VariableDefinition> _variables = new();
+        public List<VariableDefinition> Variables => _variables;
 
         void ISerializationCallbackReceiver.OnBeforeSerialize() {}
 

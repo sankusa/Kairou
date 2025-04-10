@@ -9,17 +9,39 @@ namespace Kairou.Editor
             int fixedPaneIndex = 0,
             float fixedPaneStartDimension = 100,
             TwoPaneSplitViewOrientation orientation = TwoPaneSplitViewOrientation.Horizontal,
-            string viewDataKey = null)
+            string viewDataKey = null,
+            int defaultCollapseIndex = -1)
         {
-            var splitView = new TwoPaneSplitView(fixedPaneIndex, fixedPaneStartDimension, orientation);
-            if (viewDataKey != null) splitView.viewDataKey = viewDataKey;
+            return CreateSplitView(out TwoPaneSplitView splitView, parent, fixedPaneIndex, fixedPaneStartDimension, orientation, viewDataKey, defaultCollapseIndex);
+        }
+
+        public static (VisualElement leftPane, VisualElement rightPane) CreateSplitView(
+            out TwoPaneSplitView splitView,
+            VisualElement parent,
+            int fixedPaneIndex = 0,
+            float fixedPaneStartDimension = 100,
+            TwoPaneSplitViewOrientation orientation = TwoPaneSplitViewOrientation.Horizontal,
+            string viewDataKey = null,
+            int defaultCollapseIndex = -1)
+        {
+            var view = new TwoPaneSplitView(fixedPaneIndex, fixedPaneStartDimension, orientation);
+            if (viewDataKey != null) view.viewDataKey = viewDataKey;
             
-            parent.Add(splitView);
+            parent.Add(view);
 
             var leftPane = new VisualElement();
-            splitView.Add(leftPane);
+            view.Add(leftPane);
             var rightPane = new VisualElement();
-            splitView.Add(rightPane);
+            view.Add(rightPane);
+
+            if (defaultCollapseIndex != -1)
+            {
+                view.schedule.Execute(() =>
+                    view.CollapseChild(defaultCollapseIndex)
+                );
+            }
+
+            splitView = view;
 
             return (leftPane, rightPane);
         }

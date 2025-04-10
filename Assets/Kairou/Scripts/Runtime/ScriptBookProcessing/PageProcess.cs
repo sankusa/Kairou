@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
@@ -25,6 +26,9 @@ namespace Kairou
 
         Page _page;
 
+        readonly Dictionary<string, Variable> _variables = new();
+        public Dictionary<string, Variable> Variables => _variables;
+
         CancellationTokenSource _cts;
 
         bool _isStarted;
@@ -41,6 +45,10 @@ namespace Kairou
 
             BookProcess = parentProcess;
             _page = page;
+            foreach (VariableDefinition definition in page.Variables)
+            {
+                _variables[definition.Name] = definition.CreateVariable();
+            };
             _cts = new();
         }
 
@@ -100,6 +108,11 @@ namespace Kairou
 
             BookProcess = null;
             _page = null;
+            foreach (var pair in _variables)
+            {
+                pair.Value.Return();
+            }
+            _variables.Clear();
 
             _isStarted = false;
 

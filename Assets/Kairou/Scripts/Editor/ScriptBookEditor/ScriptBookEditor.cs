@@ -20,13 +20,16 @@ namespace Kairou.Editor
         [SerializeField] VisualTreeAsset _headerUXML;
         [SerializeField] VisualTreeAsset _pageListPanelUXML;
         [SerializeField] VisualTreeAsset _commandListPanelUXML;
+        [SerializeField] VisualTreeAsset _variablePanelUXML;
 
         [SerializeField] Object _scriptBookOwnerObject;
+        IScriptBookOwner Scriptbookowner => _scriptBookOwnerObject as IScriptBookOwner;
 
         VisualElement _header;
         [SerializeField] PageListPanel _pageListPanel = new();
         [SerializeField] CommandListPanel _commandListPanel = new();
         [SerializeField] CommandPanel _commandPanel = new();
+        [SerializeField] VariablePanel _variablePanel = new();
 
         void OnEnable()
         {
@@ -46,11 +49,41 @@ namespace Kairou.Editor
         {
             var root = rootVisualElement;
 
+            var toolbar = new Toolbar();
+            rootVisualElement.Add(toolbar);
+
+            (var bookPane, var variablePane) = UIToolkitUtil.CreateSplitView(
+                out TwoPaneSplitView rootSplitView,
+                rootVisualElement,
+                viewDataKey: "Split0");
+
+            toolbar.Add(new ToolbarSpacer() {flex = true});
+            ToolbarToggle variableToggle = new() {text = "Variables", viewDataKey = "VariableToggle"}; 
+            toolbar.Add(variableToggle);
+
+            rootSplitView.schedule.Execute(() =>
+            {
+                if (variableToggle.value) return;
+                rootSplitView.CollapseChild(1);
+            });
+
+            variableToggle.RegisterValueChangedCallback(evt =>
+            {
+                if (evt.newValue)
+                {
+                    rootSplitView.UnCollapse();
+                }
+                else
+                {
+                    rootSplitView.CollapseChild(1);
+                }
+            });
+
             _header = _headerUXML.Instantiate();
-            rootVisualElement.Add(_header);
+            bookPane.Add(_header);
             _header.Q<ObjectField>().value = _scriptBookOwnerObject;
 
-            var panes = UIToolkitUtil.CreateSplitView(rootVisualElement, viewDataKey: "Split1");
+            var panes = UIToolkitUtil.CreateSplitView(bookPane, viewDataKey: "Split1");
             var leftPane = panes.leftPane;
             var (centerPane, rightPane) = UIToolkitUtil.CreateSplitView(panes.rightPane, 1, 200f, viewDataKey: "Split2");
 
@@ -59,10 +92,15 @@ namespace Kairou.Editor
                 _pageListPanelUXML,
                 pageIndex =>
                 {
-                    _commandPanel.SetTarget(null, 0, 0);
-                    _commandListPanel.SetTarget(_scriptBookOwnerObject as IScriptBookOwner, pageIndex);
+                    _commandListPanel.SetTarget(Scriptbookowner, pageIndex);
+                    _commandPanel.SetTarget(Scriptbookowner, pageIndex, 0);
+                    _variablePanel.SetTarget(Scriptbookowner, pageIndex);
                 },
-                () => _commandListPanel.Reload()
+                () =>
+                {
+                    _commandListPanel.Reload();
+                    _variablePanel.Reload();
+                }
             );
 
             _commandListPanel.Initialize(
@@ -75,6 +113,11 @@ namespace Kairou.Editor
             _commandPanel.Initialize(
                 rightPane,
                 () => _commandListPanel.Rebuild()
+            );
+
+            _variablePanel.Initialize(
+                variablePane,
+                _variablePanelUXML
             );
         }
 
@@ -90,6 +133,7 @@ namespace Kairou.Editor
             _pageListPanel.SetTarget(scriptBookOwner);
             _commandListPanel.SetTarget(scriptBookOwner, 0);
             _commandPanel.SetTarget(scriptBookOwner, 0, 0);
+            _variablePanel.SetTarget(scriptBookOwner, 0);
         }
 
         void ClearTarget()
@@ -99,6 +143,7 @@ namespace Kairou.Editor
             _pageListPanel.SetTarget(null);
             _commandListPanel.SetTarget(null, 0);
             _commandPanel.SetTarget(null, 0, 0);
+            _variablePanel.SetTarget(null, 0);
         }
 
         void OnProjectOrHierarchyChanged()
@@ -114,6 +159,7 @@ namespace Kairou.Editor
         {
             _pageListPanel.OnUndoRedoPerformed();
             _commandListPanel.OnUndoRedoPerformed();
+            _variablePanel.OnUndoRedoPerformed();
         }
     }
 }

@@ -27,11 +27,13 @@ namespace Kairou
 
         [NonSerialized] ScriptBook _parentBook;
         public ScriptBook ParentBook => _parentBook;
+        public int Index => _parentBook.Pages.IndexOf(this);
 
         [SerializeReference] List<Command> _commands = new();
-        public IReadOnlyList<Command> Commands => _commands;
+        public List<Command> Commands => _commands;
 
-        public int Index => _parentBook.Pages.IndexOf(this);
+        [SerializeReference] List<VariableDefinition> _variables = new();
+        public List<VariableDefinition> Variables => _variables;
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {

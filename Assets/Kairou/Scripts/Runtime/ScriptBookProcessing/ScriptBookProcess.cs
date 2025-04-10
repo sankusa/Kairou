@@ -29,6 +29,9 @@ namespace Kairou
 
         readonly List<PageProcess> _pageProcesses = new();
 
+        readonly Dictionary<string, Variable> _variables = new();
+        public Dictionary<string, Variable> Variables => _variables;
+
         CancellationTokenSource _cts;
 
         bool _isStarted;
@@ -42,6 +45,10 @@ namespace Kairou
 
             RootProcess = parentProcess;
             _scriptBook = scriptBook;
+            foreach (VariableDefinition dedinition in scriptBook.Variables)
+            {
+                _variables[dedinition.Name] = dedinition.CreateVariable();
+            };
             _cts = new();
 
             // 先頭ページのみを追加
@@ -107,7 +114,16 @@ namespace Kairou
 
             RootProcess = null;
             _scriptBook = null;
-            ReleaseAllPageProcess();
+            foreach (PageProcess process in _pageProcesses)
+            {
+                PageProcess.Return(process);
+            }
+            _pageProcesses.Clear();
+            foreach (var pair in _variables)
+            {
+                pair.Value.Return();
+            }
+            _variables.Clear();
             _isStarted = false;
         }
 
@@ -115,15 +131,6 @@ namespace Kairou
         {
             _pageProcesses.Remove(pageProcess);
             PageProcess.Return(pageProcess);
-        }
-
-        void ReleaseAllPageProcess()
-        {
-            foreach (PageProcess process in _pageProcesses)
-            {
-                PageProcess.Return(process);
-            }
-            _pageProcesses.Clear();
         }
     }
 }

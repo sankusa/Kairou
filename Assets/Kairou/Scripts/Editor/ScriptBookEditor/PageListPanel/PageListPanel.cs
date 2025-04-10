@@ -85,7 +85,7 @@ namespace Kairou.Editor
             }
             else
             {
-                _listView.itemsSource = (IList)ScriptBookOwner.ScriptBook.Pages;
+                _listView.itemsSource = ScriptBookOwner.ScriptBook.Pages;
                 _listView.enabledSelf = true;
             }
 
