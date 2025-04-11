@@ -48,16 +48,18 @@ namespace Kairou
         T _value;
         public T Value
         {
-            get => _value;
+            get
+            {
+                SyncWithStoreIfNeeded();
+                return _value;
+            }
             set
             {
-                if (_definition.Store)
-                {
-                    IDataStore.Instance.SetValue(_definition.StoreKey, value);
-                }
                 _value = value;
+                SetToStoreIfNeeded();
             }
         }
+
         public override object ValueAsObject => Value;
         public override Type Type => typeof(T);
 
@@ -66,21 +68,30 @@ namespace Kairou
         void SetUp(VariableDefinition<T> definition)
         {
             _definition = definition;
-            if (definition.Store)
+            _value = definition.DefaultValue;
+            SyncWithStoreIfNeeded();
+        }
+
+        void SetToStoreIfNeeded()
+        {
+            if (_definition.Store)
             {
-                if (IDataStore.Instance.TryGetValue(definition.Name, out T value))
+                IDataStore.Instance.SetValue(_definition.StoreKey, _value);
+            }
+        }
+
+        void SyncWithStoreIfNeeded()
+        {
+            if (_definition.Store)
+            {
+                if (IDataStore.Instance.TryGetValue(_definition.Name, out T value))
                 {
                     _value = value;
                 }
                 else
                 {
-                    _value = definition.DefaultValue;
-                    IDataStore.Instance.SetValue(definition.StoreKey, _value);
+                    IDataStore.Instance.SetValue(_definition.StoreKey, _value);
                 }
-            }
-            else
-            {
-                _value = definition.DefaultValue;
             }
         }
 
