@@ -9,6 +9,12 @@ namespace Kairou
         [SerializeField] string _name;
         public string Name => _name;
 
+        [SerializeField] bool _store;
+        public bool Store => _store;
+
+        [SerializeField] string _storeKey;
+        public string StoreKey => _storeKey;
+
         public abstract Variable CreateVariable();
     }
 

@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Kairou
 {
@@ -35,8 +36,7 @@ namespace Kairou
         public static Variable<T> Rent(VariableDefinition<T> definition)
         {
             Variable<T> variable = _pool.Rent();
-            variable._definition = definition;
-            variable.Value = definition.DefaultValue;
+            variable.SetUp(definition);
             return variable;
         }
 
@@ -45,11 +45,44 @@ namespace Kairou
             _pool.Return(variable);
         }
 
-        public T Value { get; set;}
+        T _value;
+        public T Value
+        {
+            get => _value;
+            set
+            {
+                if (_definition.Store)
+                {
+                    IDataStore.Instance.SetValue(_definition.StoreKey, value);
+                }
+                _value = value;
+            }
+        }
         public override object ValueAsObject => Value;
         public override Type Type => typeof(T);
 
         private Variable() {}
+
+        void SetUp(VariableDefinition<T> definition)
+        {
+            _definition = definition;
+            if (definition.Store)
+            {
+                if (IDataStore.Instance.TryGetValue(definition.Name, out T value))
+                {
+                    _value = value;
+                }
+                else
+                {
+                    _value = definition.DefaultValue;
+                    IDataStore.Instance.SetValue(definition.StoreKey, _value);
+                }
+            }
+            else
+            {
+                _value = definition.DefaultValue;
+            }
+        }
 
         public override void Return()
         {
@@ -59,7 +92,7 @@ namespace Kairou
         public override void Clear()
         {
             base.Clear();
-            Value = default;
+            _value = default;
         }
     }
 }
