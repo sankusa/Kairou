@@ -5,40 +5,40 @@ using UnityEngine;
 namespace Kairou
 {
     [Serializable]
-    internal class DataDictionary : Dictionary<string, DataDictionary.Data>, ISerializationCallbackReceiver
+    internal class KeyVal
     {
-        [Serializable]
-        internal class Data
+        [SerializeField] string _key;
+        public string Key
         {
-            [SerializeField] string _name;
-            public string Name
-            {
-                get => _name;
-                set => _name = value;
-            }
-
-            public Data(string name)
-            {
-                Name = name;
-            }
+            get => _key;
+            set => _key = value;
         }
 
-        [Serializable]
-        internal class Data<T> : Data
+        public KeyVal(string key)
         {
-            [SerializeField] T _value;
-            public T Value
-            {
-                get => _value;
-                set => _value = value;
-            }
+            Key = key;
+        }
+    }
 
-            public Data(string name, T value) : base(name)
-            {
-                Value = value;
-            }
+    [Serializable]
+    internal class KeyVal<T> : KeyVal
+    {
+        [SerializeField] T _value;
+        public T Value
+        {
+            get => _value;
+            set => _value = value;
         }
 
+        public KeyVal(string name, T value) : base(name)
+        {
+            Value = value;
+        }
+    }
+
+    [Serializable]
+    internal class DataDictionary : Dictionary<string, KeyVal>, ISerializationCallbackReceiver
+    {
         [SerializeField] int _version = 1;
         public int Version
         {
@@ -46,7 +46,7 @@ namespace Kairou
             set => _version = value;
         }
 
-        [SerializeReference] List<Data> _dataList = new();
+        [SerializeReference] List<KeyVal> _dataList = new();
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
@@ -62,7 +62,7 @@ namespace Kairou
             Clear();
             foreach (var data in _dataList)
             {
-                this[data.Name] = data;
+                this[data.Key] = data;
             }
         }
     }

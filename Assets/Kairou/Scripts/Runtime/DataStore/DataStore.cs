@@ -13,11 +13,11 @@ namespace Kairou
         {
             if (_dataDic.TryGetValue(key, out var data) == false)
             {
-                _dataDic[key] = new DataDictionary.Data<T>(key, value);
+                _dataDic[key] = new KeyVal<T>(key, value);
                 return;
             }
             
-            if (data is not DataDictionary.Data<T> typed)
+            if (data is not KeyVal<T> typed)
                 throw new InvalidOperationException($"Key '{key}' already exists with a different type.");
 
             typed.Value = value;
@@ -27,7 +27,7 @@ namespace Kairou
         public T GetValue<T>(string key, T defaultValue = default)
         {
             if (_dataDic.TryGetValue(key, out var data) == false) return defaultValue;
-            if (data is not DataDictionary.Data<T> typed)
+            if (data is not KeyVal<T> typed)
                 throw new InvalidOperationException($"Key '{key}' already exists with a different type.");
 
             return typed.Value;
@@ -45,7 +45,7 @@ namespace Kairou
                 value = default;
                 return false;
             }
-            if (data is not DataDictionary.Data<T> typed) throw new InvalidOperationException($"Key '{key}' already exists with a different type.");
+            if (data is not KeyVal<T> typed) throw new InvalidOperationException($"Key '{key}' already exists with a different type.");
 
             value = typed.Value;
             return true;

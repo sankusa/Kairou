@@ -4,7 +4,7 @@ namespace Kairou
 {
     public interface IDataStore
     {
-        static IDataStore _instance;
+        private static IDataStore _instance;
         public static IDataStore Instance => _instance ??= new DataStore();
 
         void SetValue<T>(string key, T value);
