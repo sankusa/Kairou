@@ -26,7 +26,7 @@ namespace Kairou.Editor
 
         public void Initialize(VisualElement parent, Action onCommandChanged)
         {
-            _parent = new ScrollView();
+            _parent = new ScrollView() {horizontalScrollerVisibility = ScrollerVisibility.Hidden };
             parent.Add(_parent);
             _onCommandChanged = onCommandChanged;
             Reload();
@@ -62,7 +62,17 @@ namespace Kairou.Editor
                 _parent.Add(propertyField);
                 propertyField.BindProperty(commandProp);
                 propertyField.TrackSerializedObjectValue(commandProp.serializedObject, _ => _onCommandChanged?.Invoke());
-                propertyField.style.display = DisplayStyle.Flex;
+                // propertyField.style.display = DisplayStyle.Flex;
+
+                // var container = new IMGUIContainer(() =>
+                // {
+                //     serializedObject.UpdateIfRequiredOrScript();
+                //     using var _ = new LabelWidthScope(120);
+                //     EditorGUILayout.PropertyField(commandProp, new GUIContent(typeName), true);
+                //     serializedObject.ApplyModifiedProperties();
+                // });
+
+                // _parent.Add(container);
             }
         }
 

@@ -5,26 +5,36 @@ namespace Kairou
 {
     public static class PageProcessExtensions
     {
-        public static Variable FindVariable(this PageProcess process, string name)
+        public static Variable FindVariable(this PageProcess process, string name, TargetVariableScope targetScope = TargetVariableScope.None)
         {
             Variable variable;
-            process.Variables.TryGetValue(name, out variable);
-            if (variable != null) return variable;
-            process.BookProcess.Variables.TryGetValue(name, out variable);
-            if (variable != null) return variable;
+            if (targetScope == TargetVariableScope.None || targetScope == TargetVariableScope.Page)
+            {
+                if (process.Variables.TryGetValue(name, out variable)) return variable;
+            }
+            if (targetScope == TargetVariableScope.None || targetScope == TargetVariableScope.Book)
+            {
+                if (process.BookProcess.Variables.TryGetValue(name, out variable)) return variable;
+            }
             return null;
         }
 
-        public static Variable<T> FindVariable<T>(this PageProcess process, VariableKey<T> key)
+        public static Variable<T> FindVariable<T>(this PageProcess process, string name, TargetVariableScope targetScope = TargetVariableScope.None)
         {
             Variable variable;
             Variable<T> typed;
-            process.Variables.TryGetValue(key.Name, out variable);
-            typed = variable as Variable<T>;
-            if (typed != null) return typed;
-            process.BookProcess.Variables.TryGetValue(key.Name, out variable);
-            typed = variable as Variable<T>;
-            if (variable != null) return typed;
+            if (targetScope == TargetVariableScope.None || targetScope == TargetVariableScope.Page)
+            {
+                process.Variables.TryGetValue(name, out variable);
+                typed = variable as Variable<T>;
+                if (typed != null) return typed;
+            }
+            if (targetScope == TargetVariableScope.None || targetScope == TargetVariableScope.Book)
+            {
+                process.BookProcess.Variables.TryGetValue(name, out variable);
+                typed = variable as Variable<T>;
+                if (variable != null) return typed;
+            }
             return null;
         }
 
