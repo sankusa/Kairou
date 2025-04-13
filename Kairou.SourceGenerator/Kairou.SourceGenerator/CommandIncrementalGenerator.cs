@@ -9,7 +9,7 @@ using System.Collections.Immutable;
 namespace Kairou.SourceGenerator;
 
 [Generator(LanguageNames.CSharp)]
-public class KairouIncrementalGenerator : IIncrementalGenerator
+public class CommandIncrementalGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

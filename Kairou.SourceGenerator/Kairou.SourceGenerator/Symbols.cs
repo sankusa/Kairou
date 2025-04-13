@@ -15,4 +15,10 @@ public static class Symbols
     public static INamedTypeSymbol AsyncCommand(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.AsyncCommand")!;
     public static INamedTypeSymbol CommandExecuteAttribute(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.CommandExecuteAttribute")!;
     public static INamedTypeSymbol InjectAttribute(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.InjectAttribute")!;
+
+    public static INamedTypeSymbol VariableType(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.VariableType")!;
+    public static INamedTypeSymbol VariableTypeDictionary(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.VariableTypeDictionary")!;
+
+    public static INamedTypeSymbol TypeConverter(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.TypeConverter")!;
+    public static INamedTypeSymbol TypeConverterDictionary(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.TypeConverterDictionary")!;
 }

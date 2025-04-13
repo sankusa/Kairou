@@ -11,12 +11,15 @@ namespace Kairou
         public abstract object ValueAsObject { get; }
         public abstract Type Type { get; }
 
-        public abstract void Return();
+        internal abstract void Return();
 
-        public virtual void Clear()
+        internal virtual void Clear()
         {
             _definition = null;
         }
+
+        public abstract T ConvertTo<T>();
+        public abstract void ConvertFrom<T>(T value);
     }
 
     public class Variable<T> : Variable
@@ -95,15 +98,25 @@ namespace Kairou
             }
         }
 
-        public override void Return()
+        internal override void Return()
         {
             Return(this);
         }
 
-        public override void Clear()
+        internal override void Clear()
         {
             base.Clear();
             _value = default;
+        }
+
+        public override U ConvertTo<U>()
+        {
+            return TypeConverterCache<T, U>.Convert(Value);
+        }
+
+        public override void ConvertFrom<U>(U value)
+        {
+            Value = TypeConverterCache<U, T>.Convert(value);
         }
     }
 }

@@ -5,29 +5,17 @@ using UnityEngine;
 
 namespace Kairou
 {
-    public static class VariableTypeDictionary
+    internal static class VariableTypeDictionary
     {
-        static Dictionary<Type, VariableType> _dic = new();
-        public static Dictionary<Type, VariableType> Dic => _dic;
+        public static Dictionary<Type, VariableType> Dic { get; } = new();
 
-        // TODO: 膨大なリフレクション情報がキャッシュされてしまうので、辞書生成処理をSourceGeneratorで生成するようにしたい
-        static VariableTypeDictionary()
+        public static void RegisterVariableType(VariableType variableType)
         {
-            // Register all VariableType<T> types in the assembly
-            var variableGenericBaseType = typeof(VariableType<>);
-            var variableTypes = AppDomain.CurrentDomain
-                .GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .Where(t =>
-                {
-                    return t.BaseType != null && t.BaseType.IsGenericType && t.BaseType.GetGenericTypeDefinition() == variableGenericBaseType && t.IsAbstract == false && t.IsGenericType == false;
-                });
-            foreach (var type in variableTypes)
+            if (Dic.ContainsKey(variableType.Type))
             {
-                Type baseType = type.BaseType;
-                var genericArgument = baseType.GenericTypeArguments[0];
-                _dic[genericArgument] = (VariableType)Activator.CreateInstance(type);
+                throw new ArgumentException($"VariableType for {variableType.Type} already registered.");
             }
+            Dic[variableType.Type] = variableType;
         }
     }
 }
