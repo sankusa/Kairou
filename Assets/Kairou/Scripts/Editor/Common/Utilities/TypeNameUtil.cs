@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Kairou
+namespace Kairou.Editor
 {
     public static class TypeNameUtil
     {

@@ -2,7 +2,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Kairou
+namespace Kairou.Editor
 {
     [CustomPropertyDrawer(typeof(VariableDefinition<>))]
     public class VariableDefinitionDrawer : PropertyDrawer

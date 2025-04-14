@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Kairou
+namespace Kairou.Editor
 {
     [CustomPropertyDrawer(typeof(ComponentSelectorAttribute))]
     public class ComponentSelectorDrawer : PropertyDrawer

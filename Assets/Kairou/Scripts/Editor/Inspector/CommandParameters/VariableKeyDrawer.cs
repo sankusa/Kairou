@@ -3,13 +3,15 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Kairou
+namespace Kairou.Editor
 {
     [CustomPropertyDrawer(typeof(VariableKey<>))]
     public class VariableKeyDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            var key = property.GetObject() as VariableKey;
+
             var variableNameProp = property.FindPropertyRelative("_variableName");
             var targetScopeProp = property.FindPropertyRelative("_targetScope");
 
@@ -19,33 +21,19 @@ namespace Kairou
             if (GUI.Button(position, "Select Variable Name"))
             {
                 var command = CommandUtilForEditor.GetContainingCommand(property);
-                if (command != null)
-                {
-                    var menu = new GenericMenu();
-                    if (targetScopeProp.enumValueIndex == (int)TargetVariableScope.None || targetScopeProp.enumValueIndex == (int)TargetVariableScope.Page)
+                new VariableSelectGenericMenu(
+                    command,
+                    (TargetVariableScope)targetScopeProp.enumValueIndex,
+                    variable =>
                     {
-                        foreach (var variable in command.ParentPage?.Variables)
-                        {
-                            menu.AddItem(new GUIContent("Page/" + variable.Name), false, () =>
-                            {
-                                variableNameProp.stringValue = variable.Name;
-                                property.serializedObject.ApplyModifiedProperties();
-                            });
-                        }
-                    }
-                    if (targetScopeProp.enumValueIndex == (int)TargetVariableScope.None || targetScopeProp.enumValueIndex == (int)TargetVariableScope.Book)
+                        return variable.TargetType == key.TargetType;
+                    },
+                    variable =>
                     {
-                        foreach (var variable in command.ParentPage?.ParentBook?.Variables)
-                        {
-                            menu.AddItem(new GUIContent("Book/" + variable.Name), false, () =>
-                            {
-                                variableNameProp.stringValue = variable.Name;
-                                property.serializedObject.ApplyModifiedProperties();
-                            });
-                        }
+                        variableNameProp.stringValue = variable.Name;
+                        property.serializedObject.ApplyModifiedProperties();
                     }
-                    menu.ShowAsContext();
-                }
+                ).ShowAsContext();
             }
         }
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

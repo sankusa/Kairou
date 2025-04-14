@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 
-namespace Kairou
+namespace Kairou.Editor
 {
     public static class SerializedPropertyExtensions
     {

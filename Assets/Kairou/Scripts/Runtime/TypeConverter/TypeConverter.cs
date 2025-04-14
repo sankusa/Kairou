@@ -4,29 +4,29 @@ namespace Kairou
 {
     public abstract class TypeConverter
     {
-        public abstract Type InputType { get;}
-        public abstract Type OutputType { get;}
+        public abstract Type FromType { get;}
+        public abstract Type ToType { get;}
         public void Register()
         {
             TypeConverterDictionary.RegisterConverter(this);
         }
     }
-    public interface ITypeConverter<in TInput, TOutput>
+    public interface ITypeConverter<in TFrom, TTo>
     {
-        TOutput Convert(TInput input);
+        TTo Convert(TFrom fromValue);
     }
-    public abstract class TypeConverter<TInput, TOutput> : TypeConverter, ITypeConverter<TInput, TOutput>
+    public abstract class TypeConverter<TFrom, TTo> : TypeConverter, ITypeConverter<TFrom, TTo>
     {
-        public override Type InputType => typeof(TInput);
-        public override Type OutputType => typeof(TOutput);
+        public override Type FromType => typeof(TFrom);
+        public override Type ToType => typeof(TTo);
 
-        public abstract TOutput Convert(TInput input);
+        public abstract TTo Convert(TFrom fromValue);
     }
     public class SameTypeConverter<T> : TypeConverter<T, T>
     {
-        public override T Convert(T input)
+        public override T Convert(T fromValue)
         {
-            return input;
+            return fromValue;
         }
     }
 }

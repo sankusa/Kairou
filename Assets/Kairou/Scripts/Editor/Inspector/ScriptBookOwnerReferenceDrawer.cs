@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEditor.Search;
 using UnityEngine;
 
-namespace Kairou
+namespace Kairou.Editor
 {
     [CustomPropertyDrawer(typeof(ScriptBookOwnerReference))]
     public class ScriptBookOwnerReferenceDrawer : PropertyDrawer

@@ -139,7 +139,7 @@ namespace Kairou.Editor
         void ClearTarget()
         {
             _scriptBookOwnerObject = null;
-            _header.Q<ObjectField>().value = null;
+            if (_header != null) _header.Q<ObjectField>().value = null;
             _pageListPanel.SetTarget(null);
             _commandListPanel.SetTarget(null, 0);
             _commandPanel.SetTarget(null, 0, 0);

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Kairou
 {
     [Serializable]
-    public abstract class VariableKey
+    public abstract class VariableValueSetterKey
     {
         [SerializeField] TargetVariableScope _targetScope = TargetVariableScope.None;
         public TargetVariableScope TargetScope => _targetScope;
@@ -21,13 +21,13 @@ namespace Kairou
     }
 
     [Serializable]
-    public class VariableKey<T> : VariableKey
+    public class VariableValueSetterKey<T> : VariableValueSetterKey
     {
         public override Type TargetType => typeof(T);
-
-        public new Variable<T> Find(PageProcess process)
+        
+        public new VariableValueSetter<T> Find(PageProcess process)
         {
-            return process.FindVariable<T>(VariableName, TargetScope);
+            return process.FindVariableValueSetter<T>(VariableName, TargetScope);
         }
     }
 }

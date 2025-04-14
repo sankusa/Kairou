@@ -15,6 +15,8 @@ namespace Kairou
         [SerializeField] string _storeKey;
         public string StoreKey => _storeKey;
 
+        public abstract Type TargetType { get; }
+
         public abstract Variable CreateVariable();
     }
 
@@ -23,6 +25,8 @@ namespace Kairou
     {
         [SerializeField] T _defaultValue;
         public T DefaultValue => _defaultValue;
+
+        public override Type TargetType => typeof(T);
 
         public override Variable CreateVariable()
         {

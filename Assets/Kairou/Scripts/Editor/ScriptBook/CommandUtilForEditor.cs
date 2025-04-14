@@ -1,6 +1,6 @@
 using UnityEditor;
 
-namespace Kairou
+namespace Kairou.Editor
 {
     public class CommandUtilForEditor
     {

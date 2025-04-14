@@ -6,15 +6,15 @@ namespace Kairou
 {
     internal static class TypeConverterDictionary
     {
-        public static Dictionary<(Type inputType, Type outputType), TypeConverter> Dic { get; private set; } = new();
+        public static Dictionary<(Type fromType, Type toType), TypeConverter> Dic { get; private set; } = new();
 
         public static void RegisterConverter(TypeConverter converter)
         {
-            if (Dic.ContainsKey((converter.InputType, converter.OutputType)))
+            if (Dic.ContainsKey((converter.FromType, converter.ToType)))
             {
-                throw new ArgumentException($"Converter for {converter.InputType} to {converter.OutputType} already registered.");
+                throw new ArgumentException($"Converter for {converter.FromType} to {converter.ToType} already registered.");
             }
-            Dic[(converter.InputType, converter.OutputType)] = converter;
+            Dic[(converter.FromType, converter.ToType)] = converter;
         }
     }
 }

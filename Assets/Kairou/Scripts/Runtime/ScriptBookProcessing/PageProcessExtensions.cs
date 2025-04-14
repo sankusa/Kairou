@@ -7,33 +7,41 @@ namespace Kairou
     {
         public static Variable FindVariable(this PageProcess process, string name, TargetVariableScope targetScope = TargetVariableScope.None)
         {
-            Variable variable;
-            if (targetScope == TargetVariableScope.None || targetScope == TargetVariableScope.Page)
-            {
-                if (process.Variables.TryGetValue(name, out variable)) return variable;
-            }
-            if (targetScope == TargetVariableScope.None || targetScope == TargetVariableScope.Book)
-            {
-                if (process.BookProcess.Variables.TryGetValue(name, out variable)) return variable;
-            }
-            return null;
+            return FindVariableInternal(process, name, targetScope, static variable => true);
         }
 
         public static Variable<T> FindVariable<T>(this PageProcess process, string name, TargetVariableScope targetScope = TargetVariableScope.None)
         {
+            return FindVariableInternal(process, name, targetScope, static variable => variable is Variable<T>) as Variable<T>;
+        }
+
+        public static VariableValueGetter<T> FindVariableValueGetter<T>(this PageProcess process, string name, TargetVariableScope targetScope = TargetVariableScope.None)
+        {
+            return new VariableValueGetter<T>(FindVariableInternal(process, name, targetScope, static variable => variable.CanConvertTo<T>()));
+        }
+
+        public static VariableValueSetter<T> FindVariableValueSetter<T>(this PageProcess process, string name, TargetVariableScope targetScope = TargetVariableScope.None)
+        {
+            return new VariableValueSetter<T>(FindVariableInternal(process, name, targetScope, static variable => variable.CanConvertFrom<T>()));
+        }
+
+        public static VariableValueAccessor<T> FindVariableValueAccessor<T>(this PageProcess process, string name, TargetVariableScope targetScope = TargetVariableScope.None)
+        {
+            return new VariableValueAccessor<T>(FindVariableInternal(process, name, targetScope, static variable => variable.CanMutuallyConvert<T>()));
+        }
+
+        static Variable FindVariableInternal(PageProcess process, string name, TargetVariableScope targetScope, Func<Variable, bool> filter)
+        {
             Variable variable;
-            Variable<T> typed;
             if (targetScope == TargetVariableScope.None || targetScope == TargetVariableScope.Page)
             {
                 process.Variables.TryGetValue(name, out variable);
-                typed = variable as Variable<T>;
-                if (typed != null) return typed;
+                if (variable != null && filter.Invoke(variable)) return variable;
             }
             if (targetScope == TargetVariableScope.None || targetScope == TargetVariableScope.Book)
             {
                 process.BookProcess.Variables.TryGetValue(name, out variable);
-                typed = variable as Variable<T>;
-                if (variable != null) return typed;
+                if (variable != null && filter.Invoke(variable)) return variable;
             }
             return null;
         }

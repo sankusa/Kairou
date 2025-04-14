@@ -121,7 +121,7 @@ namespace Kairou
             _pageProcesses.Clear();
             foreach (var pair in _variables)
             {
-                pair.Value.Return();
+                pair.Value.ReturnToPool();
             }
             _variables.Clear();
             _isStarted = false;

@@ -110,7 +110,7 @@ namespace Kairou
             _page = null;
             foreach (var pair in _variables)
             {
-                pair.Value.Return();
+                pair.Value.ReturnToPool();
             }
             _variables.Clear();
 

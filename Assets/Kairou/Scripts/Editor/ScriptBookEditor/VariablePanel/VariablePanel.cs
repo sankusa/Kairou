@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
-namespace Kairou
+namespace Kairou.Editor
 {
     public class VariablePanel
     {
