@@ -11,6 +11,7 @@ namespace Kairou
             return TypeConverterDictionary.Dic.Keys
                 .Where(x => x.fromType == type || type.IsSubclassOf(x.fromType))
                 .Select(x => x.toType)
+                .Prepend(typeof(object))
                 .Prepend(type);
         }
 
@@ -24,7 +25,7 @@ namespace Kairou
 
         public static bool CanConvert(Type fromType, Type toType)
         {
-            return TypeConverterDictionary.Dic.ContainsKey((fromType, toType)) || (fromType == toType);
+            return TypeConverterDictionary.Dic.ContainsKey((fromType, toType)) || (fromType == toType) || toType == typeof(object);
         }
     }
 
@@ -43,22 +44,27 @@ namespace Kairou
                 _converter = new SameTypeConverter<TFrom>() as ITypeConverter<TFrom, TTo>;
                 return;
             }
-            TypeConverter converter;
+            if (typeof(TTo) == typeof(object))
+            {
+                _converter = new ToObjectConverter<TFrom>() as ITypeConverter<TFrom, TTo>;
+                return;
+            }
+            TypeConverter converter = null;
             Type inputType = typeof(TFrom);
-            while (TypeConverterDictionary.Dic.TryGetValue((inputType, typeof(TTo)), out converter) == false)
+            while (inputType != null && TypeConverterDictionary.Dic.TryGetValue((inputType, typeof(TTo)), out converter) == false)
             {
                 inputType = inputType.BaseType;
             }
             _converter = converter as ITypeConverter<TFrom, TTo>;
         }
 
-        public static TTo Convert(TFrom input)
+        public static TTo Convert(TFrom fromValue)
         {
             if (_converter == null)
             {
                 throw new InvalidOperationException($"Terget TypeConverter not found. {typeof(TFrom).Name} -> {typeof(TTo).Name}");
             }
-            return _converter.Convert(input);
+            return _converter.Convert(fromValue);
         }
     }
 }

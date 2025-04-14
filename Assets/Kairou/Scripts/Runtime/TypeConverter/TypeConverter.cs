@@ -29,4 +29,11 @@ namespace Kairou
             return fromValue;
         }
     }
+    public class ToObjectConverter<T> : TypeConverter<T, object>
+    {
+        public override object Convert(T fromValue)
+        {
+            return fromValue;
+        }
+    }
 }

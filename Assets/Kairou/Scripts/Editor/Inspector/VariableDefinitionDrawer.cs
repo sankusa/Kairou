@@ -10,7 +10,7 @@ namespace Kairou.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var nameProp = property.FindPropertyRelative("_name");
-            var variableProp = property.FindPropertyRelative("_defaultValue");
+            var defaultValueProp = property.FindPropertyRelative("_defaultValue");
             var storeProp = property.FindPropertyRelative("_store");
             var storeKeyProp = property.FindPropertyRelative("_storeKey");
 
@@ -32,9 +32,9 @@ namespace Kairou.Editor
             position.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             EditorGUI.PropertyField(nameRect, nameProp);
 
-            var variableRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
-            position.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-            EditorGUI.PropertyField(variableRect, variableProp, true);
+            var defaultValueRect = new Rect(position.x, position.y, position.width, EditorGUI.GetPropertyHeight(defaultValueProp, true));
+            position.yMin += defaultValueRect.height + EditorGUIUtility.standardVerticalSpacing;
+            EditorGUI.PropertyField(defaultValueRect, defaultValueProp, true);
 
             var storeRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
             position.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
