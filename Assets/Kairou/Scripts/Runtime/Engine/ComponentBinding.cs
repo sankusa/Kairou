@@ -9,16 +9,16 @@ namespace Kairou
         [SerializeField, ComponentSelector] List<Component> _components;
         public List<Component> Components => _components;
 
-        public T Resolve<T>() where T : class
+        public T Resolve<T>()
         {
             foreach (Component component in _components)
             {
                 if (component is T t) return t;
             }
-            return null;
+            return default;
         }
 
-        public IEnumerable<T> ResolveAll<T>() where T : class
+        public IEnumerable<T> ResolveAll<T>()
         {
             return _components.OfType<T>();
         }

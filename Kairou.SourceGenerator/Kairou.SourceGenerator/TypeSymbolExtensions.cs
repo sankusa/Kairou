@@ -7,9 +7,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Kairou.SourceGenerator;
 
-public static class NamedTypeSymbolExtensions
+public static class TypeSymbolExtensions
 {
-    public static bool IsSubclassOf(this INamedTypeSymbol self,  INamedTypeSymbol other)
+    public static bool IsSubclassOf(this ITypeSymbol self,  INamedTypeSymbol other)
     {
         var baseType = self.BaseType;
         while (baseType != null)
@@ -22,7 +22,7 @@ public static class NamedTypeSymbolExtensions
         return false;
     }
 
-    public static bool IsPartial(this INamedTypeSymbol self)
+    public static bool IsPartial(this ITypeSymbol self)
     {
         foreach (var syntaxRef in self.DeclaringSyntaxReferences)
         {

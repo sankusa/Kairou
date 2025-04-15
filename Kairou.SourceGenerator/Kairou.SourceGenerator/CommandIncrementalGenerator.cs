@@ -74,6 +74,7 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
 
         var builder = new CodeBuilder();
         builder.AppendIndentedLine("using Kairou;");
+        builder.AppendIndentedLine("using System.Collections.Generic;");
         if (isAsyncCommand)
         {
             builder.AppendIndentedLine("using System.Threading;");
@@ -102,6 +103,9 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
             {
                 BuildInvokeExecuteBody(builder, isAsyncCommand, compilation, fields, executeMethod, parameters);
             }
+
+            builder.AppendLine();
+            BuildValidate_Generated(builder, isAsyncCommand, compilation, fields);
         }
 
         if (ns.IsGlobalNamespace == false)
@@ -152,5 +156,30 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
         builder.Append($"{executeMethod.Name}(");
         builder.Append(paramListBuilder);
         builder.AppendLine(");");
+    }
+
+    static void BuildValidate_Generated(CodeBuilder builder, bool isAsyncCommand, Compilation compilation, IEnumerable<IFieldSymbol> fields)
+    {
+        builder.AppendIndentedLine("protected override IEnumerable<string> Validate_Generated()");
+        using (new BlockScope(builder))
+        {
+            foreach (var field in fields)
+            {
+                if (field.Type.IsSubclassOf(Symbols.VariableKey(compilation))
+                    || field.Type.IsSubclassOf(Symbols.VariableValueGetterKey(compilation))
+                    || field.Type.IsSubclassOf(Symbols.VariableValueSetterKey(compilation))
+                    || field.Type.IsSubclassOf(Symbols.VariableValueAccessorKey(compilation))
+                    || field.Type.IsSubclassOf(Symbols.FlexibleParameter(compilation)))
+                {
+                    builder.AppendIndentedLine($"foreach (string errorMessage in {field.Name}.Validate(this, nameof({field.Name})))");
+                    using (new BlockScope(builder))
+                    {
+                        builder.AppendIndentedLine($"yield return errorMessage;");
+                    }
+                    builder.AppendLine();
+                }
+            }
+            builder.AppendIndentedLine($"yield break;");
+        }
     }
 }

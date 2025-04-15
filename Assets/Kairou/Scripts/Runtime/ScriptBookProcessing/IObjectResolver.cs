@@ -4,7 +4,7 @@ namespace Kairou
 {
     public interface IObjectResolver
     {
-        T Resolve<T>() where T : class;
-        IEnumerable<T> ResolveAll<T>() where T : class;
+        T Resolve<T>();
+        IEnumerable<T> ResolveAll<T>();
     }
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Kairou
@@ -17,6 +19,24 @@ namespace Kairou
         public Variable Find(PageProcess process)
         {
             return process.FindVariable(VariableName, TargetScope);
+        }
+
+        public IEnumerable<string> Validate(Command command, string fieldName)
+        {
+            return command.ValidateVariableKey(
+                fieldName,
+                _variableName,
+                _targetScope,
+                (variable, fieldName) => ValidateVariableDefine(variable, fieldName)
+            );
+        }
+
+        IEnumerable<string> ValidateVariableDefine(VariableDefinition variable, string fieldName)
+        {
+            if (variable.TargetType != TargetType)
+            {
+                yield return $"{fieldName} : Variable type mismatch. Expected: {TargetType}, Actual: {variable.TargetType}, VariableName: {_variableName}";
+            }
         }
     }
 

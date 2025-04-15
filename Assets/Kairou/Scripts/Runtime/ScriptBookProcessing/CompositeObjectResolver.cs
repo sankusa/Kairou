@@ -13,16 +13,16 @@ namespace Kairou
             _resolvers.Add(resolver);
         }
 
-        public T Resolve<T>() where T : class
+        public T Resolve<T>()
         {
             foreach (IObjectResolver resolver in _resolvers)
             {   
                 if (resolver.Resolve<T>() is T t) return t;
             }
-            return null;
+            return default;
         }
 
-        public IEnumerable<T> ResolveAll<T>() where T : class
+        public IEnumerable<T> ResolveAll<T>()
         {
             return _resolvers.SelectMany(resolver => resolver.ResolveAll<T>());
         }
