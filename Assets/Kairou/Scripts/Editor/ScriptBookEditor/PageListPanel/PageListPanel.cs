@@ -25,7 +25,7 @@ namespace Kairou.Editor
             _listView = pageListPanel.Q<ListView>("PageList");
             _listView.bindItem = (element, i) =>
             {
-                element.Q<Label>().text = ScriptBookOwner.ScriptBook.Pages[i].Name;
+                element.Q<Label>().text = ScriptBookOwner.ScriptBook.Pages[i].Id;
             };
 
             _listView.onAdd = _ =>

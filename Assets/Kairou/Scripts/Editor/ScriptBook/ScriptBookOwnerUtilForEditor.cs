@@ -9,11 +9,11 @@ namespace Kairou.Editor
         {
             scriptBookOwner.ChangeWithUndo("Add Page", owner =>
             {
-                string pageName = ObjectNames.GetUniqueName(
-                    owner.ScriptBook.Pages.Select(x => x.Name).ToArray(),
+                string pageId = ObjectNames.GetUniqueName(
+                    owner.ScriptBook.Pages.Select(x => x.Id).ToArray(),
                     "Page"
                 );
-                owner.ScriptBook.AddPage(new Page() { Name = pageName });
+                owner.ScriptBook.AddPage(new Page() { Id = pageId });
             });
         }
 

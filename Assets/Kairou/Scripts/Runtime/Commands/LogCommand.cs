@@ -26,5 +26,10 @@ namespace Kairou
                 )
             );
         }
+
+        public override string GetSummary()
+        {
+            return _format;
+        }
     }
 }

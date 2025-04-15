@@ -125,27 +125,69 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
         foreach (IParameterSymbol parameter in parameters)
         {
             var attributes = parameter.GetAttributes();
-            if (attributes.Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, Symbols.InjectAttribute(compilation))))
+            var injectAttribute = attributes.FirstOrDefault(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, Symbols.InjectAttribute(compilation)));
+            var fromAttribute = attributes.FirstOrDefault(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, Symbols.FromAttribute(compilation)));
+
+            if (injectAttribute != null)
             {
                 builder.AppendIndentedLine($"var {parameter.Name} = pageProcess.Resolve<{parameter.Type.ToDisplayString()}>();");
                 if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
                 paramListBuilder.Append(parameter.Name);
+                continue;
             }
-            else if (SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.PageProcess(compilation)))
+            if(fromAttribute != null)
+            {
+                var args = fromAttribute.ConstructorArguments;
+                string fieldName = (string)args[0].Value!;
+                var field = fields.First(x => x.Name == fieldName);
+                if (field != null)
+                {
+                    if (field.Type.IsSubclassOf(Symbols.VariableKey(compilation)))
+                    {
+                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.Find(pageProcess).Value;");
+                        if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
+                        paramListBuilder.Append(parameter.Name);
+                        continue;
+                    }
+                    else if (field.Type.IsSubclassOf(Symbols.VariableValueGetterKey(compilation)))
+                    {
+                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.Find(pageProcess).GetValue();");
+                        if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
+                        paramListBuilder.Append(parameter.Name);
+                        continue;
+                    }
+                    else if (field.Type.IsSubclassOf(Symbols.VariableValueAccessorKey(compilation)))
+                    {
+                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.Find(pageProcess).GetValue();");
+                        if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
+                        paramListBuilder.Append(parameter.Name);
+                        continue;
+                    }
+                    else if (field.Type.IsSubclassOf(Symbols.FlexibleParameter(compilation)))
+                    {
+                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.ResolveValue(pageProcess);");
+                        if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
+                        paramListBuilder.Append(parameter.Name);
+                        continue;
+                    }
+                }
+                
+            }
+            if (SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.PageProcess(compilation)))
             {
                 if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
                 paramListBuilder.Append("pageProcess");
+                continue;
             }
-            else if(isAsyncCommand && SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.CancellationToken(compilation)))
+            if(isAsyncCommand && SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.CancellationToken(compilation)))
             {
                 if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
                 paramListBuilder.Append("cancellationToken");
+                continue;
             }
-            else
-            {
-                if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
-                paramListBuilder.Append($"default({parameter.Type.ToDisplayString()})");
-            }
+            
+            if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
+            paramListBuilder.Append($"default({parameter.Type.ToDisplayString()})");
         }
 
         builder.AppendIndent();

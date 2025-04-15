@@ -78,6 +78,8 @@ public class CommandAnalyzer : DiagnosticAnalyzer
         if (symbol.IsSubclassOf(Symbols.Command(compilation)) == false) return;
         if (symbol.IsAbstract) return;
 
+        var fields = symbol.GetMembers().OfType<IFieldSymbol>();
+
         // Commandが内部クラスだとコード生成が面倒なので、とりあえず内部クラスは禁じる
         if (symbol.ContainingType != null)
         {
@@ -136,29 +138,52 @@ public class CommandAnalyzer : DiagnosticAnalyzer
         foreach (IParameterSymbol parameter in parameters)
         {
             var attributes = parameter.GetAttributes();
+            var injectAttribute = attributes.FirstOrDefault(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, Symbols.InjectAttribute(compilation)));
+            var fromAttribute = attributes.FirstOrDefault(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, Symbols.FromAttribute(compilation)));
+
+            if (injectAttribute != null) continue;
+            if (fromAttribute != null)
+            {
+                var args = fromAttribute.ConstructorArguments;
+                string fieldName = (string)args[0].Value!;
+                var field = fields.First(x => x.Name == fieldName);
+                if (field.Type.IsSubclassOf(Symbols.VariableKey(compilation)))
+                {
+                    continue;
+                }
+                else if (field.Type.IsSubclassOf(Symbols.VariableValueGetterKey(compilation)))
+                {
+                    continue;
+                }
+                else if (field.Type.IsSubclassOf(Symbols.VariableValueAccessorKey(compilation)))
+                {
+                    continue;
+                }
+                else if (field.Type.IsSubclassOf(Symbols.FlexibleParameter(compilation)))
+                {
+                    continue;
+                }
+            }
             if (attributes.Any(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, Symbols.InjectAttribute(compilation))))
             {
-
+                continue;
             }
-            else if (SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.PageProcess(compilation)))
+            if (SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.PageProcess(compilation)))
             {
-
+                continue;
             }
-            else if (isAsyncCommand && SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.CancellationToken(compilation)))
+            if (isAsyncCommand && SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.CancellationToken(compilation)))
             {
-
+                continue;
             }
             // パラメータが解決できない場合、defaultが渡される
-            else
-            {
-                context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        ExecuteMethodParameterIsDefault,
-                        parameter.GetLocation(),
-                        parameter.Name
-                    )
-                );
-            }
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    ExecuteMethodParameterIsDefault,
+                    parameter.GetLocation(),
+                    parameter.Name
+                )
+            );
         }
     }
 }

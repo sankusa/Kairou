@@ -15,14 +15,11 @@ namespace Kairou
     [Serializable]
     public class Page : IPageInternalForScriptBook, ISerializationCallbackReceiver
     {
-        [SerializeField] string _pageId;
-        public Guid PageId { get; private set; } = Guid.NewGuid();
-
-        [SerializeField] string _name;
-        public string Name
+        [SerializeField] string _id;
+        public string Id
         {
-            get => _name;
-            set => _name = value;
+            get => _id;
+            set => _id = value;
         }
 
         [NonSerialized] ScriptBook _parentBook;
@@ -37,19 +34,11 @@ namespace Kairou
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-            _pageId = PageId.ToString("N");
+
         }
 
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
-            if (string.IsNullOrEmpty(_pageId) == false)
-            {
-                if (Guid.TryParse(_pageId, out Guid guid))
-                {
-                    PageId = guid;
-                }
-            }
-
             foreach (Command command in _commands)
             {
                 if (command == null) continue;

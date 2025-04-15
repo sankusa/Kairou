@@ -14,7 +14,9 @@ public static class Symbols
     public static INamedTypeSymbol Command(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.Command")!;
     public static INamedTypeSymbol AsyncCommand(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.AsyncCommand")!;
     public static INamedTypeSymbol CommandExecuteAttribute(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.CommandExecuteAttribute")!;
+
     public static INamedTypeSymbol InjectAttribute(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.InjectAttribute")!;
+    public static INamedTypeSymbol FromAttribute(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.FromAttribute")!;
 
     public static INamedTypeSymbol VariableType(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.VariableType")!;
     public static INamedTypeSymbol VariableTypeDictionary(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.VariableTypeDictionary")!;
