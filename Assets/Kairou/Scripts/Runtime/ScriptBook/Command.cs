@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Kairou
 {
@@ -14,6 +15,11 @@ namespace Kairou
     [Serializable]
     public abstract class Command : ICommandInternalForPage
     {
+        public static Command CreateInstance(Type commandType)
+        {
+            return JsonUtility.FromJson(JsonUtility.ToJson((Command)Activator.CreateInstance(commandType)), commandType) as Command;
+        }
+
         [NonSerialized] Page _parentPage;
         public Page ParentPage => _parentPage;
 

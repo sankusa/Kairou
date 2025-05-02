@@ -61,7 +61,7 @@ namespace Kairou.Editor
             {
                 throw new ArgumentException($"item is not {nameof(CommandAdvancedDropdownItem)}");
             }
-            var command = (Command)Activator.CreateInstance(commandItem.CommandType);
+            var command = Command.CreateInstance(commandItem.CommandType);
             OnSelected?.Invoke(command);
         }
     }

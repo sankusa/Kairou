@@ -11,7 +11,7 @@ namespace Kairou
         [SerializeField] List<VariableValueGetterKey<object>> _args;
 
         [CommandExecute]
-        public void Execute(PageProcess process)
+        void Execute(PageProcess process)
         {
             Debug.Log(
                 $"PageIndex = {ParentPage.Index}, CommandIndex = {Index}\n"
