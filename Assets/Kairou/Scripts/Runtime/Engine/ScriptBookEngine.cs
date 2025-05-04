@@ -117,6 +117,7 @@ namespace Kairou
             linkedToken.ThrowIfCancellationRequested();
 
             RootProcess rootProcess = RootProcess.Rent();
+            rootProcess.SetUp();
             try
             {
                 rootProcess.AddScriptBookProcess(scriptBook);
@@ -126,10 +127,6 @@ namespace Kairou
             catch (OperationCanceledException e) when (e.CancellationToken != linkedToken)
             {
                 // 内発的なキャンセルは無視
-            }
-            finally
-            {
-                RootProcess.Return(rootProcess);
             }
         }
 

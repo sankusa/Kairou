@@ -32,9 +32,18 @@ namespace Kairou.Editor
             position.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             EditorGUI.PropertyField(nameRect, nameProp);
 
-            var defaultValueRect = new Rect(position.x, position.y, position.width, EditorGUI.GetPropertyHeight(defaultValueProp, true));
-            position.yMin += defaultValueRect.height + EditorGUIUtility.standardVerticalSpacing;
-            EditorGUI.PropertyField(defaultValueRect, defaultValueProp, true);
+            if (defaultValueProp == null)
+            {
+                var defaultValueRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+                position.yMin += defaultValueRect.height + EditorGUIUtility.standardVerticalSpacing;
+                EditorGUI.LabelField(defaultValueRect, "Default Value Non Serializable");
+            }
+            else
+            {
+                var defaultValueRect = new Rect(position.x, position.y, position.width, EditorGUI.GetPropertyHeight(defaultValueProp, true));
+                position.yMin += defaultValueRect.height + EditorGUIUtility.standardVerticalSpacing;
+                EditorGUI.PropertyField(defaultValueRect, defaultValueProp, true);
+            }
 
             var storeRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
             position.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
@@ -52,14 +61,23 @@ namespace Kairou.Editor
         {
             float height = 0;
 
-            var variableProp = property.FindPropertyRelative("_defaultValue");
+            var defaultValueProp = property.FindPropertyRelative("_defaultValue");
             var storeProp = property.FindPropertyRelative("_store");
 
             height += EditorGUIUtility.singleLineHeight;
             height += EditorGUIUtility.standardVerticalSpacing;
             height += EditorGUIUtility.singleLineHeight;
             height += EditorGUIUtility.standardVerticalSpacing;
-            height += EditorGUI.GetPropertyHeight(variableProp, true);
+            if (defaultValueProp == null)
+            {
+                height += EditorGUIUtility.singleLineHeight;
+                height += EditorGUIUtility.standardVerticalSpacing;
+            }
+            else
+            {
+                height += EditorGUI.GetPropertyHeight(defaultValueProp, true);
+                height += EditorGUIUtility.standardVerticalSpacing;
+            }
             height += EditorGUIUtility.singleLineHeight;
             height += EditorGUIUtility.standardVerticalSpacing;
             if (storeProp.boolValue)

@@ -29,7 +29,7 @@ namespace Kairou
 
         public virtual void InvokeExecute(PageProcess pageProcess) {}
         public virtual string GetSummary() => null;
-        public IEnumerable<string> InvokeValidate()
+        public virtual IEnumerable<string> InvokeValidate()
         {
             foreach (string errorMessage in Validate_Generated())
             {

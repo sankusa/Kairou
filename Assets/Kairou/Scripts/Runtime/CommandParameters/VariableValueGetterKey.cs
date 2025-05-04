@@ -14,6 +14,8 @@ namespace Kairou
         [SerializeField] string _variableName;
         public string VariableName => _variableName;
 
+        public bool IsEmpty() => string.IsNullOrEmpty(_variableName);
+
         public abstract Type TargetType { get; }
 
         public Variable Find(PageProcess process)
