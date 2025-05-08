@@ -13,6 +13,12 @@ namespace Kairou
             _resolvers.Add(resolver);
         }
 
+        public void Add(List<IObjectResolver> resolvers)
+        {
+            if (resolvers == null) return;
+            _resolvers.AddRange(resolvers);
+        }
+
         public T Resolve<T>()
         {
             foreach (IObjectResolver resolver in _resolvers)

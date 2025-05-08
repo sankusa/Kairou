@@ -10,6 +10,8 @@ namespace Kairou
         [SerializeField] List<Page> _pages = new();
         public List<Page> Pages => _pages;
 
+        public Page EntryPage => _pages.Count > 0 ? _pages[0] : null;
+
         [SerializeReference] List<VariableDefinition> _variables = new();
         public List<VariableDefinition> Variables => _variables;
 
@@ -21,6 +23,16 @@ namespace Kairou
             {
                 ((IPageInternalForScriptBook)page).SetParentBook(this);
             }
+        }
+
+        public Page GetPage(string pageId)
+        {
+            if (string.IsNullOrEmpty(pageId)) throw new ArgumentNullException(nameof(pageId));
+            foreach (Page page in _pages)
+            {
+                if (page.Id == pageId) return page;
+            }
+            throw new KeyNotFoundException(pageId);
         }
 
         internal void AddPage(Page page)

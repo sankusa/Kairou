@@ -48,12 +48,12 @@ namespace Kairou
 
         public static T Resolve<T>(this PageProcess process)
         {
-            return process.BookProcess.RootProcess.ObjectResolver.Resolve<T>();
+            return process.BookProcess.SeriesProcess.RootProcess.ObjectResolver.Resolve<T>();
         }
 
         public static IEnumerable<T> ResolveAll<T>(this PageProcess process)
         {
-            return process.BookProcess.RootProcess.ObjectResolver.ResolveAll<T>();
+            return process.BookProcess.SeriesProcess.RootProcess.ObjectResolver.ResolveAll<T>();
         }
     }
 }

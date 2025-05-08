@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -9,165 +8,131 @@ namespace Kairou
 {
     public class ScriptBookProcess
     {
-        public enum ProcessState
-        {
-            UnInitialized,
-            Ready,
-            Running,
-            MainSequenceFinished,
-            AllPageProcessFinished,
-        }
-
         static readonly ObjectPool<ScriptBookProcess> _pool = new(
-            createFunc: static () => new ScriptBookProcess(),
-            onRent: static process =>
-            {
-
-            },
-            onReturn: static process =>
-            {
-                process.Clear();
-            }
+            createFunc: static () => new ScriptBookProcess()
         );
 
-        public static ScriptBookProcess Rent() => _pool.Rent();
-        public static void Return(ScriptBookProcess process) => _pool.Return(process);
-
-        ProcessState _state = ProcessState.UnInitialized;
-
-        public RootProcess RootProcess { get; private set; }
+        public SeriesProcess SeriesProcess { get; private set; }
 
         ScriptBook _scriptBook;
 
-        readonly List<PageProcess> _pendingPageProcesses = new();
-        readonly List<PageProcess> _executingPageProcesses = new();
+        readonly List<PageProcess> _unfinishedPageProcesses = new();
 
         readonly VariableContainer _variables = new();
         public VariableContainer Variables => _variables;
 
-        CancellationTokenSource _cts;
-
-        Action<ScriptBookProcess> _onAllPageProcessFinished;
+        bool _isRunning;
+        internal bool IsTerminated { get; private set; }
 
         private ScriptBookProcess() {}
 
-        internal void SetUp(RootProcess parentProcess, ScriptBook scriptBook, int pageIndex = 0, Action<ScriptBookProcess> onAllPageProcessFinished = null)
+        internal static ScriptBookProcess Rent(SeriesProcess parentProcess, ScriptBook scriptBook)
         {
-            if (_state != ProcessState.UnInitialized) throw new InvalidOperationException($"{nameof(ScriptBookProcess)} is already initialized.");
+            var process = _pool.Rent();
+            process.SetUp(parentProcess, scriptBook);
+            return process;
+        }
 
+        void SetUp(SeriesProcess parentProcess, ScriptBook scriptBook)
+        {
             if (parentProcess == null) throw new ArgumentNullException(nameof(parentProcess));
             if (scriptBook == null) throw new ArgumentNullException(nameof(scriptBook));
 
-            RootProcess = parentProcess;
+            SeriesProcess = parentProcess;
             _scriptBook = scriptBook;
             _variables.GenerateVariables(scriptBook.Variables);
-            _cts = new();
-
-            _onAllPageProcessFinished = onAllPageProcessFinished;
-
-            _state = ProcessState.Ready;
-
-            // 先頭ページのみを追加
-            if (scriptBook.Pages.HasElementAt(pageIndex)) AddPageProcess(scriptBook.Pages[pageIndex]);
         }
 
-        public void AddPageProcess(Page page)
+        internal static void Return(ScriptBookProcess process)
         {
-            if (_state != ProcessState.Ready && _state != ProcessState.Running) throw new InvalidOperationException($"{nameof(ScriptBookProcess)} is not ready.");
+            process.Clear();
+            _pool.Return(process);
+        }
 
-            if (page == null) throw new ArgumentNullException(nameof(page));
-            if (_scriptBook.Pages.Contains(page) == false) throw new ArgumentException("Page does not belong to the current ScriptBook.", nameof(page));
+        void Clear()
+        {
+            SeriesProcess = null;
+            _scriptBook = null;
+
+            _unfinishedPageProcesses.Clear();
+            _variables.Clear();
+
+            _isRunning = false;
+            IsTerminated = false;
+        }
+
+        internal PageProcess CreateEntryPageProcess()
+        {
+            return CreatePageProcessInternal(_scriptBook.EntryPage);
+        }
+
+        internal PageProcess CreatePageProcess(string pageId)
+        {
+            var page = _scriptBook.GetPage(pageId);
+            return CreatePageProcessInternal(page);
+        }
+
+        PageProcess CreatePageProcessInternal(Page page)
+        {
+            var pageProcess = PageProcess.Rent(this, page);
+            _unfinishedPageProcesses.Add(pageProcess);
+            return pageProcess;
+        }
+
+        internal static async UniTask<SubsequentProcessInfo> RunBookLoopAsync(PageProcess pageProcess, CancellationToken cancellationToken)
+        {
+            var bookProcess = pageProcess.BookProcess;
+            SubsequentProcessInfo subsequentProcessInfo;
             
-            PageProcess process = PageProcess.Rent();
-            process.SetUp(this, page, p =>
-            {
-                _executingPageProcesses.Remove(p);
-            });
-            _pendingPageProcesses.Add(process);
-        }
-
-        internal async UniTask StartAsync(CancellationToken cancellationToken)
-        {
-            if (_state != ProcessState.Ready) throw new InvalidOperationException($"{nameof(ScriptBookProcess)} is not ready.");
-            _state = ProcessState.Running;
-
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token, cancellationToken);
+            bool isMainSequence = bookProcess._isRunning == false;
+            bookProcess._isRunning = true;
 
             try
             {
-                while (_pendingPageProcesses.Count > 0)
+                while (true)
                 {
-                    linkedCts.Token.ThrowIfCancellationRequested();
+                    await pageProcess.StartAsync(cancellationToken);
+                    subsequentProcessInfo = pageProcess.SubsequentProcessInfo;
 
-                    PageProcess process = _pendingPageProcesses[0];
-                    _pendingPageProcesses.RemoveAt(0);
-                    _executingPageProcesses.Add(process);
-                    try
-                    {
-                        await process.StartAsync(linkedCts.Token);
-                    }    
-                    catch (OperationCanceledException e) when (e.CancellationToken != linkedCts.Token)
-                    {
-                        // PageProcess内部の事情によりキャンセルされた場合は握り潰して処理を続行
-                    }
+                    if (subsequentProcessInfo.IsSubsequentPageInfo == false) break;
+
+                    pageProcess = bookProcess.CreatePageProcess(subsequentProcessInfo.PageId);
                 }
-            }
-            catch (OperationCanceledException e) when (e.CancellationToken == linkedCts.Token)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    throw new OperationCanceledException(e.Message, e, cancellationToken);
-                }
-                else if (_cts.IsCancellationRequested)
-                {
-                    throw new OperationCanceledException(e.Message, e, _cts.Token);
-                }
-                throw;
             }
             finally
             {
-                _state = ProcessState.MainSequenceFinished;
-                StartAsync_RunEndTask(linkedCts.Token);
+                if (isMainSequence) bookProcess.StartTermination(cancellationToken);
             }
+            return subsequentProcessInfo;
         }
 
-        // 非同期実行中ぺージの全終了を検知。自分からプールに帰る。
-        void StartAsync_RunEndTask(CancellationToken linkedToken)
+        // ぺージプロセスの全終了を待機して終了フラグを立てる
+        void StartTermination(CancellationToken cancellationToken)
         {
             UniTask.Void(async () =>
             {
                 try
                 {
-                    await UniTask.WaitUntil(() => _executingPageProcesses.Count == 0 && _pendingPageProcesses.Count == 0, cancellationToken: linkedToken);
+                    while(true)
+                    {
+                        for (int i = _unfinishedPageProcesses.Count - 1; i >= 0; i--)
+                        {
+                            var p = _unfinishedPageProcesses[i];
+                            if (p.IsTerminated)
+                            {
+                                _unfinishedPageProcesses.Remove(p);
+                                PageProcess.Return(p);
+                            }
+                        }
+                        if (_unfinishedPageProcesses.Count == 0) break;
+                        await UniTask.Yield(cancellationToken);
+                    }
                 }
                 finally
                 {
-                    _state = ProcessState.AllPageProcessFinished;
-                    _onAllPageProcessFinished?.Invoke(this);
-                    Return(this);
+                    IsTerminated = true;
                 }
             });
-        }
-
-        public void Cancel()
-        {
-            if (_state != ProcessState.Running) throw new InvalidOperationException($"{nameof(ScriptBookProcess)} is not running.");
-            _cts.Cancel();
-        }
-
-        void Clear()
-        {
-            _cts.Cancel();
-            _cts.Dispose();
-            _cts = null;
-
-            RootProcess = null;
-            _scriptBook = null;
-            _pendingPageProcesses.Clear();
-            _executingPageProcesses.Clear();
-            _variables.Clear();
-
-            _state = ProcessState.UnInitialized;
         }
     }
 }

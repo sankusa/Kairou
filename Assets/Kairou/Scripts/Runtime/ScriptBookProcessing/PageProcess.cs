@@ -14,58 +14,82 @@ namespace Kairou
             Ready,
             Running,
             MainSequenceFinished,
-            AllCommandFinished,
+            Terminated,
         }
 
         static readonly ObjectPool<PageProcess> _pool = new(
-            createFunc: static () => new PageProcess(),
-            onRent: static process =>
-            {
-
-            },
-            onReturn: static process =>
-            {
-                process.Clear();
-            }
+            createFunc: static () => new PageProcess()
         );
-
-        public static PageProcess Rent() => _pool.Rent();
-        public static void Return(PageProcess process) => _pool.Return(process);
-
+        
         public ScriptBookProcess BookProcess { get; private set; }
-
         Page _page;
 
         readonly VariableContainer _variables = new();
         public VariableContainer Variables => _variables;
 
-        CancellationTokenSource _cts;
-
         ProcessState _state = ProcessState.UnInitialized;
+        internal bool IsTerminated => _state == ProcessState.Terminated;
 
         int _currentCommandIndex;
         public int NextCommandIndex { get; set; }
+        
+        public SubsequentProcessInfo SubsequentProcessInfo { get; set; }
 
-        private int _asyncExecutingCommandCounter;
-        private Action<PageProcess> _onAllCommandFinished;
+        int _asyncExecutingCommandCounter;
+
+        CancellationTokenSource _cts;
 
         private PageProcess() {}
 
-        public void SetUp(ScriptBookProcess parentProcess, Page page, Action<PageProcess> onAllCommandFinished = null)
+        internal static PageProcess Rent(ScriptBookProcess parentProcess, Page page)
+        {
+            var process = _pool.Rent();
+            process.SetUp(parentProcess, page);
+            return process;
+        }
+
+        void SetUp(ScriptBookProcess parentProcess, Page page)
         {
             if (_state != ProcessState.UnInitialized) throw new InvalidOperationException($"{nameof(PageProcess)} is already initialized.");
 
             if (parentProcess == null) throw new ArgumentNullException(nameof(parentProcess));
-            if (page == null) throw new ArgumentNullException(nameof(page));
+            // if (page == null) throw new ArgumentNullException(nameof(page));
 
             BookProcess = parentProcess;
             _page = page;
-            _variables.GenerateVariables(page.Variables);
+            if (_page != null)
+            {
+                _variables.GenerateVariables(page.Variables);
+            }
             _cts = new();
 
-            _onAllCommandFinished = onAllCommandFinished;
-
             _state = ProcessState.Ready;
+        }
+
+        internal static void Return(PageProcess process)
+        {
+            process.Clear();
+            _pool.Return(process);
+        }
+
+        void Clear()
+        {
+            _cts.Cancel();
+            _cts.Dispose();
+            _cts = null;
+
+            BookProcess = null;
+            _page = null;
+            _variables.Clear();
+
+            _state = ProcessState.UnInitialized;
+
+            _currentCommandIndex = 0;
+            NextCommandIndex = 0;
+
+            _asyncExecutingCommandCounter = 0;
+
+            SubsequentProcessInfo = default;
         }
 
         internal async UniTask StartAsync(CancellationToken cancellationToken)
@@ -77,6 +101,7 @@ namespace Kairou
 
             try
             {
+                if (_page == null) return;
                 while (_page.Commands.HasElementAt(NextCommandIndex))
                 {
                     try
@@ -117,7 +142,7 @@ namespace Kairou
             finally
             {
                 _state = ProcessState.MainSequenceFinished;
-                StartAsync_RunEndTask(linkedCts.Token);
+                StartTermination(linkedCts.Token);
             }
         }
 
@@ -152,47 +177,19 @@ namespace Kairou
             }
         }
 
-        // 非同期実行中コマンドの全終了を検知。自分からプールに帰る。
-        void StartAsync_RunEndTask(CancellationToken linkedToken)
+        void StartTermination(CancellationToken cancellationToken)
         {
             UniTask.Void(async () =>
             {
                 try
                 {
-                    await UniTask.WaitUntil(() => _asyncExecutingCommandCounter == 0, cancellationToken: linkedToken);
+                    await UniTask.WaitUntil(() => _asyncExecutingCommandCounter == 0, cancellationToken: cancellationToken);
                 }
                 finally
                 {
-                    _state = ProcessState.AllCommandFinished;
-                    _onAllCommandFinished?.Invoke(this);
-                    Return(this);
+                    _state = ProcessState.Terminated;
                 }
             });
-        }
-
-        public void Cancel()
-        {
-            if (_state != ProcessState.Running) throw new InvalidOperationException($"{nameof(PageProcess)} is not running.");
-            _cts.Cancel();
-        }
-
-        void Clear()
-        {
-            _cts.Cancel();
-            _cts.Dispose();
-            _cts = null;
-
-            BookProcess = null;
-            _page = null;
-            _variables.Clear();
-
-            _state = ProcessState.UnInitialized;
-
-            _currentCommandIndex = 0;
-            NextCommandIndex = 0;
-
-            _asyncExecutingCommandCounter = 0;
-            _onAllCommandFinished = null;
         }
 
         string CreateLogExceptionHeader(bool isAsync, Command command)

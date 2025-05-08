@@ -11,7 +11,7 @@ namespace Kairou
     {
         [SerializeField] List<ScriptBookOwnerReference> _scriptBookOwners = new();
         [SerializeField] bool _runOnStart = true;
-        [SerializeField] ComponentBinding _comopnentBinding;
+        [SerializeField] ComponentBinding _componentBinding;
 
         [SerializeField] UnityEvent _onStartRunningAny;
         public UnityEvent OnStartRunningAny => _onStartRunningAny;
@@ -50,8 +50,8 @@ namespace Kairou
                 IncrementRunnignCount();
                 foreach (ScriptBookOwnerReference scriptBookOwnerReference in _scriptBookOwners)
                 {
-                    if (scriptBookOwnerReference.ScriptBookOwner == null) continue;
-                    await RunAsyncInternal(scriptBookOwnerReference.ScriptBookOwner.ScriptBook, linkedCts.Token);
+                    if (scriptBookOwnerReference.ScriptBook == null) continue;
+                    await RunAsyncInternal(scriptBookOwnerReference.ScriptBook, linkedCts.Token);
                 }
             }
             catch (OperationCanceledException e)
@@ -116,13 +116,16 @@ namespace Kairou
         {
             linkedToken.ThrowIfCancellationRequested();
 
-            RootProcess rootProcess = RootProcess.Rent();
-            rootProcess.SetUp();
             try
             {
-                rootProcess.AddScriptBookProcess(scriptBook);
-                rootProcess.ObjectResolver.Add(_comopnentBinding);
-                await rootProcess.StartAsync(linkedToken);
+                var processContext = ProcessContext.Rent();
+                processContext.Resolvers.Add(_componentBinding);
+                await ProcessRunner.RunMainSequenceAsync(
+                    processContext,
+                    scriptBook,
+                    () => ProcessContext.Return(processContext),
+                    linkedToken
+                );
             }
             catch (OperationCanceledException e) when (e.CancellationToken != linkedToken)
             {

@@ -9,5 +9,6 @@ namespace Kairou
     {
         [SerializeField] Object _scriptBookOwner;
         public IScriptBookOwner ScriptBookOwner => (IScriptBookOwner)_scriptBookOwner;
+        public ScriptBook ScriptBook => ScriptBookOwner?.ScriptBook;
     }
 }
