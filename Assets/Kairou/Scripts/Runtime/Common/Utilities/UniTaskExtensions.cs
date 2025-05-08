@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Kairou
 {
-    internal static class UniTaskExtension
+    internal static class UniTaskExtensions
     {
         public static void ForgetWithLogException(this UniTask uniTask, string headerMessage = null)
         {

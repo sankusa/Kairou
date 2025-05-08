@@ -24,6 +24,7 @@ namespace Kairou.Editor
 
         [SerializeField] Object _scriptBookOwnerObject;
         IScriptBookOwner Scriptbookowner => _scriptBookOwnerObject as IScriptBookOwner;
+        [SerializeField] GlobalObjectId _globalObjectId;
 
         VisualElement _header;
         [SerializeField] PageListPanel _pageListPanel = new();
@@ -36,6 +37,7 @@ namespace Kairou.Editor
             Undo.undoRedoPerformed += OnUndoRedoPerformed;
             EditorApplication.projectChanged += OnProjectOrHierarchyChanged;
             EditorApplication.hierarchyChanged += OnProjectOrHierarchyChanged;
+            // SetTarget(GlobalObjectId.GlobalObjectIdentifierToObjectSlow(_globalObjectId)as IScriptBookOwner);
         }
 
         void OnDisable()
@@ -129,6 +131,7 @@ namespace Kairou.Editor
                 return;
             }
             _scriptBookOwnerObject = scriptBookOwner.AsObject();
+            _globalObjectId = GlobalObjectId.GetGlobalObjectIdSlow(_scriptBookOwnerObject);
             _header.Q<ObjectField>().value = _scriptBookOwnerObject;
             _pageListPanel.SetTarget(scriptBookOwner);
             _commandListPanel.SetTarget(scriptBookOwner, 0);
@@ -151,7 +154,9 @@ namespace Kairou.Editor
             // ObjectがDestroyされた場合など
             if (_scriptBookOwnerObject == null)
             {
-                ClearTarget();
+                // 復元を試みる
+                _scriptBookOwnerObject = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(_globalObjectId);
+                SetTarget(Scriptbookowner);
             }
         }
 

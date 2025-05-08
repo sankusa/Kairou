@@ -17,7 +17,7 @@ namespace Kairou.Editor
         [SerializeField] Object _scriptBookOwnerObject;
         [SerializeField] int _pageIndex;
         IScriptBookOwner ScriptBookOwner => _scriptBookOwnerObject as IScriptBookOwner;
-        bool ExistsTargetPage => ScriptBookOwner != null && ScriptBookOwner.ScriptBook.Pages.HasElementAt(_pageIndex);
+        bool ExistsTargetPage => _scriptBookOwnerObject != null && ScriptBookOwner.ScriptBook.Pages.HasElementAt(_pageIndex);
 
         [SerializeField] AdvancedDropdownState _commandDropdownState = new();
 

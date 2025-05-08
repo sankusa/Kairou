@@ -12,7 +12,7 @@ namespace Kairou.Editor
         [SerializeField] Object _scriptBookOwnerObject;
         [SerializeField] int _pageIndex;
         IScriptBookOwner ScriptBookOwner => _scriptBookOwnerObject as IScriptBookOwner;
-        bool ExistsPage => ScriptBookOwner != null && ScriptBookOwner.ScriptBook.Pages.HasElementAt(_pageIndex);
+        bool ExistsPage => _scriptBookOwnerObject != null && ScriptBookOwner.ScriptBook.Pages.HasElementAt(_pageIndex);
 
         ListView _bookListView;
         ListView _pageListView;
@@ -83,7 +83,7 @@ namespace Kairou.Editor
         public void Reload()
         {
             ThrowIfNotInitialized();
-            if (ScriptBookOwner != null)
+            if (_scriptBookOwnerObject != null)
             {
                 _serializedObject = new SerializedObject(_scriptBookOwnerObject);
                 _bookVariablesProp = _serializedObject
