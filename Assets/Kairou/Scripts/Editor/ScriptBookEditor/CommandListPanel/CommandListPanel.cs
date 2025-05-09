@@ -9,15 +9,14 @@ using Object = UnityEngine.Object;
 
 namespace Kairou.Editor
 {
-    public delegate void CommandSpecificAction(IScriptBookOwner owner, int pageIndex, int commandIndex);
-
     [Serializable]
     public class CommandListPanel
     {
-        [SerializeField] Object _scriptBookOwnerObject;
+        public delegate void CommandSpecificAction(ScriptBookId scriptBookId, int pageIndex, int commandIndex);
+
+        [SerializeField] RestorableScriptBookHolder _bookHolder = new();
         [SerializeField] int _pageIndex;
-        IScriptBookOwner ScriptBookOwner => _scriptBookOwnerObject as IScriptBookOwner;
-        bool ExistsTargetPage => _scriptBookOwnerObject != null && ScriptBookOwner.ScriptBook.Pages.HasElementAt(_pageIndex);
+        bool ExistsTargetPage => _bookHolder.ScriptBook != null && _bookHolder.ScriptBook.Pages.HasElementAt(_pageIndex);
 
         [SerializeField] AdvancedDropdownState _commandDropdownState = new();
 
@@ -31,7 +30,7 @@ namespace Kairou.Editor
             var commandAdvancedDropdown = new CommandAdvancedDropdown(_commandDropdownState);
             commandAdvancedDropdown.OnSelected += command =>
             {
-                ScriptBookOwnerUtilForEditor.AddCommand(ScriptBookOwner, _pageIndex, command);
+                ScriptBookUtilForEditor.AddCommand(_bookHolder.Owner, _bookHolder.ScriptBook, _pageIndex, command);
                 _listView.Rebuild();
             };
 
@@ -42,7 +41,7 @@ namespace Kairou.Editor
             _listView = commandListPanel.Q<ListView>("CommandList");
             _listView.bindItem = (element, i) =>
             {
-                Command command = ScriptBookOwner.ScriptBook.Pages[_pageIndex].Commands[i];
+                Command command = _bookHolder.ScriptBook.Pages[_pageIndex].Commands[i];
                 CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
                 element.Q<Label>("NameLabel").text = commandInfo.CommandName;
                 element.Q<Label>("SummaryLabel").text = command.GetSummary();
@@ -79,7 +78,7 @@ namespace Kairou.Editor
             _listView.onRemove = _ =>
             {
                 if (ExistsTargetPage == false) return;
-                ScriptBookOwnerUtilForEditor.RemoveCommand(ScriptBookOwner, _pageIndex, _listView.selectedIndex);
+                ScriptBookUtilForEditor.RemoveCommand(_bookHolder.Owner,_bookHolder.ScriptBook, _pageIndex, _listView.selectedIndex);
                 _listView.Rebuild();
                 onCollectionChanged?.Invoke();
             };
@@ -89,27 +88,27 @@ namespace Kairou.Editor
                 if (ExistsTargetPage == false) return;
                 // Since there is no event to overwrite the swap process with a custom implementation,
                 // the move is first reverted, recorded with Undo, and then moved again.
-                ScriptBookOwner.ScriptBook.Pages[_pageIndex].MoveCommand(toIndex, fromIndex);
-                ScriptBookOwnerUtilForEditor.MoveCommand(ScriptBookOwner, _pageIndex, fromIndex, toIndex);
+                _bookHolder.ScriptBook.Pages[_pageIndex].MoveCommand(toIndex, fromIndex);
+                ScriptBookUtilForEditor.MoveCommand(_bookHolder.Owner, _bookHolder.ScriptBook, _pageIndex, fromIndex, toIndex);
                 _listView.Rebuild();
                 onCollectionChanged?.Invoke();
                 // When dragging and swapping ListView elements, selectedIndicesChanged is not triggered, so it is manually triggered here instead.
-                onSelectionChanged?.Invoke(ScriptBookOwner, _pageIndex, toIndex);
+                onSelectionChanged?.Invoke(_bookHolder.ScriptBookId, _pageIndex, toIndex);
             };
 
             _listView.selectedIndicesChanged += commandIndices =>
             {
                 if (ExistsTargetPage == false) return;
                 var selectedCommandIndex = commandIndices.FirstOrDefault();
-                onSelectionChanged?.Invoke(ScriptBookOwner, _pageIndex, selectedCommandIndex);
+                onSelectionChanged?.Invoke(_bookHolder.ScriptBookId, _pageIndex, selectedCommandIndex);
             };
             
             Reload();
         }
 
-        public void SetTarget(IScriptBookOwner scriptBookOwner, int pageIndex)
+        public void SetTarget(ScriptBookId scriptBookId, int pageIndex)
         {
-            _scriptBookOwnerObject = scriptBookOwner?.AsObject();
+            _bookHolder.Reset(scriptBookId);
             _pageIndex = pageIndex;
             if (IsInitialized) Reload();
         }
@@ -120,7 +119,7 @@ namespace Kairou.Editor
 
             if (ExistsTargetPage)
             {
-                _listView.itemsSource = ScriptBookOwner.ScriptBook.Pages[_pageIndex].Commands;
+                _listView.itemsSource = _bookHolder.ScriptBook.Pages[_pageIndex].Commands;
                 _listView.enabledSelf = true;
             }
             else
@@ -132,6 +131,14 @@ namespace Kairou.Editor
         }
 
         public void Rebuild() => _listView.Rebuild();
+
+        public void OnProjectOrHierarchyChanged()
+        {
+            if (_bookHolder.RestoreObjectIfNull())
+            {
+                Reload();
+            }
+        }
 
         public void OnUndoRedoPerformed()
         {

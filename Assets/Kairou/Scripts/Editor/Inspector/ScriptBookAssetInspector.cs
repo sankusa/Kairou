@@ -8,9 +8,10 @@ namespace Kairou.Editor
     {
         public override void OnInspectorGUI()
         {
+            var asset = (ScriptBookAsset)target;
             if (GUILayout.Button("Open ScriptBookEditor"))
             {
-                ScriptBookEditor.Open((ScriptBookAsset)target);
+                ScriptBookEditor.Open(asset, asset.ScriptBookPropertyPath);
             }
         }
     }

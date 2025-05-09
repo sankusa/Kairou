@@ -9,24 +9,22 @@ namespace Kairou.Editor
     public class ScriptBookEditor : EditorWindow
     {
 
-        public static void Open(IScriptBookOwner scriptBookOwner)
+        public static void Open(Object scriptBookOwner, string scriptBookPath)
         {
             var window = GetWindow<ScriptBookEditor>();
             window.titleContent = new GUIContent("ScriptBookEditor");
 
-            window.SetTarget(scriptBookOwner);
+            window.SetTarget(scriptBookOwner, scriptBookPath);
         }
 
-        [SerializeField] VisualTreeAsset _headerUXML;
+        [SerializeField] VisualTreeAsset _bookHeaderUXML;
         [SerializeField] VisualTreeAsset _pageListPanelUXML;
         [SerializeField] VisualTreeAsset _commandListPanelUXML;
         [SerializeField] VisualTreeAsset _variablePanelUXML;
 
-        [SerializeField] Object _scriptBookOwnerObject;
-        IScriptBookOwner Scriptbookowner => _scriptBookOwnerObject as IScriptBookOwner;
-        [SerializeField] GlobalObjectId _globalObjectId;
+        [SerializeField] RestorableScriptBookHolder _bookHolder = new();
 
-        VisualElement _header;
+        [SerializeField] BookHeaderPanel _bookHeaderPanel = new();
         [SerializeField] PageListPanel _pageListPanel = new();
         [SerializeField] CommandListPanel _commandListPanel = new();
         [SerializeField] CommandPanel _commandPanel = new();
@@ -37,7 +35,6 @@ namespace Kairou.Editor
             Undo.undoRedoPerformed += OnUndoRedoPerformed;
             EditorApplication.projectChanged += OnProjectOrHierarchyChanged;
             EditorApplication.hierarchyChanged += OnProjectOrHierarchyChanged;
-            // SetTarget(GlobalObjectId.GlobalObjectIdentifierToObjectSlow(_globalObjectId)as IScriptBookOwner);
         }
 
         void OnDisable()
@@ -60,7 +57,7 @@ namespace Kairou.Editor
                 viewDataKey: "Split0");
 
             toolbar.Add(new ToolbarSpacer() {flex = true});
-            ToolbarToggle variableToggle = new() {text = "Variables", viewDataKey = "VariableToggle"}; 
+            var variableToggle = new ToolbarToggle() {text = "Variables", viewDataKey = "VariableToggle"}; 
             toolbar.Add(variableToggle);
 
             rootSplitView.schedule.Execute(() =>
@@ -81,9 +78,7 @@ namespace Kairou.Editor
                 }
             });
 
-            _header = _headerUXML.Instantiate();
-            bookPane.Add(_header);
-            _header.Q<ObjectField>().value = _scriptBookOwnerObject;
+            _bookHeaderPanel.Initialize(bookPane, _bookHeaderUXML);
 
             var panes = UIToolkitUtil.CreateSplitView(bookPane, viewDataKey: "Split1");
             var leftPane = panes.leftPane;
@@ -92,11 +87,11 @@ namespace Kairou.Editor
             _pageListPanel.Initialize(
                 leftPane,
                 _pageListPanelUXML,
-                pageIndex =>
+                (scriptBookId, pageIndex) =>
                 {
-                    _commandListPanel.SetTarget(Scriptbookowner, pageIndex);
-                    _commandPanel.SetTarget(Scriptbookowner, pageIndex, 0);
-                    _variablePanel.SetTarget(Scriptbookowner, pageIndex);
+                    _commandListPanel.SetTarget(scriptBookId, pageIndex);
+                    _commandPanel.SetTarget(scriptBookId, pageIndex, 0);
+                    _variablePanel.SetTarget(scriptBookId, pageIndex);
                 },
                 () =>
                 {
@@ -108,7 +103,7 @@ namespace Kairou.Editor
             _commandListPanel.Initialize(
                 centerPane,
                 _commandListPanelUXML,
-                (owner, pageIndex, commandIndex) => _commandPanel.SetTarget(owner, pageIndex, commandIndex),
+                (scriptBookId, pageIndex, commandIndex) => _commandPanel.SetTarget(scriptBookId, pageIndex, commandIndex),
                 () => _commandPanel.Reload()
             );
 
@@ -123,46 +118,41 @@ namespace Kairou.Editor
             );
         }
 
-        void SetTarget(IScriptBookOwner scriptBookOwner)
+        void Reload()
         {
-            if (scriptBookOwner == null)
-            {
-                ClearTarget();
-                return;
-            }
-            _scriptBookOwnerObject = scriptBookOwner.AsObject();
-            _globalObjectId = GlobalObjectId.GetGlobalObjectIdSlow(_scriptBookOwnerObject);
-            _header.Q<ObjectField>().value = _scriptBookOwnerObject;
-            _pageListPanel.SetTarget(scriptBookOwner);
-            _commandListPanel.SetTarget(scriptBookOwner, 0);
-            _commandPanel.SetTarget(scriptBookOwner, 0, 0);
-            _variablePanel.SetTarget(scriptBookOwner, 0);
+            _bookHeaderPanel.SetTarget(_bookHolder.ScriptBookId);
+            _pageListPanel.SetTarget(_bookHolder.ScriptBookId);
+            _commandListPanel.SetTarget(_bookHolder.ScriptBookId, 0);
+            _commandPanel.SetTarget(_bookHolder.ScriptBookId, 0, 0);
+            _variablePanel.SetTarget(_bookHolder.ScriptBookId, 0);
         }
 
-        void ClearTarget()
+        void SetTarget(Object scriptBookOwner, string scriptBookPath)
         {
-            _scriptBookOwnerObject = null;
-            if (_header != null) _header.Q<ObjectField>().value = null;
-            _pageListPanel.SetTarget(null);
-            _commandListPanel.SetTarget(null, 0);
-            _commandPanel.SetTarget(null, 0, 0);
-            _variablePanel.SetTarget(null, 0);
+            _bookHolder.Reset(scriptBookOwner, scriptBookPath);
+            Reload();
         }
 
+        // PlayMode遷移にも呼ばれる
         void OnProjectOrHierarchyChanged()
         {
             // ObjectがDestroyされた場合など
-            if (_scriptBookOwnerObject == null)
+            if (_bookHolder.RestoreObjectIfNull())
             {
-                // 復元を試みる
-                _scriptBookOwnerObject = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(_globalObjectId);
-                SetTarget(Scriptbookowner);
+                Reload();
             }
+            _bookHeaderPanel.OnProjectOrHierarchyChanged();
+            _pageListPanel.OnProjectOrHierarchyChanged();
+            _commandListPanel.OnProjectOrHierarchyChanged();
+            _commandPanel.OnProjectOrHierarchyChanged();
+            _variablePanel.OnProjectOrHierarchyChanged();
         }
 
         void OnUndoRedoPerformed()
         {
+            _bookHeaderPanel.OnUndoRedoPerformed();
             _pageListPanel.OnUndoRedoPerformed();
+            _commandListPanel.OnUndoRedoPerformed();
             _commandListPanel.OnUndoRedoPerformed();
             _variablePanel.OnUndoRedoPerformed();
         }

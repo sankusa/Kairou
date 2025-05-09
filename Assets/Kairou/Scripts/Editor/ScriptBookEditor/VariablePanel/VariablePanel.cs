@@ -9,10 +9,9 @@ namespace Kairou.Editor
 {
     public class VariablePanel
     {
-        [SerializeField] Object _scriptBookOwnerObject;
+        [SerializeField] RestorableScriptBookHolder _bookHolder = new();
         [SerializeField] int _pageIndex;
-        IScriptBookOwner ScriptBookOwner => _scriptBookOwnerObject as IScriptBookOwner;
-        bool ExistsPage => _scriptBookOwnerObject != null && ScriptBookOwner.ScriptBook.Pages.HasElementAt(_pageIndex);
+        bool ExistsPage => _bookHolder.ScriptBook != null && _bookHolder.ScriptBook.Pages.HasElementAt(_pageIndex);
 
         ListView _bookListView;
         ListView _pageListView;
@@ -32,7 +31,7 @@ namespace Kairou.Editor
             _bookListView = bookTab.Q<ListView>();
             _bookListView.onAdd = _ =>
             {
-                if (ScriptBookOwner == null) return;
+                if (_bookHolder.ScriptBook == null) return;
 
                 var menu = new GenericMenu();
                 foreach (var type in VariableTypeDictionary.Dic.Keys)
@@ -73,9 +72,9 @@ namespace Kairou.Editor
             Reload();
         }
 
-        public void SetTarget(IScriptBookOwner scriptBookOwner, int pageIndex)
+        public void SetTarget(ScriptBookId scriptBookId, int pageIndex)
         {
-            _scriptBookOwnerObject = scriptBookOwner?.AsObject();
+            _bookHolder.Reset(scriptBookId);
             _pageIndex = pageIndex;
             if (IsInitialized) Reload();
         }
@@ -83,11 +82,11 @@ namespace Kairou.Editor
         public void Reload()
         {
             ThrowIfNotInitialized();
-            if (_scriptBookOwnerObject != null)
+            if (_bookHolder.ScriptBook != null)
             {
-                _serializedObject = new SerializedObject(_scriptBookOwnerObject);
+                _serializedObject = new SerializedObject(_bookHolder.Owner);
                 _bookVariablesProp = _serializedObject
-                    .FindProperty(ScriptBookOwner.ScriptBookPropertyPath)
+                    .FindProperty(_bookHolder.ScriptBookPath)
                     .FindPropertyRelative("_variables");
                 _bookListView.BindProperty(_bookVariablesProp);
             }
@@ -102,7 +101,7 @@ namespace Kairou.Editor
             if (ExistsPage)
             {
                 _pageVariablesProp = _serializedObject
-                    .FindProperty(ScriptBookOwner.ScriptBookPropertyPath)
+                    .FindProperty(_bookHolder.ScriptBookPath)
                     .FindPropertyRelative("_pages")
                     .GetArrayElementAtIndex(_pageIndex)
                     .FindPropertyRelative("_variables");
@@ -112,6 +111,14 @@ namespace Kairou.Editor
             {
                 _pageVariablesProp = null;
                 _pageListView.Unbind();
+            }
+        }
+
+        public void OnProjectOrHierarchyChanged()
+        {
+            if (_bookHolder.RestoreObjectIfNull())
+            {
+                Reload();
             }
         }
 

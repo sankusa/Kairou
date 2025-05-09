@@ -8,13 +8,14 @@ namespace Kairou.Editor
     {
         public override void OnInspectorGUI()
         {
+            var component = (ScriptBookComponent)target;
             if (GUILayout.Button("Convert To Asset"))
             {
-                ScriptBookOwnerConverter.ConvertAndSaveAsAsset((ScriptBookComponent)target);
+                ScriptBookOwnerConverter.ConvertAndSaveAsAsset(component.ScriptBook);
             }
             if (GUILayout.Button("Open ScriptBookEditor"))
             {
-                ScriptBookEditor.Open((ScriptBookComponent)target);
+                ScriptBookEditor.Open(component, component.ScriptBookPropertyPath);
             }
         }
     }

@@ -11,12 +11,11 @@ namespace Kairou.Editor
     [Serializable]
     public class CommandPanel
     {
-        [SerializeField] Object _scriptBookOwnerObject;
+        [SerializeField] RestorableScriptBookHolder _bookHolder = new();
         [SerializeField] int _pageIndex;
         [SerializeField] int _commandIndex;
-        IScriptBookOwner ScriptBookOwner => _scriptBookOwnerObject as IScriptBookOwner;
-        bool ExistsTargetCommand => _scriptBookOwnerObject != null
-            && ScriptBookOwner.ScriptBook.ExistsCommandAt(_pageIndex, _commandIndex);
+        bool ExistsTargetCommand => _bookHolder.ScriptBook != null
+            && _bookHolder.ScriptBook.ExistsCommandAt(_pageIndex, _commandIndex);
 
         VisualElement _parent;
 
@@ -32,9 +31,9 @@ namespace Kairou.Editor
             Reload();
         }
 
-        public void SetTarget(IScriptBookOwner scriptBookOwner, int pageIndex, int commandIndex)
+        public void SetTarget(ScriptBookId scriptBookId, int pageIndex, int commandIndex)
         {
-            _scriptBookOwnerObject = scriptBookOwner?.AsObject();
+            _bookHolder.Reset(scriptBookId);
             _pageIndex = pageIndex;
             _commandIndex = commandIndex;
             if (IsInitialized) Reload();
@@ -47,8 +46,8 @@ namespace Kairou.Editor
 
             if (ExistsTargetCommand)
             {
-                var serializedObject = new SerializedObject(_scriptBookOwnerObject);
-                var scriptBookProp = serializedObject.FindProperty(ScriptBookOwner.ScriptBookPropertyPath);
+                var serializedObject = new SerializedObject(_bookHolder.Owner);
+                var scriptBookProp = serializedObject.FindProperty(_bookHolder.ScriptBookPath);
                 var commandProp = scriptBookProp
                     .FindPropertyRelative("_pages")
                     .GetArrayElementAtIndex(_pageIndex)
@@ -74,6 +73,19 @@ namespace Kairou.Editor
 
                 // _parent.Add(container);
             }
+        }
+
+        public void OnProjectOrHierarchyChanged()
+        {
+            if (_bookHolder.RestoreObjectIfNull())
+            {
+                Reload();
+            }
+        }
+
+        public void OnUndoRedoPerformed()
+        {
+            ThrowIfNotInitialized();
         }
 
         void ThrowIfNotInitialized()

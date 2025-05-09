@@ -10,14 +10,15 @@ namespace Kairou.Editor
     [Serializable]
     public class PageListPanel
     {
-        [SerializeField] Object _scriptBookOwnerObject;
-        IScriptBookOwner ScriptBookOwner => _scriptBookOwnerObject as IScriptBookOwner;
+        public delegate void PageSpecificAction(ScriptBookId scriptBookId, int pageIndex);
+
+        [SerializeField] RestorableScriptBookHolder _bookHolder = new();
 
         ListView _listView;
 
         bool IsInitialized => _listView != null;
 
-        public void Initialize(VisualElement parent, VisualTreeAsset pageListPanelUXML, Action<int> onSelectionChanged, Action onCollectionChanged)
+        public void Initialize(VisualElement parent, VisualTreeAsset pageListPanelUXML, PageSpecificAction onSelectionChanged, Action onCollectionChanged)
         {
             var pageListPanel = pageListPanelUXML.Instantiate();
             parent.Add(pageListPanel);
@@ -25,52 +26,52 @@ namespace Kairou.Editor
             _listView = pageListPanel.Q<ListView>("PageList");
             _listView.bindItem = (element, i) =>
             {
-                element.Q<Label>().text = ScriptBookOwner.ScriptBook.Pages[i].Id;
+                element.Q<Label>().text = _bookHolder.ScriptBook.Pages[i].Id;
             };
 
             _listView.onAdd = _ =>
             {
-                if (ScriptBookOwner == null) return;
-                ScriptBookOwnerUtilForEditor.AddSetUpPage(ScriptBookOwner);
+                if (_bookHolder.ScriptBook == null) return;
+                ScriptBookUtilForEditor.AddSetUpPage(_bookHolder.Owner, _bookHolder.ScriptBook);
                 _listView.Rebuild();
                 onCollectionChanged?.Invoke();
             };
 
             _listView.onRemove = _ =>
             {
-                if (ScriptBookOwner == null) return;
+                if (_bookHolder.ScriptBook == null) return;
                 var selectedPage = (Page)_listView.selectedItem;
-                ScriptBookOwnerUtilForEditor.RemovePage(ScriptBookOwner, selectedPage);
+                ScriptBookUtilForEditor.RemovePage(_bookHolder.Owner, _bookHolder.ScriptBook, selectedPage);
                 _listView.Rebuild();
                 onCollectionChanged?.Invoke();
             };
 
             _listView.itemIndexChanged += (fromIndex, toIndex) =>
             {
-                if (ScriptBookOwner == null) return;
+                if (_bookHolder.ScriptBook == null) return;
                 // Since there is no event to overwrite the swap process with a custom implementation,
                 // the move is first reverted, recorded with Undo, and then moved again.
-                ScriptBookOwner.ScriptBook.MovePage(toIndex, fromIndex);
-                ScriptBookOwnerUtilForEditor.MovePage(ScriptBookOwner, fromIndex, toIndex);
+                _bookHolder.ScriptBook.MovePage(toIndex, fromIndex);
+                ScriptBookUtilForEditor.MovePage(_bookHolder.Owner, _bookHolder.ScriptBook, fromIndex, toIndex);
                 _listView.Rebuild();
                 onCollectionChanged?.Invoke();
                 // When dragging and swapping ListView elements, selectedIndicesChanged is not triggered, so it is manually triggered here instead.
-                onSelectionChanged?.Invoke(toIndex);
+                onSelectionChanged?.Invoke(_bookHolder.ScriptBookId, toIndex);
             };
 
             _listView.selectedIndicesChanged += pageIndices =>
             {
-                if (ScriptBookOwner == null) return;
+                if (_bookHolder.ScriptBook == null) return;
                 var selectedPageIndex = pageIndices.FirstOrDefault();
-                onSelectionChanged?.Invoke(selectedPageIndex);
+                onSelectionChanged?.Invoke(_bookHolder.ScriptBookId, selectedPageIndex);
             };
 
             Reload();
         }
 
-        public void SetTarget(IScriptBookOwner scriptBookOwner)
+        public void SetTarget(ScriptBookId scriptBookId)
         {
-            _scriptBookOwnerObject = scriptBookOwner?.AsObject();
+            _bookHolder.Reset(scriptBookId);
             if (IsInitialized) Reload();
         }
 
@@ -78,18 +79,26 @@ namespace Kairou.Editor
         {
             ThrowIfNotInitialized();
 
-            if (ScriptBookOwner == null)
+            if (_bookHolder.ScriptBook == null)
             {
                 _listView.itemsSource = null;
                 _listView.enabledSelf = false;
             }
             else
             {
-                _listView.itemsSource = ScriptBookOwner.ScriptBook.Pages;
+                _listView.itemsSource = _bookHolder.ScriptBook.Pages;
                 _listView.enabledSelf = true;
             }
 
             _listView.selectedIndex = 0;
+        }
+
+        public void OnProjectOrHierarchyChanged()
+        {
+            if (_bookHolder.RestoreObjectIfNull())
+            {
+                Reload();
+            }
         }
 
         public void OnUndoRedoPerformed()

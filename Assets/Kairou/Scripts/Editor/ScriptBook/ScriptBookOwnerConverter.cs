@@ -7,11 +7,9 @@ namespace Kairou
 {
     public class ScriptBookOwnerConverter
     {
-        public static void ConvertAndSaveAsAsset(IScriptBookOwner source)
+        public static void ConvertAndSaveAsAsset(ScriptBook scriptBook)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-
-            AssetUtil.SaveAsset(ToAsset(source.ScriptBook));
+            AssetUtil.SaveAsset(ToAsset(scriptBook));
         }
 
         public static ScriptBookAsset ToAsset(ScriptBook source)
