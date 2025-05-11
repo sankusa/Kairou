@@ -36,13 +36,13 @@ namespace Kairou
         {
             await ProcessRunner.RunPageAsBookProcessSubSequenceAsync(_pageProcess, pageId, cancellationToken);
         }
-        public async UniTask RunBook(ScriptBook scriptBook, string pageId, CancellationToken cancellationToken)
+        public async UniTask RunBook(ScriptBook book, string pageId, CancellationToken cancellationToken)
         {
-            await ProcessRunner.RunBookAsSeriesProcessSubSequenceAsync(_pageProcess, scriptBook, pageId, cancellationToken);
+            await ProcessRunner.RunBookAsSeriesProcessSubSequenceAsync(_pageProcess, book, pageId, cancellationToken);
         }
-        public async UniTask RunBookAsNewSeries(ScriptBook scriptBook, string pageId, CancellationToken cancellationToken)
+        public async UniTask RunBookAsNewSeries(ScriptBook book, string pageId, CancellationToken cancellationToken)
         {
-            await ProcessRunner.RunBookAsRootProcessSubSequenceAsync(_pageProcess, scriptBook, pageId, cancellationToken);
+            await ProcessRunner.RunBookAsRootProcessSubSequenceAsync(_pageProcess, book, pageId, cancellationToken);
         }
 
         public Variable FindVariable(string name, TargetVariableScope targetScope = TargetVariableScope.None)

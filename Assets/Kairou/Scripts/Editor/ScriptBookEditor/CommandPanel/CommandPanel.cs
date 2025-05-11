@@ -11,11 +11,11 @@ namespace Kairou.Editor
     [Serializable]
     public class CommandPanel
     {
-        [SerializeField] RestorableScriptBookHolder _bookHolder = new();
+        [SerializeField] RestorableBookHolder _bookHolder = new();
         [SerializeField] int _pageIndex;
         [SerializeField] int _commandIndex;
-        bool ExistsTargetCommand => _bookHolder.ScriptBook != null
-            && _bookHolder.ScriptBook.ExistsCommandAt(_pageIndex, _commandIndex);
+        bool ExistsTargetCommand => _bookHolder.Book != null
+            && _bookHolder.Book.ExistsCommandAt(_pageIndex, _commandIndex);
 
         VisualElement _parent;
 
@@ -31,9 +31,9 @@ namespace Kairou.Editor
             Reload();
         }
 
-        public void SetTarget(ScriptBookId scriptBookId, int pageIndex, int commandIndex)
+        public void SetTarget(BookId bookId, int pageIndex, int commandIndex)
         {
-            _bookHolder.Reset(scriptBookId);
+            _bookHolder.Reset(bookId);
             _pageIndex = pageIndex;
             _commandIndex = commandIndex;
             if (IsInitialized) Reload();
@@ -47,8 +47,8 @@ namespace Kairou.Editor
             if (ExistsTargetCommand)
             {
                 var serializedObject = new SerializedObject(_bookHolder.Owner);
-                var scriptBookProp = serializedObject.FindProperty(_bookHolder.ScriptBookPath);
-                var commandProp = scriptBookProp
+                var bookProp = serializedObject.FindProperty(_bookHolder.BookPropertyPath);
+                var commandProp = bookProp
                     .FindPropertyRelative("_pages")
                     .GetArrayElementAtIndex(_pageIndex)
                     .FindPropertyRelative("_commands")

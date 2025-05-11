@@ -9,9 +9,9 @@ namespace Kairou.Editor
 {
     public class VariablePanel
     {
-        [SerializeField] RestorableScriptBookHolder _bookHolder = new();
+        [SerializeField] RestorableBookHolder _bookHolder = new();
         [SerializeField] int _pageIndex;
-        bool ExistsPage => _bookHolder.ScriptBook != null && _bookHolder.ScriptBook.Pages.HasElementAt(_pageIndex);
+        bool ExistsPage => _bookHolder.Book != null && _bookHolder.Book.Pages.HasElementAt(_pageIndex);
 
         ListView _bookListView;
         ListView _pageListView;
@@ -31,7 +31,7 @@ namespace Kairou.Editor
             _bookListView = bookTab.Q<ListView>();
             _bookListView.onAdd = _ =>
             {
-                if (_bookHolder.ScriptBook == null) return;
+                if (_bookHolder.Book == null) return;
 
                 var menu = new GenericMenu();
                 foreach (var type in VariableTypeDictionary.Dic.Keys)
@@ -72,9 +72,9 @@ namespace Kairou.Editor
             Reload();
         }
 
-        public void SetTarget(ScriptBookId scriptBookId, int pageIndex)
+        public void SetTarget(BookId bookId, int pageIndex)
         {
-            _bookHolder.Reset(scriptBookId);
+            _bookHolder.Reset(bookId);
             _pageIndex = pageIndex;
             if (IsInitialized) Reload();
         }
@@ -82,11 +82,11 @@ namespace Kairou.Editor
         public void Reload()
         {
             ThrowIfNotInitialized();
-            if (_bookHolder.ScriptBook != null)
+            if (_bookHolder.Book != null)
             {
                 _serializedObject = new SerializedObject(_bookHolder.Owner);
                 _bookVariablesProp = _serializedObject
-                    .FindProperty(_bookHolder.ScriptBookPath)
+                    .FindProperty(_bookHolder.BookPropertyPath)
                     .FindPropertyRelative("_variables");
                 _bookListView.BindProperty(_bookVariablesProp);
             }
@@ -101,7 +101,7 @@ namespace Kairou.Editor
             if (ExistsPage)
             {
                 _pageVariablesProp = _serializedObject
-                    .FindProperty(_bookHolder.ScriptBookPath)
+                    .FindProperty(_bookHolder.BookPropertyPath)
                     .FindPropertyRelative("_pages")
                     .GetArrayElementAtIndex(_pageIndex)
                     .FindPropertyRelative("_variables");

@@ -11,7 +11,7 @@ namespace Kairou.Editor
             var asset = (ScriptBookAsset)target;
             if (GUILayout.Button("Open ScriptBookEditor"))
             {
-                ScriptBookEditor.Open(asset, asset.ScriptBookPropertyPath);
+                ScriptBookEditor.Open(asset, asset.BookPropertyPath);
             }
         }
     }

@@ -9,12 +9,12 @@ namespace Kairou.Editor
     public class ScriptBookEditor : EditorWindow
     {
 
-        public static void Open(Object scriptBookOwner, string scriptBookPath)
+        public static void Open(Object bookOwner, string bookPropertyPath)
         {
             var window = GetWindow<ScriptBookEditor>();
             window.titleContent = new GUIContent("ScriptBookEditor");
 
-            window.SetTarget(scriptBookOwner, scriptBookPath);
+            window.SetTarget(bookOwner, bookPropertyPath);
         }
 
         [SerializeField] VisualTreeAsset _bookHeaderUXML;
@@ -22,7 +22,7 @@ namespace Kairou.Editor
         [SerializeField] VisualTreeAsset _commandListPanelUXML;
         [SerializeField] VisualTreeAsset _variablePanelUXML;
 
-        [SerializeField] RestorableScriptBookHolder _bookHolder = new();
+        [SerializeField] RestorableBookHolder _bookHolder = new();
 
         [SerializeField] BookHeaderPanel _bookHeaderPanel = new();
         [SerializeField] PageListPanel _pageListPanel = new();
@@ -87,11 +87,11 @@ namespace Kairou.Editor
             _pageListPanel.Initialize(
                 leftPane,
                 _pageListPanelUXML,
-                (scriptBookId, pageIndex) =>
+                (bookId, pageIndex) =>
                 {
-                    _commandListPanel.SetTarget(scriptBookId, pageIndex);
-                    _commandPanel.SetTarget(scriptBookId, pageIndex, 0);
-                    _variablePanel.SetTarget(scriptBookId, pageIndex);
+                    _commandListPanel.SetTarget(bookId, pageIndex);
+                    _commandPanel.SetTarget(bookId, pageIndex, 0);
+                    _variablePanel.SetTarget(bookId, pageIndex);
                 },
                 () =>
                 {
@@ -103,7 +103,7 @@ namespace Kairou.Editor
             _commandListPanel.Initialize(
                 centerPane,
                 _commandListPanelUXML,
-                (scriptBookId, pageIndex, commandIndex) => _commandPanel.SetTarget(scriptBookId, pageIndex, commandIndex),
+                (bookId, pageIndex, commandIndex) => _commandPanel.SetTarget(bookId, pageIndex, commandIndex),
                 () => _commandPanel.Reload()
             );
 
@@ -120,16 +120,16 @@ namespace Kairou.Editor
 
         void Reload()
         {
-            _bookHeaderPanel.SetTarget(_bookHolder.ScriptBookId);
-            _pageListPanel.SetTarget(_bookHolder.ScriptBookId);
-            _commandListPanel.SetTarget(_bookHolder.ScriptBookId, 0);
-            _commandPanel.SetTarget(_bookHolder.ScriptBookId, 0, 0);
-            _variablePanel.SetTarget(_bookHolder.ScriptBookId, 0);
+            _bookHeaderPanel.SetTarget(_bookHolder.BookId);
+            _pageListPanel.SetTarget(_bookHolder.BookId);
+            _commandListPanel.SetTarget(_bookHolder.BookId, 0);
+            _commandPanel.SetTarget(_bookHolder.BookId, 0, 0);
+            _variablePanel.SetTarget(_bookHolder.BookId, 0);
         }
 
-        void SetTarget(Object scriptBookOwner, string scriptBookPath)
+        void SetTarget(Object bookOwner, string bookPropertyPath)
         {
-            _bookHolder.Reset(scriptBookOwner, scriptBookPath);
+            _bookHolder.Reset(bookOwner, bookPropertyPath);
             Reload();
         }
 

@@ -6,15 +6,15 @@ using UnityEngine;
 
 namespace Kairou
 {
-    internal class ScriptBookProcess
+    internal class BookProcess
     {
-        static readonly ObjectPool<ScriptBookProcess> _pool = new(
-            createFunc: static () => new ScriptBookProcess()
+        static readonly ObjectPool<BookProcess> _pool = new(
+            createFunc: static () => new BookProcess()
         );
 
         public SeriesProcess SeriesProcess { get; private set; }
 
-        ScriptBook _scriptBook;
+        ScriptBook _book;
 
         readonly List<PageProcess> _unfinishedPageProcesses = new();
 
@@ -24,26 +24,26 @@ namespace Kairou
         bool _isRunning;
         internal bool IsTerminated { get; private set; }
 
-        private ScriptBookProcess() {}
+        private BookProcess() {}
 
-        internal static ScriptBookProcess Rent(SeriesProcess parentProcess, ScriptBook scriptBook)
+        internal static BookProcess Rent(SeriesProcess parentProcess, ScriptBook book)
         {
             var process = _pool.Rent();
-            process.SetUp(parentProcess, scriptBook);
+            process.SetUp(parentProcess, book);
             return process;
         }
 
-        void SetUp(SeriesProcess parentProcess, ScriptBook scriptBook)
+        void SetUp(SeriesProcess parentProcess, ScriptBook book)
         {
             if (parentProcess == null) throw new ArgumentNullException(nameof(parentProcess));
-            if (scriptBook == null) throw new ArgumentNullException(nameof(scriptBook));
+            if (book == null) throw new ArgumentNullException(nameof(book));
 
             SeriesProcess = parentProcess;
-            _scriptBook = scriptBook;
-            _variables.GenerateVariables(scriptBook.Variables);
+            _book = book;
+            _variables.GenerateVariables(book.Variables);
         }
 
-        internal static void Return(ScriptBookProcess process)
+        internal static void Return(BookProcess process)
         {
             process.Clear();
             _pool.Return(process);
@@ -52,7 +52,7 @@ namespace Kairou
         void Clear()
         {
             SeriesProcess = null;
-            _scriptBook = null;
+            _book = null;
 
             _unfinishedPageProcesses.Clear();
             _variables.Clear();
@@ -63,7 +63,7 @@ namespace Kairou
 
         internal PageProcess CreatePageProcess(string pageId)
         {
-            var page = _scriptBook.GetPage(pageId);
+            var page = _book.GetPage(pageId);
             var pageProcess = PageProcess.Rent(this, page);
             _unfinishedPageProcesses.Add(pageProcess);
             return pageProcess;

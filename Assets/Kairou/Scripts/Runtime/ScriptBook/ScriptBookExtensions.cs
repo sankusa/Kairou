@@ -2,9 +2,9 @@ namespace Kairou
 {
     public static class ScriptBookExtensions
     {
-        public static bool ExistsCommandAt(this ScriptBook scriptBook, int pageIndex, int commandIndex)
+        public static bool ExistsCommandAt(this ScriptBook book, int pageIndex, int commandIndex)
         {
-            return scriptBook.Pages.HasElementAt(pageIndex) && scriptBook.Pages[pageIndex].Commands.HasElementAt(commandIndex);
+            return book.Pages.HasElementAt(pageIndex) && book.Pages[pageIndex].Commands.HasElementAt(commandIndex);
         }
     }
 }

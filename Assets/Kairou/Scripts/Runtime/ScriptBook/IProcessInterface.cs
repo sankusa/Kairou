@@ -13,8 +13,8 @@ namespace Kairou
         void SwitchBook(ScriptBook book, string pageId);
         void SwitchBookAsNewSeries(ScriptBook book, string pageId);
         UniTask RunPage(string pageId, CancellationToken cancellationToken);
-        UniTask RunBook(ScriptBook scriptBook, string pageId, CancellationToken cancellationToken);
-        UniTask RunBookAsNewSeries(ScriptBook scriptBook, string pageId, CancellationToken cancellationToken);
+        UniTask RunBook(ScriptBook book, string pageId, CancellationToken cancellationToken);
+        UniTask RunBookAsNewSeries(ScriptBook book, string pageId, CancellationToken cancellationToken);
 
         Variable FindVariable(string name, TargetVariableScope targetScope = TargetVariableScope.None);
         Variable<T> FindVariable<T>(string name, TargetVariableScope targetScope = TargetVariableScope.None);

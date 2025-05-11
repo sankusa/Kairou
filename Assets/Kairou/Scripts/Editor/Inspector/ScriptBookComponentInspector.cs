@@ -11,11 +11,11 @@ namespace Kairou.Editor
             var component = (ScriptBookComponent)target;
             if (GUILayout.Button("Convert To Asset"))
             {
-                ScriptBookOwnerConverter.ConvertAndSaveAsAsset(component.ScriptBook);
+                BookOwnerConverter.ConvertAndSaveAsAsset(component.Book);
             }
             if (GUILayout.Button("Open ScriptBookEditor"))
             {
-                ScriptBookEditor.Open(component, component.ScriptBookPropertyPath);
+                ScriptBookEditor.Open(component, component.BookPropertyPath);
             }
         }
     }

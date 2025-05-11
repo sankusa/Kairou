@@ -7,22 +7,22 @@ using Object = UnityEngine.Object;
 namespace Kairou
 {
     [Serializable]
-    public class RestorableScriptBookHolder
+    public class RestorableBookHolder
     {
-        [SerializeField] ScriptBookHolder _holder = new();
+        [SerializeField] BookHolder _holder = new();
         [SerializeField] GlobalObjectId _globalObjectId;
 
         public Object Owner => _holder.Owner;
-        public string ScriptBookPath => _holder.ScriptBookPath;
-        public ScriptBook ScriptBook => _holder.ScriptBook;
+        public string BookPropertyPath => _holder.BookPropertyPath;
+        public ScriptBook Book => _holder.Book;
 
-        public ScriptBookId ScriptBookId => new(Owner, ScriptBookPath);
+        public BookId BookId => new(Owner, BookPropertyPath);
 
-        public void Reset(ScriptBookId scriptBookId) => Reset(scriptBookId.Object, scriptBookId.ScriptBookPath);
+        public void Reset(BookId bookId) => Reset(bookId.Object, bookId.BookPropertyPath);
 
-        public void Reset(Object obj, string scriptBookPath)
+        public void Reset(Object obj, string bookPropertyPath)
         {
-            _holder.Reset(obj, scriptBookPath);
+            _holder.Reset(obj, bookPropertyPath);
             _globalObjectId = GlobalObjectId.GetGlobalObjectIdSlow(obj);
         }
 

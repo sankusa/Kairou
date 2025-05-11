@@ -21,7 +21,7 @@ namespace Kairou
             createFunc: static () => new PageProcess()
         );
         
-        public ScriptBookProcess BookProcess { get; private set; }
+        public BookProcess BookProcess { get; private set; }
         Page _page;
 
         readonly ProcessInterface _processInterface;
@@ -46,14 +46,14 @@ namespace Kairou
             _processInterface = new ProcessInterface(this);
         }
 
-        internal static PageProcess Rent(ScriptBookProcess parentProcess, Page page)
+        internal static PageProcess Rent(BookProcess parentProcess, Page page)
         {
             var process = _pool.Rent();
             process.SetUp(parentProcess, page);
             return process;
         }
 
-        void SetUp(ScriptBookProcess parentProcess, Page page)
+        void SetUp(BookProcess parentProcess, Page page)
         {
             if (_state != ProcessState.UnInitialized) throw new InvalidOperationException($"{nameof(PageProcess)} is already initialized.");
 

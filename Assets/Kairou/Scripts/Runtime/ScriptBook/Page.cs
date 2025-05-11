@@ -4,16 +4,16 @@ using UnityEngine;
 
 namespace Kairou
 {
-    /// <summary>Restricted to use by ScriptBook only</summary>
-    internal interface IPageInternalForScriptBook
+    /// <summary>Restricted to use by book only</summary>
+    internal interface IPageInternalForBook
     {
-        /// <summary>Must always be synchronized with the state of ScriptBook.Pages</summary>
-        void SetParentBook(ScriptBook scriptBook);
+        /// <summary>Must always be synchronized with the state of book.Pages</summary>
+        void SetParentBook(ScriptBook book);
     }
 
-    // When this becomes a child element of ScriptBook, the parent must be set to _scriptBook at the same time to maintain consistency.
+    // When this becomes a child element of book, the parent must be set to _parentBook at the same time to maintain consistency.
     [Serializable]
-    public class Page : IPageInternalForScriptBook, ISerializationCallbackReceiver
+    public class Page : IPageInternalForBook, ISerializationCallbackReceiver
     {
         [SerializeField] string _id;
         public string Id
@@ -46,7 +46,7 @@ namespace Kairou
             }
         }
 
-        void IPageInternalForScriptBook.SetParentBook(ScriptBook parentBook)
+        void IPageInternalForBook.SetParentBook(ScriptBook parentBook)
         {
             _parentBook = parentBook;
         }

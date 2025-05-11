@@ -9,7 +9,7 @@ namespace Kairou
 {
     public class ScriptBookEngine : MonoBehaviour
     {
-        [SerializeReference, SerializeReferencePopup] List<IScriptBookSlot> _scriptBookSlots = new();
+        [SerializeReference, SerializeReferencePopup] List<IBookSlot> _bookSlots = new();
         [SerializeField] bool _runOnStart = true;
         [SerializeField] ComponentBinding _componentBinding;
 
@@ -29,7 +29,7 @@ namespace Kairou
         }
 
         /// <summary>
-        /// Run the currently held scriptBooks.
+        /// Run the currently held books.
         /// </summary>
         public void Run()
         {
@@ -37,7 +37,7 @@ namespace Kairou
         }
 
         /// <summary>
-        /// Run the currently held scriptBooks.
+        /// Run the currently held books.
         /// </summary>
         public async UniTask RunAsync(CancellationToken cancellationToken = default)
         {
@@ -48,10 +48,10 @@ namespace Kairou
             try
             {
                 IncrementRunnignCount();
-                foreach (IScriptBookSlot slot in _scriptBookSlots)
+                foreach (IBookSlot slot in _bookSlots)
                 {
-                    if (slot.ScriptBook == null) continue;
-                    await RunAsyncInternal(slot.ScriptBook, linkedCts.Token);
+                    if (slot.Book == null) continue;
+                    await RunAsyncInternal(slot.Book, linkedCts.Token);
                 }
             }
             catch (OperationCanceledException e)
@@ -73,17 +73,17 @@ namespace Kairou
         }
 
         /// <summary>
-        /// Run scriptBook.
+        /// Run book.
         /// </summary>
-        public void Run(ScriptBook scriptBook)
+        public void Run(ScriptBook book)
         {
-            RunAsync(scriptBook).ForgetWithLogException();
+            RunAsync(book).ForgetWithLogException();
         }
 
         /// <summary>
-        /// Run scriptBook.
+        /// Run book.
         /// </summary>
-        public async UniTask RunAsync(ScriptBook scriptBook, CancellationToken cancellationToken = default)
+        public async UniTask RunAsync(ScriptBook book, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -92,7 +92,7 @@ namespace Kairou
             try
             {
                 IncrementRunnignCount();
-                await RunAsyncInternal(scriptBook, linkedCts.Token);
+                await RunAsyncInternal(book, linkedCts.Token);
             }
             catch (OperationCanceledException e) when (e.CancellationToken == linkedCts.Token)
             {
@@ -112,7 +112,7 @@ namespace Kairou
             }
         }
 
-        async UniTask RunAsyncInternal(ScriptBook scriptBook, CancellationToken linkedToken)
+        async UniTask RunAsyncInternal(ScriptBook book, CancellationToken linkedToken)
         {
             linkedToken.ThrowIfCancellationRequested();
 
@@ -122,7 +122,7 @@ namespace Kairou
                 processContext.Resolvers.Add(_componentBinding);
                 await ProcessRunner.RunMainSequenceAsync(
                     processContext,
-                    scriptBook,
+                    book,
                     null,
                     () => ProcessContext.Return(processContext),
                     linkedToken

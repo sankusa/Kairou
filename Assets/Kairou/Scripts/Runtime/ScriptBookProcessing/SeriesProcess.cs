@@ -14,7 +14,7 @@ namespace Kairou
 
         public RootProcess RootProcess { get; private set; }
 
-        readonly List<ScriptBookProcess> _unfinishedBookProcesses = new();
+        readonly List<BookProcess> _unfinishedBookProcesses = new();
 
         bool _isRunning;
         internal bool IsTerminated { get; private set; }
@@ -48,9 +48,9 @@ namespace Kairou
             IsTerminated = false;
         }
 
-        internal ScriptBookProcess CreateScriptBookProcess(ScriptBook scriptBook)
+        internal BookProcess CreateBookProcess(ScriptBook book)
         {
-            var bookProcess = ScriptBookProcess.Rent(this, scriptBook);
+            var bookProcess = BookProcess.Rent(this, book);
             _unfinishedBookProcesses.Add(bookProcess);
             return bookProcess;
         }
@@ -68,11 +68,11 @@ namespace Kairou
             {
                 while(true)
                 {
-                    subsequentProcessInfo = await ScriptBookProcess.RunBookLoopAsync(pageProcess, cancellationToken);
+                    subsequentProcessInfo = await BookProcess.RunBookLoopAsync(pageProcess, cancellationToken);
                     
                     if (subsequentProcessInfo.IsSubsequentBookInfo == false) break;
 
-                    bookProcess = seriesProcess.CreateScriptBookProcess(subsequentProcessInfo.Book);
+                    bookProcess = seriesProcess.CreateBookProcess(subsequentProcessInfo.Book);
                     pageProcess = bookProcess.CreatePageProcess(subsequentProcessInfo.PageId);
                 }
             }
@@ -97,7 +97,7 @@ namespace Kairou
                             if (_unfinishedBookProcesses[i].IsTerminated)
                             {
                                 _unfinishedBookProcesses.Remove(p);
-                                ScriptBookProcess.Return(p);
+                                BookProcess.Return(p);
                             }
                         }
                         if (_unfinishedBookProcesses.Count == 0) break;

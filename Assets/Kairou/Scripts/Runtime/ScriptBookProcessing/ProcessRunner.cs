@@ -11,7 +11,7 @@ namespace Kairou
         {
             var rootProcess = RootProcess.Rent(context);
             var seriesProcess = rootProcess.CreateSeriesProcess();
-            var bookProcess = seriesProcess.CreateScriptBookProcess(scriptBook);
+            var bookProcess = seriesProcess.CreateBookProcess(scriptBook);
             var pageProcess = bookProcess.CreatePageProcess(pageId);
             
             try
@@ -43,7 +43,7 @@ namespace Kairou
 
         internal static async UniTask RunBookAsSeriesProcessSubSequenceAsync(PageProcess pageProcess, ScriptBook book, string pageId, CancellationToken cancellationToken)
         {
-            var newBookProcess = pageProcess.BookProcess.SeriesProcess.CreateScriptBookProcess(book);
+            var newBookProcess = pageProcess.BookProcess.SeriesProcess.CreateBookProcess(book);
             var newPageProcess = newBookProcess.CreatePageProcess(pageId);
             await RunProcessCoreLoopAsync(newPageProcess, cancellationToken);
         }
@@ -51,7 +51,7 @@ namespace Kairou
         internal static async UniTask RunBookAsRootProcessSubSequenceAsync(PageProcess pageProcess, ScriptBook book, string pageId, CancellationToken cancellationToken)
         {
             var newSeriesProcess = pageProcess.BookProcess.SeriesProcess.RootProcess.CreateSeriesProcess();
-            var newBookProcess = newSeriesProcess.CreateScriptBookProcess(book);
+            var newBookProcess = newSeriesProcess.CreateBookProcess(book);
             var newPageProcess = newBookProcess.CreatePageProcess(pageId);
             await RunProcessCoreLoopAsync(newPageProcess, cancellationToken);
         }

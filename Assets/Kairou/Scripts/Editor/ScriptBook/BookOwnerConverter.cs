@@ -5,11 +5,11 @@ using System;
 
 namespace Kairou
 {
-    public class ScriptBookOwnerConverter
+    public class BookOwnerConverter
     {
-        public static void ConvertAndSaveAsAsset(ScriptBook scriptBook)
+        public static void ConvertAndSaveAsAsset(ScriptBook book)
         {
-            AssetUtil.SaveAsset(ToAsset(scriptBook));
+            AssetUtil.SaveAsset(ToAsset(book));
         }
 
         public static ScriptBookAsset ToAsset(ScriptBook source)
@@ -17,7 +17,7 @@ namespace Kairou
             if (source == null) throw new ArgumentNullException(nameof(source));
             
             var asset = ScriptableObject.CreateInstance<ScriptBookAsset>();
-            EditorJsonUtility.FromJsonOverwrite(EditorJsonUtility.ToJson(source), asset.ScriptBook);
+            EditorJsonUtility.FromJsonOverwrite(EditorJsonUtility.ToJson(source), asset.Book);
             return asset;
         }
     }

@@ -4,9 +4,9 @@ namespace Kairou
 {
     public class ScriptBookComponent : MonoBehaviour
     {
-        [SerializeField] ScriptBook _scriptBook = new();
-        public ScriptBook ScriptBook => _scriptBook;
+        [SerializeField] ScriptBook _book = new();
+        public ScriptBook Book => _book;
 
-        public string ScriptBookPropertyPath => nameof(_scriptBook);
+        public string BookPropertyPath => nameof(_book);
     }
 }

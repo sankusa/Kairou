@@ -10,7 +10,7 @@ namespace Kairou
     [Serializable]
     public class BookHeaderPanel
     {
-        [SerializeField] RestorableScriptBookHolder _bookHolder = new();
+        [SerializeField] RestorableBookHolder _bookHolder = new();
 
         ObjectField _objectField;
         bool IsInitialized => _objectField != null;
@@ -25,9 +25,9 @@ namespace Kairou
             Reload();
         }
 
-        public void SetTarget(ScriptBookId scriptBookId)
+        public void SetTarget(BookId bookId)
         {
-            _bookHolder.Reset(scriptBookId);
+            _bookHolder.Reset(bookId);
             if (IsInitialized) Reload();
         }
 
