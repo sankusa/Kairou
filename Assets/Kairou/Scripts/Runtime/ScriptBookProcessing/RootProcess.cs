@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Kairou
 {
-    public class RootProcess
+    internal class RootProcess
     {
         static readonly ObjectPool<RootProcess> _pool = new(
             createFunc: static () => new RootProcess()
@@ -73,14 +73,7 @@ namespace Kairou
 
                     seriesProcess = rootProcess.CreateSeriesProcess();
                     bookProcess = seriesProcess.CreateScriptBookProcess(subsequentProcessInfo.Book);
-                    if (subsequentProcessInfo.HasPageId)
-                    {
-                        pageProcess = bookProcess.CreatePageProcess(subsequentProcessInfo.PageId);
-                    }
-                    else
-                    {
-                        pageProcess = bookProcess.CreateEntryPageProcess();
-                    }
+                    pageProcess = bookProcess.CreatePageProcess(subsequentProcessInfo.PageId);
                 }
             }
             finally

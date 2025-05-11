@@ -18,7 +18,7 @@ namespace Kairou
 
         public abstract Type TargetType { get; }
 
-        public Variable Find(PageProcess process)
+        public Variable Find(IProcessInterface process)
         {
             return process.FindVariable(VariableName, TargetScope);
         }
@@ -47,7 +47,7 @@ namespace Kairou
     {
         public override Type TargetType => typeof(T);
         
-        public new VariableValueAccessor<T> Find(PageProcess process)
+        public new VariableValueAccessor<T> Find(IProcessInterface process)
         {
             return process.FindVariableValueAccessor<T>(VariableName, TargetScope);
         }

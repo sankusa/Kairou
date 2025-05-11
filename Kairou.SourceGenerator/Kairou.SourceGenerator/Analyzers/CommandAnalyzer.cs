@@ -168,7 +168,7 @@ public class CommandAnalyzer : DiagnosticAnalyzer
             {
                 continue;
             }
-            if (SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.PageProcess(compilation)))
+            if (SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.IProcessInterface(compilation)))
             {
                 continue;
             }

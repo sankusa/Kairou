@@ -93,11 +93,11 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
         {
             if (isAsyncCommand)
             {
-                builder.AppendIndentedLine($"public override async UniTask InvokeExecuteAsync(PageProcess pageProcess, CancellationToken cancellationToken)");
+                builder.AppendIndentedLine($"public override async UniTask InvokeExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)");
             }
             else
             {
-                builder.AppendIndentedLine($"public override void InvokeExecute(PageProcess pageProcess)");
+                builder.AppendIndentedLine($"public override void InvokeExecute(IProcessInterface process)");
             }
             using (new BlockScope(builder))
             {
@@ -130,7 +130,7 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
 
             if (injectAttribute != null)
             {
-                builder.AppendIndentedLine($"var {parameter.Name} = pageProcess.Resolve<{parameter.Type.ToDisplayString()}>();");
+                builder.AppendIndentedLine($"var {parameter.Name} = process.Resolve<{parameter.Type.ToDisplayString()}>();");
                 if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
                 paramListBuilder.Append(parameter.Name);
                 continue;
@@ -144,28 +144,28 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
                 {
                     if (field.Type.IsSubclassOf(Symbols.VariableKey(compilation)))
                     {
-                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.Find(pageProcess).Value;");
+                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.Find(process).Value;");
                         if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
                         paramListBuilder.Append(parameter.Name);
                         continue;
                     }
                     else if (field.Type.IsSubclassOf(Symbols.VariableValueGetterKey(compilation)))
                     {
-                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.Find(pageProcess).GetValue();");
+                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.Find(process).GetValue();");
                         if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
                         paramListBuilder.Append(parameter.Name);
                         continue;
                     }
                     else if (field.Type.IsSubclassOf(Symbols.VariableValueAccessorKey(compilation)))
                     {
-                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.Find(pageProcess).GetValue();");
+                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.Find(process).GetValue();");
                         if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
                         paramListBuilder.Append(parameter.Name);
                         continue;
                     }
                     else if (field.Type.IsSubclassOf(Symbols.FlexibleParameter(compilation)))
                     {
-                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.ResolveValue(pageProcess);");
+                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.ResolveValue(process);");
                         if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
                         paramListBuilder.Append(parameter.Name);
                         continue;
@@ -173,10 +173,10 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
                 }
                 
             }
-            if (SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.PageProcess(compilation)))
+            if (SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.IProcessInterface(compilation)))
             {
                 if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
-                paramListBuilder.Append("pageProcess");
+                paramListBuilder.Append("process");
                 continue;
             }
             if(isAsyncCommand && SymbolEqualityComparer.Default.Equals(parameter.Type, Symbols.CancellationToken(compilation)))

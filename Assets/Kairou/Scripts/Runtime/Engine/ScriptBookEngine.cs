@@ -9,7 +9,7 @@ namespace Kairou
 {
     public class ScriptBookEngine : MonoBehaviour
     {
-        [SerializeField] List<ScriptBookOwnerReference> _scriptBookOwners = new();
+        [SerializeReference, SerializeReferencePopup] List<IScriptBookSlot> _scriptBookSlots = new();
         [SerializeField] bool _runOnStart = true;
         [SerializeField] ComponentBinding _componentBinding;
 
@@ -48,10 +48,10 @@ namespace Kairou
             try
             {
                 IncrementRunnignCount();
-                foreach (ScriptBookOwnerReference scriptBookOwnerReference in _scriptBookOwners)
+                foreach (IScriptBookSlot slot in _scriptBookSlots)
                 {
-                    if (scriptBookOwnerReference.ScriptBook == null) continue;
-                    await RunAsyncInternal(scriptBookOwnerReference.ScriptBook, linkedCts.Token);
+                    if (slot.ScriptBook == null) continue;
+                    await RunAsyncInternal(slot.ScriptBook, linkedCts.Token);
                 }
             }
             catch (OperationCanceledException e)
@@ -123,6 +123,7 @@ namespace Kairou
                 await ProcessRunner.RunMainSequenceAsync(
                     processContext,
                     scriptBook,
+                    null,
                     () => ProcessContext.Return(processContext),
                     linkedToken
                 );

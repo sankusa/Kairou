@@ -25,7 +25,7 @@ namespace Kairou
         [SerializeField] T _value;
         [SerializeField] VariableValueGetterKey<T> _variableValueGetterKey;
 
-        public T ResolveValue(PageProcess process)
+        public T ResolveValue(IProcessInterface process)
         {
             return _resolveType switch
             {

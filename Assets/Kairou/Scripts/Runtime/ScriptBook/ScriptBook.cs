@@ -27,7 +27,7 @@ namespace Kairou
 
         public Page GetPage(string pageId)
         {
-            if (string.IsNullOrEmpty(pageId)) throw new ArgumentNullException(nameof(pageId));
+            if (string.IsNullOrEmpty(pageId)) return EntryPage;
             foreach (Page page in _pages)
             {
                 if (page.Id == pageId) return page;

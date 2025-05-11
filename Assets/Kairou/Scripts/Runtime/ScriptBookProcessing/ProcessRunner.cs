@@ -7,12 +7,12 @@ namespace Kairou
 {
     public class ProcessRunner
     {
-        public static async UniTask RunMainSequenceAsync(ProcessContext context, ScriptBook scriptBook, Action onTerminated, CancellationToken cancellationToken)
+        public static async UniTask RunMainSequenceAsync(ProcessContext context, ScriptBook scriptBook, string pageId, Action onTerminated, CancellationToken cancellationToken)
         {
             var rootProcess = RootProcess.Rent(context);
             var seriesProcess = rootProcess.CreateSeriesProcess();
             var bookProcess = seriesProcess.CreateScriptBookProcess(scriptBook);
-            var pageProcess = bookProcess.CreateEntryPageProcess();
+            var pageProcess = bookProcess.CreatePageProcess(pageId);
             
             try
             {
@@ -41,18 +41,18 @@ namespace Kairou
             await RunProcessCoreLoopAsync(newPageProcess, cancellationToken);
         }
 
-        internal static async UniTask RunBookAsSeriesProcessSubSequenceAsync(PageProcess pageProcess, ScriptBook book, CancellationToken cancellationToken)
+        internal static async UniTask RunBookAsSeriesProcessSubSequenceAsync(PageProcess pageProcess, ScriptBook book, string pageId, CancellationToken cancellationToken)
         {
             var newBookProcess = pageProcess.BookProcess.SeriesProcess.CreateScriptBookProcess(book);
-            var newPageProcess = newBookProcess.CreateEntryPageProcess();
+            var newPageProcess = newBookProcess.CreatePageProcess(pageId);
             await RunProcessCoreLoopAsync(newPageProcess, cancellationToken);
         }
 
-        internal static async UniTask RunBookAsRootProcessSubSequenceAsync(PageProcess pageProcess, ScriptBook book, CancellationToken cancellationToken)
+        internal static async UniTask RunBookAsRootProcessSubSequenceAsync(PageProcess pageProcess, ScriptBook book, string pageId, CancellationToken cancellationToken)
         {
             var newSeriesProcess = pageProcess.BookProcess.SeriesProcess.RootProcess.CreateSeriesProcess();
             var newBookProcess = newSeriesProcess.CreateScriptBookProcess(book);
-            var newPageProcess = newBookProcess.CreateEntryPageProcess();
+            var newPageProcess = newBookProcess.CreatePageProcess(pageId);
             await RunProcessCoreLoopAsync(newPageProcess, cancellationToken);
         }
 

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Kairou
 {
-    public class PageProcess
+    internal class PageProcess
     {
         public enum ProcessState
         {
@@ -24,6 +24,8 @@ namespace Kairou
         public ScriptBookProcess BookProcess { get; private set; }
         Page _page;
 
+        readonly ProcessInterface _processInterface;
+
         readonly VariableContainer _variables = new();
         public VariableContainer Variables => _variables;
 
@@ -31,7 +33,7 @@ namespace Kairou
         internal bool IsTerminated => _state == ProcessState.Terminated;
 
         int _currentCommandIndex;
-        public int NextCommandIndex { get; set; }
+        public int NextCommandIndex { get; private set; }
         
         public SubsequentProcessInfo SubsequentProcessInfo { get; set; }
 
@@ -39,7 +41,10 @@ namespace Kairou
 
         CancellationTokenSource _cts;
 
-        private PageProcess() {}
+        private PageProcess()
+        {
+            _processInterface = new ProcessInterface(this);
+        }
 
         internal static PageProcess Rent(ScriptBookProcess parentProcess, Page page)
         {
@@ -118,7 +123,7 @@ namespace Kairou
                         }
                         else
                         {
-                            command.InvokeExecute(this);
+                            command.InvokeExecute(_processInterface);
                         }
                     }
                     catch (OperationCanceledException e) when (e.CancellationToken != linkedCts.Token)
@@ -150,7 +155,7 @@ namespace Kairou
         {
             if (asyncCommand.AsyncCommandParameter.Await)
             {
-                await asyncCommand.InvokeExecuteAsync(this, linkedToken);
+                await asyncCommand.InvokeExecuteAsync(_processInterface, linkedToken);
             }
             else
             {
@@ -159,7 +164,7 @@ namespace Kairou
                     _asyncExecutingCommandCounter++;
                     try
                     {
-                        await asyncCommand.InvokeExecuteAsync(this, linkedToken);
+                        await asyncCommand.InvokeExecuteAsync(_processInterface, linkedToken);
                     }
                     finally
                     {
@@ -172,7 +177,7 @@ namespace Kairou
                 }
                 else
                 {
-                    asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.Find(this).SetValue(awaiter);
+                    asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.Find(_processInterface).SetValue(awaiter);
                 }
             }
         }
@@ -195,6 +200,16 @@ namespace Kairou
         string CreateLogExceptionHeader(bool isAsync, Command command)
         {
             return $"{(isAsync ? "[Async] " : "")} {command.GetType().Name}";
+        }
+
+        public void GoToIndex(int commandIndex)
+        {
+            NextCommandIndex = commandIndex;
+        }
+
+        public void GoToEnd()
+        {
+            NextCommandIndex = _page.Commands.Count;
         }
     }
 }

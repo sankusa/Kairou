@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Kairou
 {
-    public class ScriptBookProcess
+    internal class ScriptBookProcess
     {
         static readonly ObjectPool<ScriptBookProcess> _pool = new(
             createFunc: static () => new ScriptBookProcess()
@@ -61,19 +61,9 @@ namespace Kairou
             IsTerminated = false;
         }
 
-        internal PageProcess CreateEntryPageProcess()
-        {
-            return CreatePageProcessInternal(_scriptBook.EntryPage);
-        }
-
         internal PageProcess CreatePageProcess(string pageId)
         {
             var page = _scriptBook.GetPage(pageId);
-            return CreatePageProcessInternal(page);
-        }
-
-        PageProcess CreatePageProcessInternal(Page page)
-        {
             var pageProcess = PageProcess.Rent(this, page);
             _unfinishedPageProcesses.Add(pageProcess);
             return pageProcess;

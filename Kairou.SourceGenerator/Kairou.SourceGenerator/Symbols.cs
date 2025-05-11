@@ -10,7 +10,7 @@ public static class Symbols
     public static INamedTypeSymbol UniTask(Compilation compilation) => compilation.GetTypeByMetadataName("Cysharp.Threading.Tasks.UniTask")!;
     public static INamedTypeSymbol CancellationToken(Compilation compilation) => compilation.GetTypeByMetadataName("System.Threading.CancellationToken")!;
 
-    public static INamedTypeSymbol PageProcess(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.PageProcess")!;
+    public static INamedTypeSymbol IProcessInterface(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.IProcessInterface")!;
     public static INamedTypeSymbol Command(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.Command")!;
     public static INamedTypeSymbol AsyncCommand(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.AsyncCommand")!;
     public static INamedTypeSymbol CommandExecuteAttribute(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.CommandExecuteAttribute")!;

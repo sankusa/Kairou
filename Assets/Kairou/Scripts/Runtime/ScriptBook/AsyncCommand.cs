@@ -35,12 +35,12 @@ namespace Kairou
         /// <summary>
         /// Implement ExecuteAsync instead.
         /// </summary>
-        public sealed override void InvokeExecute(PageProcess process)
+        public sealed override void InvokeExecute(IProcessInterface process)
         {
             throw new InvalidOperationException($"Use {nameof(InvokeExecuteAsync)} instead of Execute.");
         }
 
-        public virtual UniTask InvokeExecuteAsync(PageProcess process, CancellationToken cancellationToken)
+        public virtual UniTask InvokeExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)
         {
             throw new NotImplementedException(nameof(InvokeExecuteAsync));
         }
