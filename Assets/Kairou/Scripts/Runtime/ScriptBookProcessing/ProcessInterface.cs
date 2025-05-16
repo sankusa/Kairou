@@ -17,6 +17,12 @@ namespace Kairou
         public int NextCommandIndex => _pageProcess.NextCommandIndex;
         public void GoToIndex(int commandIndex) => _pageProcess.GoToIndex(commandIndex);
         public void GoToEnd() => _pageProcess.GoToEnd();
+
+        public void PushBlock(Block block) => _pageProcess.PushBlock(block);
+        public Block PopBlock() => _pageProcess.PopBlock();
+        public Block PeekBlock() => _pageProcess.PeekBlock();
+        public bool TryPopBlock<TBlock>(out TBlock block) where TBlock : Block => _pageProcess.TryPopBlock(out block);
+
         public void SwitchPage(string pageId)
         {
             _pageProcess.GoToEnd();
@@ -32,15 +38,15 @@ namespace Kairou
             _pageProcess.GoToEnd();
             _pageProcess.SubsequentProcessInfo = new SubsequentProcessInfo(true, book, pageId);
         }
-        public async UniTask RunPage(string pageId, CancellationToken cancellationToken)
+        public async UniTask RunPageAsync(string pageId, CancellationToken cancellationToken)
         {
             await ProcessRunner.RunPageAsBookProcessSubSequenceAsync(_pageProcess, pageId, cancellationToken);
         }
-        public async UniTask RunBook(ScriptBook book, string pageId, CancellationToken cancellationToken)
+        public async UniTask RunBookAsync(ScriptBook book, string pageId, CancellationToken cancellationToken)
         {
             await ProcessRunner.RunBookAsSeriesProcessSubSequenceAsync(_pageProcess, book, pageId, cancellationToken);
         }
-        public async UniTask RunBookAsNewSeries(ScriptBook book, string pageId, CancellationToken cancellationToken)
+        public async UniTask RunBookAsNewSeriesAsync(ScriptBook book, string pageId, CancellationToken cancellationToken)
         {
             await ProcessRunner.RunBookAsRootProcessSubSequenceAsync(_pageProcess, book, pageId, cancellationToken);
         }

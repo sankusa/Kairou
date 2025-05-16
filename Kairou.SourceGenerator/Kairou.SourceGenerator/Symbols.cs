@@ -24,6 +24,9 @@ public static class Symbols
     public static INamedTypeSymbol TypeConverter(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.TypeConverter")!;
     public static INamedTypeSymbol TypeConverterDictionary(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.TypeConverterDictionary")!;
 
+    public static INamedTypeSymbol IValidatableAsCommandField(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.IValidatableAsCommandField")!;
+    public static INamedTypeSymbol GenerateValidationAttribute(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.GenerateValidationAttribute")!;
+
     public static INamedTypeSymbol VariableKey(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.VariableKey")!;
     public static INamedTypeSymbol VariableValueGetterKey(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.VariableValueGetterKey")!;
     public static INamedTypeSymbol VariableValueSetterKey(Compilation compilation) => compilation.GetTypeByMetadataName("Kairou.VariableValueSetterKey")!;

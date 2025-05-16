@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Kairou
 {
-    public static class CommandExtensions
+    public static class VariableKeyValidator
     {
-        public static IEnumerable<string> ValidateVariableKey(this Command command, string fieldName, string variableName, TargetVariableScope targetScope, Func<VariableDefinition, string, IEnumerable<string>> validateFunc)
+        public static IEnumerable<string> Validate(Command command, string fieldName, string variableName, TargetVariableScope targetScope, Func<VariableDefinition, string, IEnumerable<string>> validateFunc)
         {
             var page = command.ParentPage;
             var book = page?.ParentBook;

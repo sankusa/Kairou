@@ -49,6 +49,25 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
 
     static void Emit(SourceProductionContext context, Compilation compilation, INamedTypeSymbol commandTypeSymbol)
     {
+        try
+        {
+            EmitInternal(context, compilation, commandTypeSymbol);
+        }
+        catch (Exception e)
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    DiagnosticDescriptors.UnexpectedError,
+                    Location.None,
+                    commandTypeSymbol.Name,
+                    e.ToString()
+                )
+            );
+        }
+    }
+
+    static void EmitInternal(SourceProductionContext context, Compilation compilation, INamedTypeSymbol commandTypeSymbol)
+    {
         bool isAsyncCommand = commandTypeSymbol.IsSubclassOf(Symbols.AsyncCommand(compilation));
 
         INamedTypeSymbol commandExecuteAttribute = Symbols.CommandExecuteAttribute(compilation);
@@ -207,16 +226,48 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
         {
             foreach (var field in fields)
             {
-                if (field.Type.IsSubclassOf(Symbols.VariableKey(compilation))
-                    || field.Type.IsSubclassOf(Symbols.VariableValueGetterKey(compilation))
-                    || field.Type.IsSubclassOf(Symbols.VariableValueSetterKey(compilation))
-                    || field.Type.IsSubclassOf(Symbols.VariableValueAccessorKey(compilation))
-                    || field.Type.IsSubclassOf(Symbols.FlexibleParameter(compilation)))
+                var attributes = field.GetAttributes();
+                var generateValidation = attributes.FirstOrDefault(
+                    attr => SymbolEqualityComparer.Default.Equals(
+                        attr.AttributeClass,
+                        Symbols.GenerateValidationAttribute(compilation)
+                    )
+                );
+                if (generateValidation != null)
                 {
-                    builder.AppendIndentedLine($"foreach (string errorMessage in {field.Name}.Validate(this, nameof({field.Name})))");
+                    var allowNullProperty = generateValidation.NamedArguments.FirstOrDefault(x => x.Key == "AllowNull");
+                    bool allowNull = false;
+                    if (allowNullProperty.Equals(default) == false && allowNullProperty.Value.Value != null)
+                    {
+                        allowNull = (bool)allowNullProperty.Value.Value!;
+                    }
+
+                    builder.AppendIndentedLine($"// Validate {field.Name}");
+                    if (allowNull)
+                    {
+                        builder.AppendIndentedLine($"if ({field.Name} != null)");
+                    }
+                    else
+                    {
+                        builder.AppendIndentedLine($"if ({field.Name} == null)");
+                        using (new BlockScope(builder))
+                        {
+                            builder.AppendIndentedLine($"yield return $\"{{nameof({field.Name})}} is null\";");
+                        }
+                        builder.AppendIndentedLine($"else");
+                    }
                     using (new BlockScope(builder))
                     {
-                        builder.AppendIndentedLine($"yield return errorMessage;");
+                        var validatableAsCommandField = field.Type.AllInterfaces.FirstOrDefault(x => SymbolEqualityComparer.Default.Equals(x, Symbols.IValidatableAsCommandField(compilation)));
+
+                        if (validatableAsCommandField != null)
+                        {
+                            builder.AppendIndentedLine($"foreach (string errorMessage in {field.Name}.Validate(this, nameof({field.Name})))");
+                            using (new BlockScope(builder))
+                            {
+                                builder.AppendIndentedLine($"yield return errorMessage;");
+                            }
+                        }
                     }
                     builder.AppendLine();
                 }

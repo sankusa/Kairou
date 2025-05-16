@@ -109,7 +109,7 @@ namespace Kairou.Editor
 
             _commandPanel.Initialize(
                 rightPane,
-                () => _commandListPanel.Rebuild()
+                () => _commandListPanel.Reflesh()
             );
 
             _variablePanel.Initialize(

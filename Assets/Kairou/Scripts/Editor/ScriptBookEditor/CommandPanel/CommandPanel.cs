@@ -25,7 +25,9 @@ namespace Kairou.Editor
 
         public void Initialize(VisualElement parent, Action onCommandChanged)
         {
-            _parent = new ScrollView() {horizontalScrollerVisibility = ScrollerVisibility.Hidden };
+            var scrollView = new ScrollView() { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
+            scrollView.style.marginRight = 2;
+            _parent = scrollView;
             parent.Add(_parent);
             _onCommandChanged = onCommandChanged;
             Reload();
@@ -57,21 +59,26 @@ namespace Kairou.Editor
                 int typeNameStartIndex = commandProp.type.IndexOf('<') + 1;
                 int typeNameEndIndex = commandProp.type.LastIndexOf('>');
                 string typeName = commandProp.type[typeNameStartIndex..typeNameEndIndex];
-                var propertyField = new PropertyField(commandProp, typeName);
-                _parent.Add(propertyField);
-                propertyField.BindProperty(commandProp);
-                propertyField.TrackSerializedObjectValue(commandProp.serializedObject, _ => _onCommandChanged?.Invoke());
+                // var propertyField = new PropertyField(commandProp, typeName);
+                // _parent.Add(propertyField);
+                // propertyField.BindProperty(commandProp);
+                // propertyField.TrackSerializedObjectValue(commandProp.serializedObject, _ => _onCommandChanged?.Invoke());
                 // propertyField.style.display = DisplayStyle.Flex;
 
-                // var container = new IMGUIContainer(() =>
-                // {
-                //     serializedObject.UpdateIfRequiredOrScript();
-                //     using var _ = new LabelWidthScope(120);
-                //     EditorGUILayout.PropertyField(commandProp, new GUIContent(typeName), true);
-                //     serializedObject.ApplyModifiedProperties();
-                // });
+                var container = new IMGUIContainer(() =>
+                {
+                    serializedObject.UpdateIfRequiredOrScript();
+                    // using var _ = new LabelWidthScope(120);
+                    EditorGUI.BeginChangeCheck();
+                    EditorGUILayout.PropertyField(commandProp, new GUIContent(typeName), true);
+                    serializedObject.ApplyModifiedProperties();
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        _onCommandChanged?.Invoke();
+                    }
+                });
 
-                // _parent.Add(container);
+                _parent.Add(container);
             }
         }
 

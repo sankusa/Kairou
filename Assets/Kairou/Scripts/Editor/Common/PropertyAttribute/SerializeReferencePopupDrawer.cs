@@ -18,9 +18,9 @@ namespace Kairou
         {
             InitializeIfNeeded(property);
 
-            Rect popupRect = new(position);
+            var popupRect = new Rect(position);
             popupRect.height = EditorGUIUtility.singleLineHeight;
-            popupRect.xMin += EditorGUIUtility.labelWidth + EditorGUIUtility.standardVerticalSpacing;
+            popupRect.xMin += EditorGUIUtility.labelWidth + EditorGUIUtility.standardVerticalSpacing - EditorGUI.indentLevel * 15f;
 
             int currentIndex = Array.IndexOf(_subclassFullNames, property.managedReferenceFullTypename);
             int selectedIndex = EditorGUI.Popup(popupRect, currentIndex, _subclassDisplayNames);

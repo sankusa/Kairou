@@ -5,13 +5,12 @@ using UnityEngine;
 namespace Kairou
 {
     [Serializable]
-    public abstract class FlexibleParameter
+    public abstract class FlexibleParameter : IValidatableAsCommandField
     {
         public enum ResolveType
         {
             Value = 0,
             Variable = 1,
-            Resolver = 2,
         }
 
         [SerializeField] protected ResolveType _resolveType;
@@ -31,7 +30,6 @@ namespace Kairou
             {
                 ResolveType.Value => _value,
                 ResolveType.Variable => _variableValueGetterKey.Find(process).GetValue(),
-                ResolveType.Resolver => process.Resolve<T>(),
                 _ => throw new InvalidOperationException()
             };
         }
@@ -46,7 +44,6 @@ namespace Kairou
                     yield return errorMessage;
                 }
             }
-            else if (_resolveType == ResolveType.Resolver) {}
             else
             {
                 yield return $"{fieldName} : Unknown ResolveType: {_resolveType}";

@@ -11,7 +11,7 @@ namespace Kairou.SourceGenerator;
 [DiagnosticAnalyzer(Microsoft.CodeAnalysis.LanguageNames.CSharp)]
 public class CommandAnalyzer : DiagnosticAnalyzer
 {
-    const string Category = "Kairou.SourceGenerator";
+    static string Category = Const.ProjectName;
 
     public static readonly DiagnosticDescriptor CommandMustBePartialClass = new(
         id: "Kairou0001",

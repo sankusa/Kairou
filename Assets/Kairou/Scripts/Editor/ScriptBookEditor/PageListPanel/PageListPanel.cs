@@ -86,7 +86,7 @@ namespace Kairou.Editor
             }
             else
             {
-                _listView.itemsSource = _bookHolder.Book.Pages;
+                _listView.itemsSource = _bookHolder.Book.Pages as IList;
                 _listView.enabledSelf = true;
             }
 

@@ -48,5 +48,7 @@ namespace Kairou
         {
             yield break;
         }
+
+        public int CalculateBlockLevel() => _parentPage.CalculateBlockLevel(Index);
     }
 }

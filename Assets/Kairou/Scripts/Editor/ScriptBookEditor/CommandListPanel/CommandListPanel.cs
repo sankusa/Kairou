@@ -45,6 +45,10 @@ namespace Kairou.Editor
                 CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
                 element.Q<Label>("NameLabel").text = commandInfo.CommandName;
                 element.Q<Label>("SummaryLabel").text = command.GetSummary();
+                var indentBox = element.Q<VisualElement>("IndentBox");
+                indentBox.style.width = 12 * command.CalculateBlockLevel();
+                indentBox.style.flexShrink = 0;
+                indentBox.style.flexGrow = 0;
 
                 string errorMessage = string.Join('\n', command.InvokeValidate());
                 if (string.IsNullOrEmpty(errorMessage))
@@ -119,7 +123,7 @@ namespace Kairou.Editor
 
             if (ExistsTargetPage)
             {
-                _listView.itemsSource = _bookHolder.Book.Pages[_pageIndex].Commands;
+                _listView.itemsSource = _bookHolder.Book.Pages[_pageIndex].Commands as IList;
                 _listView.enabledSelf = true;
             }
             else
@@ -130,7 +134,7 @@ namespace Kairou.Editor
             _listView.selectedIndex = 0;
         }
 
-        public void Rebuild() => _listView.Rebuild();
+        public void Reflesh() => _listView.RefreshItems();//  _listView.Rebuild();
 
         public void OnProjectOrHierarchyChanged()
         {

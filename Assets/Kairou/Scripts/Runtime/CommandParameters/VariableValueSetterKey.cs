@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Kairou
 {
     [Serializable]
-    public abstract class VariableValueSetterKey
+    public abstract class VariableValueSetterKey : IValidatableAsCommandField
     {
         [SerializeField] TargetVariableScope _targetScope = TargetVariableScope.None;
         public TargetVariableScope TargetScope => _targetScope;
@@ -25,7 +25,8 @@ namespace Kairou
 
         public IEnumerable<string> Validate(Command command, string fieldName)
         {
-            return command.ValidateVariableKey(
+            return VariableKeyValidator.Validate(
+                command,
                 fieldName,
                 _variableName,
                 _targetScope,

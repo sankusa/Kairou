@@ -9,12 +9,18 @@ namespace Kairou
         int NextCommandIndex { get; }
         void GoToIndex(int commandIndex);
         void GoToEnd();
+
+        void PushBlock(Block block);
+        Block PopBlock();
+        Block PeekBlock();
+        bool TryPopBlock<TBlock>(out TBlock block) where TBlock : Block;
+
         void SwitchPage(string pageId);
         void SwitchBook(ScriptBook book, string pageId);
         void SwitchBookAsNewSeries(ScriptBook book, string pageId);
-        UniTask RunPage(string pageId, CancellationToken cancellationToken);
-        UniTask RunBook(ScriptBook book, string pageId, CancellationToken cancellationToken);
-        UniTask RunBookAsNewSeries(ScriptBook book, string pageId, CancellationToken cancellationToken);
+        UniTask RunPageAsync(string pageId, CancellationToken cancellationToken);
+        UniTask RunBookAsync(ScriptBook book, string pageId, CancellationToken cancellationToken);
+        UniTask RunBookAsNewSeriesAsync(ScriptBook book, string pageId, CancellationToken cancellationToken);
 
         Variable FindVariable(string name, TargetVariableScope targetScope = TargetVariableScope.None);
         Variable<T> FindVariable<T>(string name, TargetVariableScope targetScope = TargetVariableScope.None);

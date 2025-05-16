@@ -29,6 +29,8 @@ namespace Kairou
         readonly VariableContainer _variables = new();
         public VariableContainer Variables => _variables;
 
+        readonly Stack<Block>_blockStack = new();
+
         ProcessState _state = ProcessState.UnInitialized;
         internal bool IsTerminated => _state == ProcessState.Terminated;
 
@@ -86,6 +88,7 @@ namespace Kairou
             BookProcess = null;
             _page = null;
             _variables.Clear();
+            _blockStack.Clear();
 
             _state = ProcessState.UnInitialized;
 
@@ -129,6 +132,15 @@ namespace Kairou
                     catch (OperationCanceledException e) when (e.CancellationToken != linkedCts.Token)
                     {
                         // Command内部の事情によりキャンセルされた場合は握り潰して処理を続行
+                    }
+
+                    // ブロックの範囲を越えていたらブロックを破棄
+                    while(true)
+                    {
+                        var block = PeekBlock();
+                        if(block == null) break;
+                        if(block.StartIndex <= NextCommandIndex && NextCommandIndex <= block.EndIndex) break;
+                        PopBlock().Dispose();
                     }
                 }
             }
@@ -210,6 +222,22 @@ namespace Kairou
         public void GoToEnd()
         {
             NextCommandIndex = _page.Commands.Count;
+        }
+
+        public void PushBlock(Block block) => _blockStack.Push(block);
+
+        public Block PopBlock() => _blockStack.Count > 0 ? _blockStack.Pop() : null;
+
+        public Block PeekBlock() => _blockStack.Count > 0 ? _blockStack.Peek() : null;
+
+        public bool TryPopBlock<TBlock>(out TBlock block) where TBlock : Block
+        {
+            block = null;
+            if (_blockStack.Count == 0) return false;
+            if (_blockStack.Peek() is not TBlock tBlock) return false;
+            _blockStack.Pop();
+            block = tBlock;
+            return true;
         }
     }
 }

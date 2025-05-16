@@ -8,7 +8,7 @@ namespace Kairou
     public class ScriptBook : ISerializationCallbackReceiver
     {
         [SerializeField] List<Page> _pages = new();
-        public List<Page> Pages => _pages;
+        public IReadOnlyList<Page> Pages => _pages;
 
         public Page EntryPage => _pages.Count > 0 ? _pages[0] : null;
 
