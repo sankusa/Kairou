@@ -23,9 +23,11 @@ namespace Kairou
             return process.FindVariable(VariableName, TargetScope);
         }
 
+        public string GetSummary() => VariableKeySharedLogic.GetSummary(_variableName);
+
         public IEnumerable<string> Validate(Command command, string fieldName)
         {
-            return VariableKeyValidator.Validate(
+            return VariableKeySharedLogic.Validate(
                 command,
                 fieldName,
                 _variableName,

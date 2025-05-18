@@ -43,7 +43,8 @@ namespace Kairou
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken, cancellationToken);
+            var dct =  destroyCancellationToken;
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(dct, cancellationToken);
             
             try
             {
@@ -60,11 +61,14 @@ namespace Kairou
                 {
                     throw new OperationCanceledException(e.Message, e, cancellationToken);
                 }
-                else if (destroyCancellationToken.IsCancellationRequested)
+                else if (dct.IsCancellationRequested)
                 {
                     // 破棄時は無視
                 }
-                throw;
+                else
+                {
+                    throw;
+                }
             }
             finally
             {
@@ -87,7 +91,8 @@ namespace Kairou
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken, cancellationToken);
+            var dct =  destroyCancellationToken;
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(dct, cancellationToken);
 
             try
             {
@@ -100,11 +105,14 @@ namespace Kairou
                 {
                     throw new OperationCanceledException(e.Message, e, cancellationToken);
                 }
-                else if (destroyCancellationToken.IsCancellationRequested)
+                else if (dct.IsCancellationRequested)
                 {
                     // 破棄時は無視
                 }
-                throw;
+                else
+                {
+                    throw;
+                }
             }
             finally
             {
@@ -123,7 +131,6 @@ namespace Kairou
                 await ProcessRunner.RunMainSequenceAsync(
                     processContext,
                     book,
-                    null,
                     () => ProcessContext.Return(processContext),
                     linkedToken
                 );

@@ -64,10 +64,11 @@ namespace Kairou.Editor
                     var helpBox = errorBox.Q<HelpBox>();
                     if (helpBox == null)
                     {
-                        helpBox = new HelpBox(errorMessage, HelpBoxMessageType.Error);
+                        helpBox = new HelpBox("", HelpBoxMessageType.Error);
                         helpBox.Q<VisualElement>(className: "unity-help-box__icon").style.minHeight = 16;
                         errorBox.Add(helpBox);
                     }
+                    helpBox.text = errorMessage;
                 }
             };
 

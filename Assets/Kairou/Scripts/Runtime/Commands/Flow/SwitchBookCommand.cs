@@ -22,5 +22,10 @@ namespace Kairou
                 process.SwitchBook(_target.Book, _target.PageId);
             }
         }
+
+        public override string GetSummary()
+        {
+            return (_switchSeries ? "(Switch Series) " : "") + _target.GetSummary();
+        }
     }
 }

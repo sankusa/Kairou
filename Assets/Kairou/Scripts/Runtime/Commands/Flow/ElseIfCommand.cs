@@ -6,6 +6,7 @@ namespace Kairou
     public partial class ElseIfCommand : Command, IBlockEnd, IBlockStart
     {
         public string BlockCategory => "If";
+        public bool IsLoopBlock => false;
 
         [GenerateValidation]
         [SerializeReference] Condition _condition = new Condition<int>();
@@ -41,6 +42,11 @@ namespace Kairou
                 ifBlock.EvaluationFinished = true;
                 process.GoToIndex(ifBlock.EndIndex);
             }
+        }
+
+        public override string GetSummary()
+        {
+            return _condition.GetSummary();
         }
     }
 }

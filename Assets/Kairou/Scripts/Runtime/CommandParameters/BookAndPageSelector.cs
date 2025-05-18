@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Kairou
@@ -13,9 +14,29 @@ namespace Kairou
         [SerializeField] string _pageId;
         public string PageId => _pageId;
 
+        public string GetSummary()
+        {
+            if (_bookSlot == null) return "";
+            return $"{_bookSlot.OwnerObject} : {_pageId}";
+        }
+
         public IEnumerable<string> Validate(Command command, string fieldName)
         {
-            yield break;
+            if (_bookSlot == null)
+            {
+                yield return $"{fieldName} : BookSlot is null";
+            }
+            else if (_bookSlot.Book == null)
+            {
+                yield return $"{fieldName} : Book is null";
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(_pageId) == false && _bookSlot.Book.Pages.FirstOrDefault(x => x.Id == _pageId) == null)
+                {
+                    yield return $"{fieldName} : Page is not found. PageId: {_pageId}";
+                }
+            }
         }
     }
 }

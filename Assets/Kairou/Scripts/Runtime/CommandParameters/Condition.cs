@@ -50,7 +50,7 @@ namespace Kairou
         public abstract CompareOperator Operator { get; }
 
         public abstract bool Evaluate(IProcessInterface process);
-
+        public abstract string GetSummary();
         public abstract IEnumerable<string> Validate(Command command, string fieldName);
     }
 
@@ -81,13 +81,18 @@ namespace Kairou
             };
         }
 
+        public override string GetSummary()
+        {
+            return $"{_value1.GetSummary()} {_operator.GetOperatorString()} {_value2.GetSummary()}";
+        }
+
         public override IEnumerable<string> Validate(Command command, string fieldName)
         {
-            foreach (string errorMessage in _value1.Validate(command, fieldName + nameof(_value1)))
+            foreach (string errorMessage in _value1.Validate(command, $"{fieldName}.{nameof(_value1)}"))
             {
                 yield return errorMessage;
             }
-            foreach (string errorMessage in _value2.Validate(command, fieldName + nameof(_value1)))
+            foreach (string errorMessage in _value2.Validate(command, $"{fieldName}.{nameof(_value2)}"))
             {
                 yield return errorMessage;
             }

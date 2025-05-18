@@ -15,5 +15,10 @@ namespace Kairou
         {
             process.SwitchPage(_target.PageId);
         }
+
+        public override string GetSummary()
+        {
+            return _target.GetSummary();
+        }
     }
 }

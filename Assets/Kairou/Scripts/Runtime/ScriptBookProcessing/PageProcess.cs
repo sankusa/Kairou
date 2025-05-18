@@ -112,6 +112,7 @@ namespace Kairou
                 if (_page == null) return;
                 while (_page.Commands.HasElementAt(NextCommandIndex))
                 {
+                    Command command = null;
                     try
                     {
                         linkedCts.Token.ThrowIfCancellationRequested();
@@ -119,7 +120,7 @@ namespace Kairou
                         _currentCommandIndex = NextCommandIndex;
                         NextCommandIndex = _currentCommandIndex + 1;
 
-                        Command command = _page.Commands[_currentCommandIndex];
+                        command = _page.Commands[_currentCommandIndex];
                         if (command is AsyncCommand asyncCommand)
                         {
                             await StartAsync_ExecuteAsyncCommandAsync(asyncCommand, linkedCts.Token);
@@ -132,6 +133,11 @@ namespace Kairou
                     catch (OperationCanceledException e) when (e.CancellationToken != linkedCts.Token)
                     {
                         // Command内部の事情によりキャンセルされた場合は握り潰して処理を続行
+                    }
+                    catch
+                    {
+                        Debug.LogError(CreateErrorMessage(command, _currentCommandIndex));
+                        throw;
                     }
 
                     // ブロックの範囲を越えていたらブロックを破棄
@@ -185,7 +191,13 @@ namespace Kairou
                 });
                 if (asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.IsEmpty())
                 {
-                    awaiter.ForgetWithLogException(CreateLogExceptionHeader(true, asyncCommand));
+                    int commandIndex = _currentCommandIndex;
+                    awaiter.Forget(e =>
+                    {
+                        if (e is OperationCanceledException) return;
+                        Debug.LogError(CreateErrorMessage(asyncCommand, commandIndex));
+                        Debug.LogException(e);
+                    });
                 }
                 else
                 {
@@ -207,11 +219,6 @@ namespace Kairou
                     _state = ProcessState.Terminated;
                 }
             });
-        }
-
-        string CreateLogExceptionHeader(bool isAsync, Command command)
-        {
-            return $"{(isAsync ? "[Async] " : "")} {command.GetType().Name}";
         }
 
         public void GoToIndex(int commandIndex)
@@ -238,6 +245,11 @@ namespace Kairou
             _blockStack.Pop();
             block = tBlock;
             return true;
+        }
+
+        string CreateErrorMessage(Command command, int commandIndex)
+        {
+            return $"Error: PageId[{_page.Id}], CommandIndex[{commandIndex}], CommandType[{command?.GetType()}]";
         }
     }
 }

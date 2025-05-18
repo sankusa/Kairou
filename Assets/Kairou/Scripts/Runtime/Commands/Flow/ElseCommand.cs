@@ -4,6 +4,7 @@ namespace Kairou
     public partial class ElseCommand : Command, IBlockEnd, IBlockStart
     {
         public string BlockCategory => "If";
+        public bool IsLoopBlock => false;
 
         [CommandExecute]
         void Execute(IProcessInterface process)

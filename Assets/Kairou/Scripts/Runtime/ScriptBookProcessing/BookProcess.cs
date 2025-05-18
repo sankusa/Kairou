@@ -63,7 +63,19 @@ namespace Kairou
 
         internal PageProcess CreatePageProcess(string pageId)
         {
+            if (string.IsNullOrEmpty(pageId)) throw new ArgumentNullException(nameof(pageId));
+            
             var page = _book.GetPage(pageId);
+            return CreatePageProcessInternal(page);
+        }
+
+        internal PageProcess CreateEntryPageProcess()
+        {
+            return CreatePageProcessInternal(_book.EntryPage);
+        }
+
+        PageProcess CreatePageProcessInternal(Page page)
+        {
             var pageProcess = PageProcess.Rent(this, page);
             _unfinishedPageProcesses.Add(pageProcess);
             return pageProcess;

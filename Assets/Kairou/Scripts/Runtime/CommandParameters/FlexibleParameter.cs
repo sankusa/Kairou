@@ -22,31 +22,43 @@ namespace Kairou
     public class FlexibleParameter<T> : FlexibleParameter
     {
         [SerializeField] T _value;
-        [SerializeField] VariableValueGetterKey<T> _variableValueGetterKey;
+        [SerializeField] VariableValueGetterKey<T> _variable;
 
         public T ResolveValue(IProcessInterface process)
         {
             return _resolveType switch
             {
                 ResolveType.Value => _value,
-                ResolveType.Variable => _variableValueGetterKey.Find(process).GetValue(),
+                ResolveType.Variable => _variable.Find(process).GetValue(),
+                _ => throw new InvalidOperationException()
+            };
+        }
+
+        public string GetSummary()
+        {
+            return _resolveType switch
+            {
+                ResolveType.Value => _value.ToString(),
+                ResolveType.Variable => _variable.GetSummary(),
                 _ => throw new InvalidOperationException()
             };
         }
 
         public override IEnumerable<string> Validate(Command command, string fieldName)
         {
-            if (_resolveType == ResolveType.Value) {}
-            else if (_resolveType == ResolveType.Variable)
+            switch (_resolveType)
             {
-                foreach (string errorMessage in _variableValueGetterKey.Validate(command, fieldName))
-                {
-                    yield return errorMessage;
-                }
-            }
-            else
-            {
-                yield return $"{fieldName} : Unknown ResolveType: {_resolveType}";
+                case ResolveType.Value:
+                    break;
+                case ResolveType.Variable:
+                    foreach (string errorMessage in _variable.Validate(command, $"{fieldName}.{nameof(_variable)}"))
+                    {
+                        yield return errorMessage;
+                    }
+                    break;
+                default:
+                    yield return $"{fieldName} : Unknown ResolveType: {_resolveType}";
+                    break;
             }
         }
     }

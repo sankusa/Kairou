@@ -15,5 +15,10 @@ namespace Kairou
         {
             await process.RunPageAsync(_target.PageId, cancellationToken);
         }
+
+        public override string GetSummary()
+        {
+            return _target.GetSummary();
+        }
     }
 }

@@ -4,10 +4,6 @@ namespace Kairou
 {
     public abstract class Block : IDisposable
     {
-        /// <summary>
-        /// ContinueやBreak等の対象になる
-        /// </summary>
-        public interface ILoopBlock {}
         public Command Start { get; set; }
         public int StartIndex => Start.Index;
         public Command End { get; set; }

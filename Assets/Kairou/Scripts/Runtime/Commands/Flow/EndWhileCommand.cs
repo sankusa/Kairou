@@ -4,6 +4,7 @@ namespace Kairou
     public partial class EndWhileCommand : Command, IBlockEnd
     {
         public string BlockCategory => "While";
+        public bool IsLoopBlock => true;
 
         [CommandExecute]
         void Execute(IProcessInterface process)

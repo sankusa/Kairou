@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,7 +15,7 @@ namespace Kairou
         void Execute(IProcessInterface process)
         {
             Debug.Log(
-                $"PageIndex = {ParentPage.Index}, CommandIndex = {Index}\n"
+                $"PageId = {ParentPage.Id}, CommandIndex = {Index}\n"
                 + string.Format(
                     _format,
                     _args.Select(x => 
@@ -29,7 +30,14 @@ namespace Kairou
 
         public override string GetSummary()
         {
-            return _format;
+            try
+            {
+                return string.Format(_format, _args.Select(x => x.GetSummary()).ToArray());
+            }
+            catch(FormatException)
+            {
+                return _format;
+            }
         }
     }
 }

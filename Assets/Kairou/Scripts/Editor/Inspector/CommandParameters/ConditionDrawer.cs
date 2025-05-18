@@ -28,7 +28,7 @@ namespace Kairou
 
         public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)
         {
-            Condition condition = property.GetObject() as Condition;
+            var condition = property.GetObject() as Condition;
 
             int typeIndex = _variableTypes.IndexOf(condition?.TargetType);
 
@@ -37,7 +37,7 @@ namespace Kairou
             typeIndex = EditorGUI.Popup(headerRect, label.text, typeIndex, _variableTypeNames);
             if (EditorGUI.EndChangeCheck())
             {
-                Undo.RecordObject(property.serializedObject.targetObject, "Condition Type Chenged");
+                Undo.RecordObject(property.serializedObject.targetObject, $"{nameof(Condition)} Type Chenged");
                 if (typeIndex == 0)
                 {
                     condition = null;

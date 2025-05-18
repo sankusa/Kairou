@@ -73,7 +73,14 @@ namespace Kairou
                     if (subsequentProcessInfo.IsSubsequentBookInfo == false) break;
 
                     bookProcess = seriesProcess.CreateBookProcess(subsequentProcessInfo.Book);
-                    pageProcess = bookProcess.CreatePageProcess(subsequentProcessInfo.PageId);
+                    if (subsequentProcessInfo.HasPageId)
+                    {
+                        pageProcess = bookProcess.CreatePageProcess(subsequentProcessInfo.PageId);
+                    }
+                    else
+                    {
+                        pageProcess = bookProcess.CreateEntryPageProcess();
+                    }
                 }
             }
             finally

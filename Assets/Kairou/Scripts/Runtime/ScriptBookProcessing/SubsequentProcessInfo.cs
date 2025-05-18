@@ -1,3 +1,5 @@
+using System;
+
 namespace Kairou
 {
     public readonly struct SubsequentProcessInfo
@@ -28,6 +30,8 @@ namespace Kairou
 
         public SubsequentProcessInfo(string pageId)
         {
+            if (string.IsNullOrEmpty(pageId)) throw new ArgumentNullException(nameof(pageId));
+
             SwitchSeries = false;
             Book = null;
             PageId = pageId;

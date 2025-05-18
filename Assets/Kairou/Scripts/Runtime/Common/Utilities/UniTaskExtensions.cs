@@ -6,12 +6,12 @@ namespace Kairou
 {
     internal static class UniTaskExtensions
     {
-        public static void ForgetWithLogException(this UniTask uniTask, string headerMessage = null)
+        public static void ForgetWithLogException(this UniTask uniTask)
         {
             uniTask.Forget(e =>
             {
                 if(e is OperationCanceledException) return;
-                Debug.LogError(string.IsNullOrEmpty(headerMessage) ? e.ToString() : headerMessage + "\n" + e.ToString());
+                Debug.LogException(e);
             });
         }
     }

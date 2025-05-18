@@ -6,6 +6,7 @@ namespace Kairou
     public partial class WhileCommand : Command, IBlockStart
     {
         public string BlockCategory => "While";
+        public bool IsLoopBlock => true;
 
         [GenerateValidation]
         [SerializeReference] Condition _condition = new Condition<int>();
@@ -31,6 +32,11 @@ namespace Kairou
             {
                 process.GoToIndex(whileBlock.EndIndex + 1);
             }
+        }
+
+        public override string GetSummary()
+        {
+            return _condition.GetSummary();
         }
     }
 }
