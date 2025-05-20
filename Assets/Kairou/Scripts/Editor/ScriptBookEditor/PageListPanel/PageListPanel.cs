@@ -14,6 +14,8 @@ namespace Kairou.Editor
 
         [SerializeField] RestorableBookHolder _bookHolder = new();
 
+        [SerializeField] int _selectedPageIndex;
+
         ListView _listView;
 
         bool IsInitialized => _listView != null;
@@ -61,6 +63,7 @@ namespace Kairou.Editor
 
             _listView.selectedIndicesChanged += pageIndices =>
             {
+                _selectedPageIndex = _listView.selectedIndex;
                 if (_bookHolder.Book == null) return;
                 var selectedPageIndex = pageIndices.FirstOrDefault();
                 onSelectionChanged?.Invoke(_bookHolder.BookId, selectedPageIndex);
@@ -71,11 +74,17 @@ namespace Kairou.Editor
 
         public void SetTarget(BookId bookId)
         {
+            int selectedPageIndex = (bookId == _bookHolder.BookId) ? _selectedPageIndex : 0;
             _bookHolder.Reset(bookId);
-            if (IsInitialized) Reload();
+            if (IsInitialized) Reload(selectedPageIndex);
         }
 
         public void Reload()
+        {
+            Reload(_selectedPageIndex);
+        }
+
+        public void Reload(int selectedPageIndex)
         {
             ThrowIfNotInitialized();
 
@@ -90,7 +99,7 @@ namespace Kairou.Editor
                 _listView.enabledSelf = false;
             }
 
-            _listView.SetSelectionWithoutNotify(new int[] {0});
+            _listView.SetSelectionWithoutNotify(new int[] {selectedPageIndex});
         }
 
         public void OnProjectOrHierarchyChanged()
