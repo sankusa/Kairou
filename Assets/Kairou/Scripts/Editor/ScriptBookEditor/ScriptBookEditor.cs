@@ -118,19 +118,15 @@ namespace Kairou.Editor
             );
         }
 
-        void Reload()
+        void SetTarget(Object bookOwner, string bookPropertyPath)
         {
+            _bookHolder.Reset(bookOwner, bookPropertyPath);
+
             _bookHeaderPanel.SetTarget(_bookHolder.BookId);
             _pageListPanel.SetTarget(_bookHolder.BookId);
             _commandListPanel.SetTarget(_bookHolder.BookId, 0);
             _commandPanel.SetTarget(_bookHolder.BookId, 0, 0);
             _variablePanel.SetTarget(_bookHolder.BookId, 0);
-        }
-
-        void SetTarget(Object bookOwner, string bookPropertyPath)
-        {
-            _bookHolder.Reset(bookOwner, bookPropertyPath);
-            Reload();
         }
 
         // PlayMode遷移にも呼ばれる
@@ -139,7 +135,7 @@ namespace Kairou.Editor
             // ObjectがDestroyされた場合など
             if (_bookHolder.RestoreObjectIfNull())
             {
-                Reload();
+
             }
             _bookHeaderPanel.OnProjectOrHierarchyChanged();
             _pageListPanel.OnProjectOrHierarchyChanged();

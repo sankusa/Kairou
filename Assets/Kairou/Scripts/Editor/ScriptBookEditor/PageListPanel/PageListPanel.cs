@@ -75,22 +75,22 @@ namespace Kairou.Editor
             if (IsInitialized) Reload();
         }
 
-        void Reload()
+        public void Reload()
         {
             ThrowIfNotInitialized();
 
-            if (_bookHolder.Book == null)
-            {
-                _listView.itemsSource = null;
-                _listView.enabledSelf = false;
-            }
-            else
+            if (_bookHolder.HasValidBook)
             {
                 _listView.itemsSource = _bookHolder.Book.Pages as IList;
                 _listView.enabledSelf = true;
             }
+            else
+            {
+                _listView.itemsSource = null;
+                _listView.enabledSelf = false;
+            }
 
-            _listView.selectedIndex = 0;
+            _listView.SetSelectionWithoutNotify(new int[] {0});
         }
 
         public void OnProjectOrHierarchyChanged()

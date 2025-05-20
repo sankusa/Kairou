@@ -16,7 +16,9 @@ namespace Kairou.Editor
 
         [SerializeField] RestorableBookHolder _bookHolder = new();
         [SerializeField] int _pageIndex;
-        bool ExistsTargetPage => _bookHolder.Book != null && _bookHolder.Book.Pages.HasElementAt(_pageIndex);
+        bool ExistsTargetPage => _bookHolder.HasValidBook && _bookHolder.Book.Pages.HasElementAt(_pageIndex);
+
+        [SerializeField] int _selectedCommandIndex;
 
         [SerializeField] AdvancedDropdownState _commandDropdownState = new();
 
@@ -32,6 +34,8 @@ namespace Kairou.Editor
             {
                 BookUtilForEditor.AddCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, command);
                 _listView.Rebuild();
+                onCollectionChanged?.Invoke();
+                _listView.SetSelection(_bookHolder.Book.Pages[_pageIndex].Commands.Count - 1);
             };
 
             // ListView
@@ -77,7 +81,6 @@ namespace Kairou.Editor
                 if (ExistsTargetPage == false) return;
                 var rect = _listView.worldBound;
                 commandAdvancedDropdown.Show(rect);
-                onCollectionChanged?.Invoke();
             };
 
             _listView.onRemove = _ =>
@@ -103,6 +106,7 @@ namespace Kairou.Editor
 
             _listView.selectedIndicesChanged += commandIndices =>
             {
+                _selectedCommandIndex = _listView.selectedIndex;
                 if (ExistsTargetPage == false) return;
                 var selectedCommandIndex = commandIndices.FirstOrDefault();
                 onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, selectedCommandIndex);
@@ -113,12 +117,18 @@ namespace Kairou.Editor
 
         public void SetTarget(BookId bookId, int pageIndex)
         {
+            int selectedCommandIndex = (bookId == _bookHolder.BookId && pageIndex == _pageIndex) ? _selectedCommandIndex : 0;
             _bookHolder.Reset(bookId);
             _pageIndex = pageIndex;
-            if (IsInitialized) Reload();
+            if (IsInitialized) Reload(selectedCommandIndex);
         }
 
         public void Reload()
+        {
+            Reload(_selectedCommandIndex);
+        }
+
+        public void Reload(int selectedCommandIndex)
         {
             ThrowIfNotInitialized();
 
@@ -132,7 +142,7 @@ namespace Kairou.Editor
                 _listView.itemsSource = null;
                 _listView.enabledSelf = false;
             }
-            _listView.selectedIndex = 0;
+            _listView.SetSelectionWithoutNotify(new int[] {selectedCommandIndex});
         }
 
         public void Reflesh() => _listView.RefreshItems();//  _listView.Rebuild();

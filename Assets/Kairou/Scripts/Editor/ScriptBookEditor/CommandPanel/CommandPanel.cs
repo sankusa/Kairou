@@ -14,8 +14,7 @@ namespace Kairou.Editor
         [SerializeField] RestorableBookHolder _bookHolder = new();
         [SerializeField] int _pageIndex;
         [SerializeField] int _commandIndex;
-        bool ExistsTargetCommand => _bookHolder.Book != null
-            && _bookHolder.Book.ExistsCommandAt(_pageIndex, _commandIndex);
+        bool ExistsTargetCommand => _bookHolder.HasValidBook && _bookHolder.Book.ExistsCommandAt(_pageIndex, _commandIndex);
 
         VisualElement _parent;
 
@@ -41,7 +40,8 @@ namespace Kairou.Editor
             if (IsInitialized) Reload();
         }
 
-        public void Reload() {
+        public void Reload()
+        {
             ThrowIfNotInitialized();
 
             _parent.Clear();

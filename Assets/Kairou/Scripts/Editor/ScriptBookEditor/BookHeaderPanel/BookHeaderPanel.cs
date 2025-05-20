@@ -31,7 +31,7 @@ namespace Kairou
             if (IsInitialized) Reload();
         }
 
-        void Reload()
+        public void Reload()
         {
             ThrowIfNotInitialized();
 

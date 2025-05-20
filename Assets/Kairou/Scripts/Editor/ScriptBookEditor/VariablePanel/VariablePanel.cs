@@ -7,11 +7,12 @@ using Object = UnityEngine.Object;
 
 namespace Kairou.Editor
 {
+    [Serializable]
     public class VariablePanel
     {
         [SerializeField] RestorableBookHolder _bookHolder = new();
         [SerializeField] int _pageIndex;
-        bool ExistsPage => _bookHolder.Book != null && _bookHolder.Book.Pages.HasElementAt(_pageIndex);
+        bool ExistsPage => _bookHolder.HasValidBook && _bookHolder.Book.Pages.HasElementAt(_pageIndex);
 
         ListView _bookListView;
         ListView _pageListView;
@@ -82,7 +83,7 @@ namespace Kairou.Editor
         public void Reload()
         {
             ThrowIfNotInitialized();
-            if (_bookHolder.Book != null)
+            if (_bookHolder.HasValidBook)
             {
                 _serializedObject = new SerializedObject(_bookHolder.Owner);
                 _bookVariablesProp = _serializedObject

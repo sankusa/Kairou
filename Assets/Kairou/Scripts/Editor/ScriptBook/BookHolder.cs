@@ -31,8 +31,18 @@ namespace Kairou
             }
         }
 
+        public bool HasValidBook
+        {
+            get
+            {
+                if (_owner == null) return false;
+                return Book != null;
+            }
+        }
+
         public void Reset(Object owner)
         {
+            if (owner == null && owner.IsDestroyed()) Debug.LogWarning($"{nameof(owner)} is destroyed.");
             _owner = owner;
             _book = null;
         }

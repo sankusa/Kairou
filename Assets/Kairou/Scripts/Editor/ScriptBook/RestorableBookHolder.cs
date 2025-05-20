@@ -18,6 +18,8 @@ namespace Kairou
 
         public BookId BookId => new(Owner, BookPropertyPath);
 
+        public bool HasValidBook => _holder.HasValidBook;
+
         public void Reset(BookId bookId) => Reset(bookId.Object, bookId.BookPropertyPath);
 
         public void Reset(Object obj, string bookPropertyPath)
