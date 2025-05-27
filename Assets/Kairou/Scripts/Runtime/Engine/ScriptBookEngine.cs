@@ -9,7 +9,7 @@ namespace Kairou
 {
     public class ScriptBookEngine : MonoBehaviour
     {
-        [SerializeReference, SerializeReferencePopup] List<IBookSlot> _bookSlots = new();
+        [SerializeReference, SerializeReferencePopup] List<ILiveBookSlot> _bookSlots = new();
         [SerializeField] bool _runOnStart = true;
         [SerializeField] ComponentBinding _componentBinding;
 
@@ -19,6 +19,22 @@ namespace Kairou
         public UnityEvent OnEndRunningAll => _onEndRunningAll;
 
         int _runningCount;
+
+        void Awake()
+        {
+            foreach (var slot in _bookSlots)
+            {
+                slot.OnEnable();
+            }
+        }
+
+        void OnDestroy()
+        {
+            foreach (var slot in _bookSlots)
+            {
+                slot.OnDisable();
+            }
+        }
 
         async void Start()
         {
@@ -33,7 +49,7 @@ namespace Kairou
         /// </summary>
         public void Run()
         {
-            RunAsync().ForgetWithLogException();
+            RunAsync().Forget();
         }
 
         /// <summary>
@@ -49,7 +65,7 @@ namespace Kairou
             try
             {
                 IncrementRunnignCount();
-                foreach (IBookSlot slot in _bookSlots)
+                foreach (var slot in _bookSlots)
                 {
                     if (slot.Book == null) continue;
                     await RunAsyncInternal(slot.Book, linkedCts.Token);
@@ -81,7 +97,7 @@ namespace Kairou
         /// </summary>
         public void Run(ScriptBook book)
         {
-            RunAsync(book).ForgetWithLogException();
+            RunAsync(book).Forget();
         }
 
         /// <summary>

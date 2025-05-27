@@ -17,7 +17,7 @@ namespace Kairou
         public string GetSummary()
         {
             if (_bookSlot == null) return "";
-            return $"{_bookSlot.OwnerObject} : {_pageId}";
+            return $"{_bookSlot.Book} : {_pageId}";
         }
 
         public IEnumerable<string> Validate(Command command, string fieldName)

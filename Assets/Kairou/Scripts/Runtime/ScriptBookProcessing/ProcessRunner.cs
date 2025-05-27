@@ -20,18 +20,23 @@ namespace Kairou
             }
             finally
             {
-                UniTask.Void(async () =>
+                StartTerminationAsync(rootProcess, onTerminated, cancellationToken).Forget();
+            }
+        }
+
+        static async UniTask StartTerminationAsync(RootProcess rootProcess, Action onTerminated, CancellationToken cancellationToken)
+        {
+            try
+            {
+                while (rootProcess.IsTerminated == false)
                 {
-                    try
-                    {
-                        await UniTask.WaitUntil(() => rootProcess.IsTerminated, cancellationToken: cancellationToken);
-                    }
-                    finally
-                    {
-                        RootProcess.Return(rootProcess);
-                        onTerminated?.Invoke();
-                    }
-                });
+                    await UniTask.Yield(cancellationToken);
+                }
+            }
+            finally
+            {
+                RootProcess.Return(rootProcess);
+                onTerminated?.Invoke();
             }
         }
 

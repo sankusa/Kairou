@@ -50,5 +50,12 @@ namespace Kairou
         }
 
         public int CalculateBlockLevel() => _parentPage.CalculateBlockLevel(Index);
+
+        public virtual IEnumerable<ScriptBook> GetReferencingBooks()
+        {
+            yield break;
+        }
+
+        public virtual void GetPreloadTargetBooks(ICollection<ScriptBook> books) {}
     }
 }

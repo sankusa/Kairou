@@ -67,6 +67,7 @@ namespace Kairou.Editor
 
                 var container = new IMGUIContainer(() =>
                 {
+                    if (serializedObject.targetObject == null) return;
                     serializedObject.UpdateIfRequiredOrScript();
                     // using var _ = new LabelWidthScope(120);
                     EditorGUI.BeginChangeCheck();

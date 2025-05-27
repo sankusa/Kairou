@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -28,6 +29,20 @@ namespace Kairou
         public override string GetSummary()
         {
             return (_switchSeries ? "(Switch Series) " : "") + _target.GetSummary();
+        }
+
+        public override IEnumerable<ScriptBook> GetReferencingBooks()
+        {
+            if (_target.Book != null)
+            {
+                yield return _target.Book;
+            }
+        }
+
+        public override void GetPreloadTargetBooks(ICollection<ScriptBook> books)
+        {
+            if (_target.Book == null) return;
+            books.Add(_target.Book);
         }
     }
 }

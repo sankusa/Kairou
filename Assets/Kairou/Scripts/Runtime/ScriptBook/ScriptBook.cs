@@ -1,9 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 namespace Kairou
 {
+    public enum PreloadState
+    {
+        Unpreloaded,
+        Preloading,
+        Preloaded,
+    }
+
     [Serializable]
     public class ScriptBook : ISerializationCallbackReceiver
     {
@@ -14,6 +25,16 @@ namespace Kairou
 
         [SerializeReference] List<VariableDefinition> _variables = new();
         public List<VariableDefinition> Variables => _variables;
+
+        BookPreloader _preloader;
+        public BookPreloader Preloader
+        {
+            get
+            {
+                _preloader ??= new BookPreloader(this);
+                return _preloader;
+            }
+        }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize() {}
 
@@ -62,6 +83,35 @@ namespace Kairou
         internal void MovePage(int fromIndex, int toIndex)
         {
             _pages.Move(fromIndex, toIndex);
+        }
+
+        public IEnumerable<ScriptBook> GetReferencingBooks()
+        {
+            return GetReferencingBooksInternal().Distinct();
+        }
+
+        IEnumerable<ScriptBook> GetReferencingBooksInternal()
+        {
+            foreach (Page page in _pages)
+            {
+                for (int i = 0; i < page.Commands.Count; i++)
+                {
+                    foreach (ScriptBook book in page.Commands[i].GetReferencingBooks()) {
+                        yield return book;
+                    }
+                }
+            }
+        }
+
+        public void GetPreloadTargetBooks(ICollection<ScriptBook> books)
+        {
+            foreach (Page page in _pages)
+            {
+                for (int i = 0; i < page.Commands.Count; i++)
+                {
+                    page.Commands[i].GetPreloadTargetBooks(books);
+                }
+            }
         }
     }
 }

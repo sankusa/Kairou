@@ -92,30 +92,32 @@ namespace Kairou
 
         void StartTermination(CancellationToken cancellationToken)
         {
-            UniTask.Void(async () =>
+            StartTerminationAsync(cancellationToken).Forget();
+        }
+
+        async UniTask StartTerminationAsync(CancellationToken cancellationToken)
+        {
+            try
             {
-                try
+                while(true)
                 {
-                    while(true)
+                    for (int i = _unfinishedBookProcesses.Count - 1; i >= 0; i--)
                     {
-                        for (int i = _unfinishedBookProcesses.Count - 1; i >= 0; i--)
+                        var p = _unfinishedBookProcesses[i];
+                        if (_unfinishedBookProcesses[i].IsTerminated)
                         {
-                            var p = _unfinishedBookProcesses[i];
-                            if (_unfinishedBookProcesses[i].IsTerminated)
-                            {
-                                _unfinishedBookProcesses.Remove(p);
-                                BookProcess.Return(p);
-                            }
+                            _unfinishedBookProcesses.Remove(p);
+                            BookProcess.Return(p);
                         }
-                        if (_unfinishedBookProcesses.Count == 0) break;
-                        await UniTask.Yield(cancellationToken);
                     }
+                    if (_unfinishedBookProcesses.Count == 0) break;
+                    await UniTask.Yield(cancellationToken);
                 }
-                finally
-                {
-                    IsTerminated = true;
-                }
-            });
+            }
+            finally
+            {
+                IsTerminated = true;
+            }
         }
     }
 }

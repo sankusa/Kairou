@@ -41,6 +41,8 @@ namespace Kairou
             SeriesProcess = parentProcess;
             _book = book;
             _variables.GenerateVariables(book.Variables);
+
+            book.Preloader.PreloadAsync(this).Forget();
         }
 
         internal static void Return(BookProcess process)
@@ -93,6 +95,15 @@ namespace Kairou
             {
                 while (true)
                 {
+                    // プリロード終了まで待機
+                    if (bookProcess._book.Preloader.PreloadState != PreloadState.Preloaded)
+                    {
+                        while (bookProcess._book.Preloader.PreloadState != PreloadState.Preloaded)
+                        {
+                            await UniTask.Yield(cancellationToken);
+                        }
+                    }
+
                     await pageProcess.StartAsync(cancellationToken);
                     subsequentProcessInfo = pageProcess.SubsequentProcessInfo;
 
@@ -111,30 +122,33 @@ namespace Kairou
         // ぺージプロセスの全終了を待機して終了フラグを立てる
         void StartTermination(CancellationToken cancellationToken)
         {
-            UniTask.Void(async () =>
+            StartTerminationAsync(cancellationToken).Forget();
+        }
+
+        async UniTask StartTerminationAsync(CancellationToken cancellationToken)
+        {
+            try
             {
-                try
+                while(true)
                 {
-                    while(true)
+                    for (int i = _unfinishedPageProcesses.Count - 1; i >= 0; i--)
                     {
-                        for (int i = _unfinishedPageProcesses.Count - 1; i >= 0; i--)
+                        var p = _unfinishedPageProcesses[i];
+                        if (p.IsTerminated)
                         {
-                            var p = _unfinishedPageProcesses[i];
-                            if (p.IsTerminated)
-                            {
-                                _unfinishedPageProcesses.Remove(p);
-                                PageProcess.Return(p);
-                            }
+                            _unfinishedPageProcesses.Remove(p);
+                            PageProcess.Return(p);
                         }
-                        if (_unfinishedPageProcesses.Count == 0) break;
-                        await UniTask.Yield(cancellationToken);
                     }
+                    if (_unfinishedPageProcesses.Count == 0) break;
+                    await UniTask.Yield(cancellationToken);
                 }
-                finally
-                {
-                    IsTerminated = true;
-                }
-            });
+            }
+            finally
+            {
+                _book.Preloader.Release(this);
+                IsTerminated = true;
+            }
         }
     }
 }

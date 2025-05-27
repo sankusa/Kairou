@@ -134,9 +134,9 @@ namespace Kairou
                     {
                         // Command内部の事情によりキャンセルされた場合は握り潰して処理を続行
                     }
-                    catch
+                    catch (Exception e) when (e is not OperationCanceledException)
                     {
-                        Debug.LogError(CreateErrorMessage(command, _currentCommandIndex));
+                        Debug.LogError(CreateErrorMessage(command));
                         throw;
                     }
 
@@ -177,27 +177,10 @@ namespace Kairou
             }
             else
             {
-                UniTask awaiter = UniTask.Create(async () =>
-                {
-                    _asyncExecutingCommandCounter++;
-                    try
-                    {
-                        await asyncCommand.InvokeExecuteAsync(_processInterface, linkedToken);
-                    }
-                    finally
-                    {
-                        _asyncExecutingCommandCounter--;
-                    }
-                });
+                UniTask awaiter = StartAsync_ExecuteAsyncCommandAsync_UnawaitedInvokeExecuteAsync(asyncCommand, linkedToken);
                 if (asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.IsEmpty())
                 {
-                    int commandIndex = _currentCommandIndex;
-                    awaiter.Forget(e =>
-                    {
-                        if (e is OperationCanceledException) return;
-                        Debug.LogError(CreateErrorMessage(asyncCommand, commandIndex));
-                        Debug.LogException(e);
-                    });
+                    awaiter.Forget();
                 }
                 else
                 {
@@ -206,19 +189,41 @@ namespace Kairou
             }
         }
 
+        async UniTask StartAsync_ExecuteAsyncCommandAsync_UnawaitedInvokeExecuteAsync(AsyncCommand asyncCommand, CancellationToken linkedToken)
+        {
+            _asyncExecutingCommandCounter++;
+            try
+            {
+                await asyncCommand.InvokeExecuteAsync(_processInterface, linkedToken);
+            }
+            catch (Exception e) when (e is not OperationCanceledException)
+            {
+                Debug.LogError(CreateErrorMessage(asyncCommand));
+            }
+            finally
+            {
+                _asyncExecutingCommandCounter--;
+            }
+        }
+
         void StartTermination(CancellationToken cancellationToken)
         {
-            UniTask.Void(async () =>
+            StartTerminationAsync(cancellationToken).Forget();
+        }
+
+        async UniTask StartTerminationAsync(CancellationToken cancellationToken)
+        {
+            try
             {
-                try
+                while(_asyncExecutingCommandCounter > 0)
                 {
-                    await UniTask.WaitUntil(() => _asyncExecutingCommandCounter == 0, cancellationToken: cancellationToken);
+                    await UniTask.Yield(cancellationToken);
                 }
-                finally
-                {
-                    _state = ProcessState.Terminated;
-                }
-            });
+            }
+            finally
+            {
+                _state = ProcessState.Terminated;
+            }
         }
 
         public void GoToIndex(int commandIndex)
@@ -247,9 +252,9 @@ namespace Kairou
             return true;
         }
 
-        string CreateErrorMessage(Command command, int commandIndex)
+        string CreateErrorMessage(Command command)
         {
-            return $"Error: PageId[{_page.Id}], CommandIndex[{commandIndex}], CommandType[{command?.GetType()}]";
+            return $"Error: PageId[{_page.Id}], CommandIndex[{command.Index}], CommandType[{command?.GetType()}]";
         }
     }
 }
