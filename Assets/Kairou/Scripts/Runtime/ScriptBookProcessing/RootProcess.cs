@@ -1,36 +1,38 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Kairou
 {
-    internal class RootProcess
+    public class RootProcess
     {
         static readonly ObjectPool<RootProcess> _pool = new(
-            createFunc: static () => new RootProcess()
+            createFunc: static () => new RootProcess(),
+            initialCapacity: 2,
+            maxCapacity: 16,
+            initialElements: 1
         );
 
         public CompositeObjectResolver ObjectResolver { get; } = new();
 
-        readonly List<SeriesProcess> _unfinishedSeriesProcesses = new();
+        readonly List<SeriesProcess> _unfinishedSeriesProcesses = new(2);
 
         bool _isRunning;
         internal bool IsTerminated { get; private set; }
 
-        internal static RootProcess Rent(ProcessContext context)
+        internal static RootProcess Rent()
         {
             var process = _pool.Rent();
-            process.SetUp(context);
+            process.SetUp();
             return process;
         }
 
-        void SetUp(ProcessContext context)
+        void SetUp()
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-
-            ObjectResolver.Add(context.Resolvers);
+            
         }
 
         internal static void Return(RootProcess process)
@@ -85,13 +87,8 @@ namespace Kairou
             }
             finally
             {
-                if (isMainSequence) rootProcess.StartTermination(cancellationToken);
+                if (isMainSequence) rootProcess.StartTerminationAsync(cancellationToken).Forget();
             }
-        }
-
-        void StartTermination(CancellationToken cancellationToken)
-        {
-            StartTerminationAsync(cancellationToken).Forget();
         }
 
         async UniTask StartTerminationAsync(CancellationToken cancellationToken)

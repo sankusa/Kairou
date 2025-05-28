@@ -7,9 +7,8 @@ namespace Kairou
 {
     public class ProcessRunner
     {
-        public static async UniTask RunMainSequenceAsync(ProcessContext context, ScriptBook scriptBook, Action onTerminated, CancellationToken cancellationToken)
+        public static async UniTask RunMainSequenceAsync(RootProcess rootProcess, ScriptBook scriptBook, Action<RootProcess> onTerminated, CancellationToken cancellationToken)
         {
-            var rootProcess = RootProcess.Rent(context);
             var seriesProcess = rootProcess.CreateSeriesProcess();
             var bookProcess = seriesProcess.CreateBookProcess(scriptBook);
             var pageProcess = bookProcess.CreateEntryPageProcess();
@@ -24,7 +23,7 @@ namespace Kairou
             }
         }
 
-        static async UniTask StartTerminationAsync(RootProcess rootProcess, Action onTerminated, CancellationToken cancellationToken)
+        static async UniTask StartTerminationAsync(RootProcess rootProcess, Action<RootProcess> onTerminated, CancellationToken cancellationToken)
         {
             try
             {
@@ -35,8 +34,7 @@ namespace Kairou
             }
             finally
             {
-                RootProcess.Return(rootProcess);
-                onTerminated?.Invoke();
+                onTerminated?.Invoke(rootProcess);
             }
         }
 

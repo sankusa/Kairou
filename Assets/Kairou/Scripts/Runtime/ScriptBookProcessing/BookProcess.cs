@@ -9,14 +9,17 @@ namespace Kairou
     internal class BookProcess
     {
         static readonly ObjectPool<BookProcess> _pool = new(
-            createFunc: static () => new BookProcess()
+            createFunc: static () => new BookProcess(),
+            initialCapacity: 2,
+            maxCapacity: 32,
+            initialElements: 2
         );
 
         public SeriesProcess SeriesProcess { get; private set; }
 
         ScriptBook _book;
 
-        readonly List<PageProcess> _unfinishedPageProcesses = new();
+        readonly List<PageProcess> _unfinishedPageProcesses = new(2);
 
         readonly VariableContainer _variables = new();
         public VariableContainer Variables => _variables;
@@ -114,15 +117,9 @@ namespace Kairou
             }
             finally
             {
-                if (isMainSequence) bookProcess.StartTermination(cancellationToken);
+                if (isMainSequence) bookProcess.StartTerminationAsync(cancellationToken).Forget();
             }
             return subsequentProcessInfo;
-        }
-
-        // ぺージプロセスの全終了を待機して終了フラグを立てる
-        void StartTermination(CancellationToken cancellationToken)
-        {
-            StartTerminationAsync(cancellationToken).Forget();
         }
 
         async UniTask StartTerminationAsync(CancellationToken cancellationToken)

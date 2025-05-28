@@ -71,14 +71,23 @@ namespace Kairou
 
             return _operator switch
             {
-                CompareOperator.EqualTo => value1.Equals(value2),
-                CompareOperator.NotEqualTo => !value1.Equals(value2),
-                CompareOperator.LessThan => ((IComparable)value1).CompareTo((IComparable)value2) < 0,
-                CompareOperator.GreaterThan => ((IComparable)value1).CompareTo((IComparable)value2) > 0,
-                CompareOperator.LessThanOrEqualTo => ((IComparable)value1).CompareTo((IComparable)value2) <= 0,
-                CompareOperator.GreaterThanOrEqualTo => ((IComparable)value1).CompareTo((IComparable)value2) >= 0,
+                CompareOperator.EqualTo => EqualityComparer<T>.Default.Equals(value1, value2),
+                CompareOperator.NotEqualTo => !EqualityComparer<T>.Default.Equals(value1, value2),
+                CompareOperator.LessThan => Compare(value1, value2) < 0,
+                CompareOperator.GreaterThan => Compare(value1, value2) > 0,
+                CompareOperator.LessThanOrEqualTo => Compare(value1, value2) <= 0,
+                CompareOperator.GreaterThanOrEqualTo => Compare(value1, value2) >= 0,
                 _ => throw new InvalidOperationException($"Unexpected value {_operator} for CompareOperator."),
             };
+        }
+
+        static int Compare(T value1, T value2)
+        {
+            if (value1 is IComparable<T> genericComparable)
+                genericComparable.CompareTo(value2);
+            if (value1 is IComparable comparable)
+                return comparable.CompareTo(value2);
+            throw new InvalidOperationException($"Cannot compare {value1} and {value2}");
         }
 
         public override string GetSummary()

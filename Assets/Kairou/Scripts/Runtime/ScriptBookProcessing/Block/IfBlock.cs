@@ -2,7 +2,11 @@ namespace Kairou
 {
     public class IfBlock : Block
     {
-        static readonly ObjectPool<IfBlock> _pool = new(() => new IfBlock(), 0, 4);
+        static readonly ObjectPool<IfBlock> _pool = new(
+            () => new IfBlock(),
+            initialCapacity: 0,
+            maxCapacity: 4);
+
         public static IfBlock Rent() => _pool.Rent();
         static void Return(IfBlock block)
         {

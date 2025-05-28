@@ -9,12 +9,15 @@ namespace Kairou
     internal class SeriesProcess
     {
         static readonly ObjectPool<SeriesProcess> _pool = new(
-            createFunc: static () => new SeriesProcess()
+            createFunc: static () => new SeriesProcess(),
+            initialCapacity: 2,
+            maxCapacity: 16,
+            initialElements: 1
         );
 
         public RootProcess RootProcess { get; private set; }
 
-        readonly List<BookProcess> _unfinishedBookProcesses = new();
+        readonly List<BookProcess> _unfinishedBookProcesses = new(2);
 
         bool _isRunning;
         internal bool IsTerminated { get; private set; }
@@ -85,14 +88,9 @@ namespace Kairou
             }
             finally
             {
-                if (isMainSequence) seriesProcess.StartTermination(cancellationToken);
+                if (isMainSequence) seriesProcess.StartTerminationAsync(cancellationToken).Forget();
             }
             return subsequentProcessInfo;
-        }
-
-        void StartTermination(CancellationToken cancellationToken)
-        {
-            StartTerminationAsync(cancellationToken).Forget();
         }
 
         async UniTask StartTerminationAsync(CancellationToken cancellationToken)

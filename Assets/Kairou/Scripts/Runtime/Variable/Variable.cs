@@ -40,7 +40,10 @@ namespace Kairou
             onReturn: static variable =>
             {
                 variable.Clear();
-            }
+            },
+            initialCapacity: 0,
+            maxCapacity: -1,
+            initialElements: 0
         );
 
         public static Variable<T> Rent(VariableDefinition<T> definition)

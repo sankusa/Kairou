@@ -2,7 +2,11 @@ namespace Kairou
 {
     public class WhileBlock : Block
     {
-        static readonly ObjectPool<WhileBlock> _pool = new(() => new WhileBlock(), 0, 4);
+        static readonly ObjectPool<WhileBlock> _pool = new(
+            () => new WhileBlock(),
+            initialCapacity: 0,
+            maxCapacity: 4);
+
         public static WhileBlock Rent() => _pool.Rent();
         static void Return(WhileBlock block)
         {

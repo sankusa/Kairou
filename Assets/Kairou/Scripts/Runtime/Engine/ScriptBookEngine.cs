@@ -9,6 +9,41 @@ namespace Kairou
 {
     public class ScriptBookEngine : MonoBehaviour
     {
+        readonly struct TokenCombiner : IDisposable
+        {
+            readonly CancellationTokenSource _linkedCts;
+            readonly CancellationTokenRegistration _destroyTokenRegistration;
+            readonly CancellationTokenRegistration _externalTokenRegistration;
+            readonly CancellationToken _resultToken;
+
+            public readonly CancellationToken Token => _resultToken;
+
+            public TokenCombiner(CancellationToken destroyToken, CancellationToken externalToken)
+            {
+                if (externalToken.CanBeCanceled)
+                {
+                    _linkedCts = new CancellationTokenSource();
+                    _externalTokenRegistration = externalToken.RegisterWithoutCaptureExecutionContext(static x => ((CancellationTokenSource)x).Cancel(), _linkedCts);
+                    _destroyTokenRegistration = destroyToken.RegisterWithoutCaptureExecutionContext(static x => ((CancellationTokenSource)x).Cancel(), _linkedCts);
+                    _resultToken = _linkedCts.Token;
+                }
+                else
+                {
+                    _linkedCts = null;
+                    _externalTokenRegistration = default;
+                    _destroyTokenRegistration = default;
+                    _resultToken = destroyToken;
+                }
+            }
+
+            public void Dispose()
+            {
+                _linkedCts?.Dispose();
+                _externalTokenRegistration.Dispose();
+                _destroyTokenRegistration.Dispose();
+            }
+        }
+
         [SerializeReference, SerializeReferencePopup] List<ILiveBookSlot> _bookSlots = new();
         [SerializeField] bool _runOnStart = true;
         [SerializeField] ComponentBinding _componentBinding;
@@ -59,8 +94,8 @@ namespace Kairou
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var dct =  destroyCancellationToken;
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(dct, cancellationToken);
+            var dct = destroyCancellationToken;
+            var tokenConbiner = new TokenCombiner(dct, cancellationToken);
             
             try
             {
@@ -68,12 +103,16 @@ namespace Kairou
                 foreach (var slot in _bookSlots)
                 {
                     if (slot.Book == null) continue;
-                    await RunAsyncInternal(slot.Book, linkedCts.Token);
+                    await RunAsyncInternal(slot.Book, tokenConbiner.Token);
                 }
             }
-            catch (OperationCanceledException e)
+            catch (OperationCanceledException e) when (e.CancellationToken != tokenConbiner.Token)
             {
-                if (cancellationToken.IsCancellationRequested)
+                // 内発的キャンセルは無視
+            }
+            catch (OperationCanceledException e) when (e.CancellationToken == tokenConbiner.Token)
+            {
+                if (cancellationToken.CanBeCanceled && cancellationToken.IsCancellationRequested)
                 {
                     throw new OperationCanceledException(e.Message, e, cancellationToken);
                 }
@@ -107,17 +146,21 @@ namespace Kairou
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var dct =  destroyCancellationToken;
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(dct, cancellationToken);
+            var dct = destroyCancellationToken;
+            var tokenConbiner = new TokenCombiner(dct, cancellationToken);
 
             try
             {
                 IncrementRunnignCount();
-                await RunAsyncInternal(book, linkedCts.Token);
+                await RunAsyncInternal(book, tokenConbiner.Token);
             }
-            catch (OperationCanceledException e) when (e.CancellationToken == linkedCts.Token)
+            catch (OperationCanceledException e) when (e.CancellationToken != tokenConbiner.Token)
             {
-                if (cancellationToken.IsCancellationRequested)
+                // 内発的キャンセルは無視
+            }
+            catch (OperationCanceledException e) when (e.CancellationToken == tokenConbiner.Token)
+            {
+                if (cancellationToken.CanBeCanceled && cancellationToken.IsCancellationRequested)
                 {
                     throw new OperationCanceledException(e.Message, e, cancellationToken);
                 }
@@ -136,25 +179,17 @@ namespace Kairou
             }
         }
 
-        async UniTask RunAsyncInternal(ScriptBook book, CancellationToken linkedToken)
+        UniTask RunAsyncInternal(ScriptBook book, CancellationToken linkedToken)
         {
-            linkedToken.ThrowIfCancellationRequested();
+            var rootProcess = RootProcess.Rent();
+            rootProcess.ObjectResolver.Add(_componentBinding);
 
-            try
-            {
-                var processContext = ProcessContext.Rent();
-                processContext.Resolvers.Add(_componentBinding);
-                await ProcessRunner.RunMainSequenceAsync(
-                    processContext,
-                    book,
-                    () => ProcessContext.Return(processContext),
-                    linkedToken
-                );
-            }
-            catch (OperationCanceledException e) when (e.CancellationToken != linkedToken)
-            {
-                // 内発的なキャンセルは無視
-            }
+            return ProcessRunner.RunMainSequenceAsync(
+                rootProcess,
+                book,
+                static rootProcess => RootProcess.Return(rootProcess),
+                linkedToken
+            );
         }
 
         void IncrementRunnignCount()

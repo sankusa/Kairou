@@ -18,6 +18,11 @@ namespace Kairou
     [Serializable]
     public class ScriptBook : ISerializationCallbackReceiver
     {
+        public static ScriptBook CreateEmptyBook()
+        {
+            return new ScriptBook();
+        }
+
         [SerializeField] List<Page> _pages = new();
         public IReadOnlyList<Page> Pages => _pages;
 

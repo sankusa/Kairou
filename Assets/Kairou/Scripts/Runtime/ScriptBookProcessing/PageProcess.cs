@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -18,7 +19,10 @@ namespace Kairou
         }
 
         static readonly ObjectPool<PageProcess> _pool = new(
-            createFunc: static () => new PageProcess()
+            createFunc: static () => new PageProcess(),
+            initialCapacity: 2,
+            maxCapacity: 32,
+            initialElements: 2
         );
         
         public BookProcess BookProcess { get; private set; }
@@ -60,7 +64,7 @@ namespace Kairou
             if (_state != ProcessState.UnInitialized) throw new InvalidOperationException($"{nameof(PageProcess)} is already initialized.");
 
             if (parentProcess == null) throw new ArgumentNullException(nameof(parentProcess));
-            // if (page == null) throw new ArgumentNullException(nameof(page));
+            // if (page == null) throw new ArgumentNullException(nameof(page)); // null はエラーでなく空打ちにする。BookにPageが0の場合も挙動を合わせるため。
 
             BookProcess = parentProcess;
             _page = page;
@@ -105,7 +109,9 @@ namespace Kairou
             if (_state != ProcessState.Ready) throw new InvalidOperationException($"{nameof(PageProcess)} is not ready.");
             _state = ProcessState.Running;
 
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token, cancellationToken);
+            using var cancellationTokenRegistration = cancellationToken.CanBeCanceled
+                ? cancellationToken.RegisterWithoutCaptureExecutionContext(static x => ((CancellationTokenSource)x).Cancel(), _cts)
+                : default(CancellationTokenRegistration);
 
             try
             {
@@ -115,7 +121,7 @@ namespace Kairou
                     Command command = null;
                     try
                     {
-                        linkedCts.Token.ThrowIfCancellationRequested();
+                        _cts.Token.ThrowIfCancellationRequested();
 
                         _currentCommandIndex = NextCommandIndex;
                         NextCommandIndex = _currentCommandIndex + 1;
@@ -123,14 +129,14 @@ namespace Kairou
                         command = _page.Commands[_currentCommandIndex];
                         if (command is AsyncCommand asyncCommand)
                         {
-                            await StartAsync_ExecuteAsyncCommandAsync(asyncCommand, linkedCts.Token);
+                            await StartAsync_ExecuteAsyncCommandAsync(asyncCommand);
                         }
                         else
                         {
                             command.InvokeExecute(_processInterface);
                         }
                     }
-                    catch (OperationCanceledException e) when (e.CancellationToken != linkedCts.Token)
+                    catch (OperationCanceledException e) when (e.CancellationToken != _cts.Token)
                     {
                         // Command内部の事情によりキャンセルされた場合は握り潰して処理を続行
                     }
@@ -150,34 +156,30 @@ namespace Kairou
                     }
                 }
             }
-            catch (OperationCanceledException e) when (e.CancellationToken == linkedCts.Token)
+            catch (OperationCanceledException e) when (e.CancellationToken == _cts.Token)
             {
-                if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.CanBeCanceled && cancellationToken.IsCancellationRequested)
                 {
                     throw new OperationCanceledException(e.Message, e, cancellationToken);
-                }
-                else if (_cts.IsCancellationRequested)
-                {
-                    throw new OperationCanceledException(e.Message, e, _cts.Token);
                 }
                 throw;
             }
             finally
             {
                 _state = ProcessState.MainSequenceFinished;
-                StartTermination(linkedCts.Token);
+                StartTerminationAsync().Forget();
             }
         }
 
-        async UniTask StartAsync_ExecuteAsyncCommandAsync(AsyncCommand asyncCommand, CancellationToken linkedToken)
+        async UniTask StartAsync_ExecuteAsyncCommandAsync(AsyncCommand asyncCommand)
         {
             if (asyncCommand.AsyncCommandParameter.Await)
             {
-                await asyncCommand.InvokeExecuteAsync(_processInterface, linkedToken);
+                await asyncCommand.InvokeExecuteAsync(_processInterface, _cts.Token);
             }
             else
             {
-                UniTask awaiter = StartAsync_ExecuteAsyncCommandAsync_UnawaitedInvokeExecuteAsync(asyncCommand, linkedToken);
+                UniTask awaiter = StartAsync_ExecuteAsyncCommandAsync_UnawaitedInvokeExecuteAsync(asyncCommand);
                 if (asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.IsEmpty())
                 {
                     awaiter.Forget();
@@ -189,12 +191,12 @@ namespace Kairou
             }
         }
 
-        async UniTask StartAsync_ExecuteAsyncCommandAsync_UnawaitedInvokeExecuteAsync(AsyncCommand asyncCommand, CancellationToken linkedToken)
+        async UniTask StartAsync_ExecuteAsyncCommandAsync_UnawaitedInvokeExecuteAsync(AsyncCommand asyncCommand)
         {
             _asyncExecutingCommandCounter++;
             try
             {
-                await asyncCommand.InvokeExecuteAsync(_processInterface, linkedToken);
+                await asyncCommand.InvokeExecuteAsync(_processInterface, _cts.Token);
             }
             catch (Exception e) when (e is not OperationCanceledException)
             {
@@ -206,18 +208,13 @@ namespace Kairou
             }
         }
 
-        void StartTermination(CancellationToken cancellationToken)
-        {
-            StartTerminationAsync(cancellationToken).Forget();
-        }
-
-        async UniTask StartTerminationAsync(CancellationToken cancellationToken)
+        async UniTask StartTerminationAsync()
         {
             try
             {
                 while(_asyncExecutingCommandCounter > 0)
                 {
-                    await UniTask.Yield(cancellationToken);
+                    await UniTask.Yield(_cts.Token);
                 }
             }
             finally

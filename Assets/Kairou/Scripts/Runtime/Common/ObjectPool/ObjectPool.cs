@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Kairou
 {
@@ -11,15 +12,23 @@ namespace Kairou
         readonly Action<T> _onRent;
         readonly Action<T> _onReturn;
 
-        public ObjectPool(Func<T> createFunc, int initialCapacity = 8, int maxCapacity = 8, Action<T> onRent = null, Action<T> onReturn = null)
+        public ObjectPool(Func<T> createFunc, int initialCapacity = 0, int maxCapacity = -1, int initialElements = 0, Action<T> onRent = null, Action<T> onReturn = null)
         {
             if (createFunc == null) throw new ArgumentNullException(nameof(createFunc));
 
+            int actualInitialElements = Mathf.Min(initialElements, maxCapacity);
+            int actualInitialCapacity = Mathf.Max(initialCapacity, actualInitialElements);
+
             _maxCapacity = maxCapacity;
-            _stack = new Stack<T>(initialCapacity);
+            _stack = new Stack<T>(actualInitialCapacity);
             _createFunc = createFunc;
             _onRent = onRent;
             _onReturn = onReturn;
+
+            for (int i = 0; i < actualInitialElements; i++)
+            {
+                _stack.Push(createFunc());
+            }
         }
 
         public T Rent()
@@ -41,7 +50,7 @@ namespace Kairou
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
             _onReturn?.Invoke(item);
-            if (_stack.Count < _maxCapacity) _stack.Push(item);
+            if (_maxCapacity == -1 || _stack.Count < _maxCapacity) _stack.Push(item);
         }
     }
 }
