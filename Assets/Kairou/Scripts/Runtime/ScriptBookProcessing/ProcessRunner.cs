@@ -79,7 +79,89 @@ namespace Kairou
         // ページプロセス再生＋後続処理の指定があればプロセスを生成して後続処理を行う。これを後続処理の指定が無くなるまで繰り返す
         static async UniTask RunProcessCoreLoopAsync(PageProcess pageProcess, CancellationToken cancellationToken)
         {
-            await RootProcess.RunRootLoopAsync(pageProcess, cancellationToken);
+            var bookProcess = pageProcess.BookProcess;
+            var seriesProcess = bookProcess.SeriesProcess;
+            var rootProcess = seriesProcess.RootProcess;
+
+            SubsequentProcessInfo subsequentInfo;
+            
+            bool isMainRootSequence = rootProcess.TryActivateRunningFlag();
+
+            try
+            {
+                while(true)
+                {
+                    bool isMainSeriesSequence = seriesProcess.TryActivateRunningFlag();
+
+                    try
+                    {
+                        while(true)
+                        {
+                            bool isMainBookProcess = bookProcess.TryActivateRunningFlag();
+
+                            try
+                            {
+                                while (true)
+                                {
+                                    // プリロード終了まで待機
+                                    if (bookProcess.Book.Preloader.PreloadState != PreloadState.Preloaded)
+                                    {
+                                        while (bookProcess.Book.Preloader.PreloadState != PreloadState.Preloaded)
+                                        {
+                                            await UniTask.Yield(cancellationToken);
+                                        }
+                                    }
+
+                                    await pageProcess.StartAsync(cancellationToken);
+                                    subsequentInfo = pageProcess.SubsequentProcessInfo;
+
+                                    if (subsequentInfo.IsSubsequentPageInfo == false) break;
+
+                                    pageProcess = bookProcess.CreatePageProcess(subsequentInfo.PageId);
+                                }
+                            }
+                            finally
+                            {
+                                if (isMainBookProcess) bookProcess.StartTerminationAsync(cancellationToken).Forget();
+                            }
+                            
+                            if (subsequentInfo.IsSubsequentBookInfo == false) break;
+
+                            bookProcess = seriesProcess.CreateBookProcess(subsequentInfo.Book);
+                            if (subsequentInfo.HasPageId)
+                            {
+                                pageProcess = bookProcess.CreatePageProcess(subsequentInfo.PageId);
+                            }
+                            else
+                            {
+                                pageProcess = bookProcess.CreateEntryPageProcess();
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        if (isMainSeriesSequence) seriesProcess.StartTerminationAsync(cancellationToken).Forget();
+                    }
+
+                    if (subsequentInfo.IsSubsequentSeriesInfo == false) break;
+                    
+                    seriesProcess = rootProcess.CreateSeriesProcess();
+                    bookProcess = seriesProcess.CreateBookProcess(subsequentInfo.Book);
+                    if (subsequentInfo.HasPageId)
+                    {
+                        pageProcess = bookProcess.CreatePageProcess(subsequentInfo.PageId);
+                    }
+                    else
+                    {
+                        pageProcess = bookProcess.CreateEntryPageProcess();
+                    }
+                    
+                }
+            }
+            finally
+            {
+                if (isMainRootSequence) rootProcess.StartTerminationAsync(cancellationToken).Forget();
+            }
         }
     }
 }

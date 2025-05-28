@@ -49,6 +49,13 @@ namespace Kairou
             IsTerminated = false;
         }
 
+        public bool TryActivateRunningFlag()
+        {
+            if (_isRunning) return false;
+            _isRunning = true;
+            return true;
+        }
+
         internal SeriesProcess CreateSeriesProcess()
         {
             var seriesProcess = SeriesProcess.Rent(this);
@@ -56,42 +63,7 @@ namespace Kairou
             return seriesProcess;
         }
 
-        internal static async UniTask RunRootLoopAsync(PageProcess pageProcess, CancellationToken cancellationToken)
-        {
-            var bookProcess = pageProcess.BookProcess;
-            var seriesProcess = bookProcess.SeriesProcess;
-            var rootProcess = seriesProcess.RootProcess;
-            
-            bool isMainSequence = rootProcess._isRunning == false;
-            rootProcess._isRunning = true;
-
-            try
-            {
-                while(true)
-                {
-                    var subsequentProcessInfo = await SeriesProcess.RunSeriesLoopAsync(pageProcess, cancellationToken);
-
-                    if (subsequentProcessInfo.IsSubsequentSeriesInfo == false) break;
-
-                    seriesProcess = rootProcess.CreateSeriesProcess();
-                    bookProcess = seriesProcess.CreateBookProcess(subsequentProcessInfo.Book);
-                    if (subsequentProcessInfo.HasPageId)
-                    {
-                        pageProcess = bookProcess.CreatePageProcess(subsequentProcessInfo.PageId);
-                    }
-                    else
-                    {
-                        pageProcess = bookProcess.CreateEntryPageProcess();
-                    }
-                }
-            }
-            finally
-            {
-                if (isMainSequence) rootProcess.StartTerminationAsync(cancellationToken).Forget();
-            }
-        }
-
-        async UniTask StartTerminationAsync(CancellationToken cancellationToken)
+        public async UniTask StartTerminationAsync(CancellationToken cancellationToken)
         {
             try
             {

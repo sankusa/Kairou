@@ -112,7 +112,7 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
         {
             if (isAsyncCommand)
             {
-                builder.AppendIndentedLine($"public override async UniTask InvokeExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)");
+                builder.AppendIndentedLine($"public override UniTask InvokeExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)");
             }
             else
             {
@@ -212,7 +212,7 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
         builder.AppendIndent();
         if (isAsyncCommand)
         {
-            builder.Append("await ");
+            builder.Append("return ");
         }
         builder.Append($"{executeMethod.Name}(");
         builder.Append(paramListBuilder);

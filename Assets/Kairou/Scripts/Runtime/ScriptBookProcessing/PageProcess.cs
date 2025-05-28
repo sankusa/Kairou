@@ -127,9 +127,25 @@ namespace Kairou
                         NextCommandIndex = _currentCommandIndex + 1;
 
                         command = _page.Commands[_currentCommandIndex];
+
                         if (command is AsyncCommand asyncCommand)
                         {
-                            await StartAsync_ExecuteAsyncCommandAsync(asyncCommand);
+                            if (asyncCommand.AsyncCommandParameter.Await)
+                            {
+                                await asyncCommand.InvokeExecuteAsync(_processInterface, _cts.Token);
+                            }
+                            else
+                            {
+                                UniTask awaiter = StartAsync_UnawaitedInvokeAsyncCommandAsync(asyncCommand);
+                                if (asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.IsEmpty())
+                                {
+                                    awaiter.Forget();
+                                }
+                                else
+                                {
+                                    asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.Find(_processInterface).SetValue(awaiter);
+                                }
+                            }
                         }
                         else
                         {
@@ -171,27 +187,7 @@ namespace Kairou
             }
         }
 
-        async UniTask StartAsync_ExecuteAsyncCommandAsync(AsyncCommand asyncCommand)
-        {
-            if (asyncCommand.AsyncCommandParameter.Await)
-            {
-                await asyncCommand.InvokeExecuteAsync(_processInterface, _cts.Token);
-            }
-            else
-            {
-                UniTask awaiter = StartAsync_ExecuteAsyncCommandAsync_UnawaitedInvokeExecuteAsync(asyncCommand);
-                if (asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.IsEmpty())
-                {
-                    awaiter.Forget();
-                }
-                else
-                {
-                    asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.Find(_processInterface).SetValue(awaiter);
-                }
-            }
-        }
-
-        async UniTask StartAsync_ExecuteAsyncCommandAsync_UnawaitedInvokeExecuteAsync(AsyncCommand asyncCommand)
+        async UniTask StartAsync_UnawaitedInvokeAsyncCommandAsync(AsyncCommand asyncCommand)
         {
             _asyncExecutingCommandCounter++;
             try

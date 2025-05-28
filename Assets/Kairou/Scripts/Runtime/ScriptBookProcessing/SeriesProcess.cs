@@ -51,6 +51,13 @@ namespace Kairou
             IsTerminated = false;
         }
 
+        public bool TryActivateRunningFlag()
+        {
+            if (_isRunning) return false;
+            _isRunning = true;
+            return true;
+        }
+
         internal BookProcess CreateBookProcess(ScriptBook book)
         {
             var bookProcess = BookProcess.Rent(this, book);
@@ -58,42 +65,7 @@ namespace Kairou
             return bookProcess;
         }
 
-        internal static async UniTask<SubsequentProcessInfo> RunSeriesLoopAsync(PageProcess pageProcess, CancellationToken cancellationToken)
-        {
-            var bookProcess = pageProcess.BookProcess;
-            var seriesProcess = bookProcess.SeriesProcess;
-            SubsequentProcessInfo subsequentProcessInfo;
-            
-            bool isMainSequence = seriesProcess._isRunning == false;
-            seriesProcess._isRunning = true;
-
-            try
-            {
-                while(true)
-                {
-                    subsequentProcessInfo = await BookProcess.RunBookLoopAsync(pageProcess, cancellationToken);
-                    
-                    if (subsequentProcessInfo.IsSubsequentBookInfo == false) break;
-
-                    bookProcess = seriesProcess.CreateBookProcess(subsequentProcessInfo.Book);
-                    if (subsequentProcessInfo.HasPageId)
-                    {
-                        pageProcess = bookProcess.CreatePageProcess(subsequentProcessInfo.PageId);
-                    }
-                    else
-                    {
-                        pageProcess = bookProcess.CreateEntryPageProcess();
-                    }
-                }
-            }
-            finally
-            {
-                if (isMainSequence) seriesProcess.StartTerminationAsync(cancellationToken).Forget();
-            }
-            return subsequentProcessInfo;
-        }
-
-        async UniTask StartTerminationAsync(CancellationToken cancellationToken)
+        public async UniTask StartTerminationAsync(CancellationToken cancellationToken)
         {
             try
             {

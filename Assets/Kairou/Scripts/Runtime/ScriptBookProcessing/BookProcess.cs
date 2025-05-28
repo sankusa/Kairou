@@ -18,6 +18,7 @@ namespace Kairou
         public SeriesProcess SeriesProcess { get; private set; }
 
         ScriptBook _book;
+        public ScriptBook Book => _book;
 
         readonly List<PageProcess> _unfinishedPageProcesses = new(2);
 
@@ -66,6 +67,13 @@ namespace Kairou
             IsTerminated = false;
         }
 
+        public bool TryActivateRunningFlag()
+        {
+            if (_isRunning) return false;
+            _isRunning = true;
+            return true;
+        }
+
         internal PageProcess CreatePageProcess(string pageId)
         {
             if (string.IsNullOrEmpty(pageId)) throw new ArgumentNullException(nameof(pageId));
@@ -86,43 +94,7 @@ namespace Kairou
             return pageProcess;
         }
 
-        internal static async UniTask<SubsequentProcessInfo> RunBookLoopAsync(PageProcess pageProcess, CancellationToken cancellationToken)
-        {
-            var bookProcess = pageProcess.BookProcess;
-            SubsequentProcessInfo subsequentProcessInfo;
-            
-            bool isMainSequence = bookProcess._isRunning == false;
-            bookProcess._isRunning = true;
-
-            try
-            {
-                while (true)
-                {
-                    // プリロード終了まで待機
-                    if (bookProcess._book.Preloader.PreloadState != PreloadState.Preloaded)
-                    {
-                        while (bookProcess._book.Preloader.PreloadState != PreloadState.Preloaded)
-                        {
-                            await UniTask.Yield(cancellationToken);
-                        }
-                    }
-
-                    await pageProcess.StartAsync(cancellationToken);
-                    subsequentProcessInfo = pageProcess.SubsequentProcessInfo;
-
-                    if (subsequentProcessInfo.IsSubsequentPageInfo == false) break;
-
-                    pageProcess = bookProcess.CreatePageProcess(subsequentProcessInfo.PageId);
-                }
-            }
-            finally
-            {
-                if (isMainSequence) bookProcess.StartTerminationAsync(cancellationToken).Forget();
-            }
-            return subsequentProcessInfo;
-        }
-
-        async UniTask StartTerminationAsync(CancellationToken cancellationToken)
+        public async UniTask StartTerminationAsync(CancellationToken cancellationToken)
         {
             try
             {
