@@ -63,7 +63,7 @@ namespace Kairou
             return seriesProcess;
         }
 
-        public async UniTask StartTerminationAsync(CancellationToken cancellationToken)
+        public async UniTask StartTerminationAsync(Action<RootProcess> onTerminated, CancellationToken cancellationToken)
         {
             try
             {
@@ -85,6 +85,7 @@ namespace Kairou
             finally
             {
                 IsTerminated = true;
+                onTerminated?.Invoke(this);
             }
         }
     }

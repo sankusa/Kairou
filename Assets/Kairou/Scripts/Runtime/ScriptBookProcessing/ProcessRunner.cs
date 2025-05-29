@@ -7,44 +7,22 @@ namespace Kairou
 {
     public class ProcessRunner
     {
-        public static async UniTask RunMainSequenceAsync(RootProcess rootProcess, ScriptBook scriptBook, Action<RootProcess> onTerminated, CancellationToken cancellationToken)
+        public static UniTask RunMainSequenceAsync(RootProcess rootProcess, ScriptBook scriptBook, Action<RootProcess> onTerminated, CancellationToken cancellationToken)
         {
             var seriesProcess = rootProcess.CreateSeriesProcess();
             var bookProcess = seriesProcess.CreateBookProcess(scriptBook);
             var pageProcess = bookProcess.CreateEntryPageProcess();
             
-            try
-            {
-                await RunProcessCoreLoopAsync(pageProcess, cancellationToken);
-            }
-            finally
-            {
-                StartTerminationAsync(rootProcess, onTerminated, cancellationToken).Forget();
-            }
+            return RunProcessCoreLoopAsync(pageProcess, onTerminated, cancellationToken);
         }
 
-        static async UniTask StartTerminationAsync(RootProcess rootProcess, Action<RootProcess> onTerminated, CancellationToken cancellationToken)
-        {
-            try
-            {
-                while (rootProcess.IsTerminated == false)
-                {
-                    await UniTask.Yield(cancellationToken);
-                }
-            }
-            finally
-            {
-                onTerminated?.Invoke(rootProcess);
-            }
-        }
-
-        internal static async UniTask RunPageAsBookProcessSubSequenceAsync(PageProcess pageProcess, string pageId, CancellationToken cancellationToken)
+        internal static UniTask RunPageAsBookProcessSubSequenceAsync(PageProcess pageProcess, string pageId, CancellationToken cancellationToken)
         {
             var newPageProcess = pageProcess.BookProcess.CreatePageProcess(pageId);
-            await RunProcessCoreLoopAsync(newPageProcess, cancellationToken);
+            return RunProcessCoreLoopAsync(newPageProcess, null, cancellationToken);
         }
 
-        internal static async UniTask RunBookAsSeriesProcessSubSequenceAsync(PageProcess pageProcess, ScriptBook book, string pageId, CancellationToken cancellationToken)
+        internal static UniTask RunBookAsSeriesProcessSubSequenceAsync(PageProcess pageProcess, ScriptBook book, string pageId, CancellationToken cancellationToken)
         {
             var newBookProcess = pageProcess.BookProcess.SeriesProcess.CreateBookProcess(book);
             PageProcess newPageProcess;
@@ -56,10 +34,10 @@ namespace Kairou
             {
                 newPageProcess = newBookProcess.CreatePageProcess(pageId);
             }
-            await RunProcessCoreLoopAsync(newPageProcess, cancellationToken);
+            return RunProcessCoreLoopAsync(newPageProcess, null, cancellationToken);
         }
 
-        internal static async UniTask RunBookAsRootProcessSubSequenceAsync(PageProcess pageProcess, ScriptBook book, string pageId, CancellationToken cancellationToken)
+        internal static UniTask RunBookAsRootProcessSubSequenceAsync(PageProcess pageProcess, ScriptBook book, string pageId, CancellationToken cancellationToken)
         {
             var newSeriesProcess = pageProcess.BookProcess.SeriesProcess.RootProcess.CreateSeriesProcess();
             var newBookProcess = newSeriesProcess.CreateBookProcess(book);
@@ -72,12 +50,12 @@ namespace Kairou
             {
                 newPageProcess = newBookProcess.CreatePageProcess(pageId);
             }
-            await RunProcessCoreLoopAsync(newPageProcess, cancellationToken);
+            return RunProcessCoreLoopAsync(newPageProcess, null, cancellationToken);
         }
 
         // 実行関数の中核
         // ページプロセス再生＋後続処理の指定があればプロセスを生成して後続処理を行う。これを後続処理の指定が無くなるまで繰り返す
-        static async UniTask RunProcessCoreLoopAsync(PageProcess pageProcess, CancellationToken cancellationToken)
+        static async UniTask RunProcessCoreLoopAsync(PageProcess pageProcess, Action<RootProcess> onTerminatedIfMainSequence, CancellationToken cancellationToken)
         {
             var bookProcess = pageProcess.BookProcess;
             var seriesProcess = bookProcess.SeriesProcess;
@@ -160,7 +138,7 @@ namespace Kairou
             }
             finally
             {
-                if (isMainRootSequence) rootProcess.StartTerminationAsync(cancellationToken).Forget();
+                if (isMainRootSequence) rootProcess.StartTerminationAsync(onTerminatedIfMainSequence, cancellationToken).Forget();
             }
         }
     }

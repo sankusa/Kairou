@@ -99,7 +99,7 @@ namespace Kairou
             
             try
             {
-                IncrementRunnignCount();
+                IncrementRunningCount();
                 foreach (var slot in _bookSlots)
                 {
                     if (slot.Book == null) continue;
@@ -127,7 +127,7 @@ namespace Kairou
             }
             finally
             {
-                DecrementRunnignCount();
+                DecrementRunningCount();
             }
         }
 
@@ -151,7 +151,7 @@ namespace Kairou
 
             try
             {
-                IncrementRunnignCount();
+                IncrementRunningCount();
                 await RunAsyncInternal(book, tokenConbiner.Token);
             }
             catch (OperationCanceledException e) when (e.CancellationToken != tokenConbiner.Token)
@@ -175,7 +175,7 @@ namespace Kairou
             }
             finally
             {
-                DecrementRunnignCount();
+                DecrementRunningCount();
             }
         }
 
@@ -192,7 +192,7 @@ namespace Kairou
             );
         }
 
-        void IncrementRunnignCount()
+        void IncrementRunningCount()
         {
             if (_runningCount == 0)
             {
@@ -201,7 +201,7 @@ namespace Kairou
             _runningCount++;
         }
 
-        void DecrementRunnignCount()
+        void DecrementRunningCount()
         {
             _runningCount--;
             if (_runningCount == 0)
