@@ -11,9 +11,9 @@ namespace Kairou
         [SerializeField] SiblingPageSelector _target;
 
         [CommandExecute]
-        async UniTask ExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)
+        UniTask ExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)
         {
-            await process.RunPageAsync(_target.PageId, cancellationToken);
+            return process.RunPageAsync(_target.PageId, cancellationToken);
         }
 
         public override string GetSummary()

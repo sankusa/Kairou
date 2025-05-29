@@ -12,10 +12,10 @@ namespace Kairou
         [SerializeField] List<VariableValueGetterKey<UniTask>> _uniTaskVariableKeys;
 
         [CommandExecute]
-        async UniTask ExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)
+        UniTask ExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)
         {
             var uniTasks = _uniTaskVariableKeys.Select(x => x.Find(process).GetValue());
-            await UniTask.WhenAny(uniTasks).AttachExternalCancellation(cancellationToken);
+            return UniTask.WhenAny(uniTasks).AttachExternalCancellation(cancellationToken);
         }
 
         public override string GetSummary()

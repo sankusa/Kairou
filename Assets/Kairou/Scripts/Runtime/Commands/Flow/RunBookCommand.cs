@@ -14,15 +14,15 @@ namespace Kairou
         [SerializeField] BookAndPageSelector _target;
 
         [CommandExecute]
-        async UniTask ExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)
+        UniTask ExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)
         {
             if (_switchSeries)
             {
-                await process.RunBookAsNewSeriesAsync(_target.Book, _target.PageId, cancellationToken);
+                return process.RunBookAsNewSeriesAsync(_target.Book, _target.PageId, cancellationToken);
             }
             else
             {
-                await process.RunBookAsync(_target.Book, _target.PageId, cancellationToken);
+                return process.RunBookAsync(_target.Book, _target.PageId, cancellationToken);
             }
         }
 

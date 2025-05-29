@@ -13,9 +13,9 @@ namespace Kairou
         [SerializeField] FlexibleParameter<float> _seconds;
 
         [CommandExecute]
-        async UniTask ExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)
+        UniTask ExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)
         {
-            await UniTask.Delay((int)(_seconds.ResolveValue(process) * 1000), _delaytype, cancellationToken: cancellationToken);
+            return UniTask.Delay((int)(_seconds.ResolveValue(process) * 1000), _delaytype, cancellationToken: cancellationToken);
         }
 
         public override string GetSummary() => $"{_seconds.GetSummary()} seconds{(_delaytype == DelayType.DeltaTime ? "" : $"  ({_delaytype.ToString()})")}";

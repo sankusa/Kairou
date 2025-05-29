@@ -14,7 +14,7 @@ namespace Kairou
         public bool IsLoopBlock => false;
 
         [CommandExecute]
-        async UniTask ExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)
+        UniTask ExecuteAsync(IProcessInterface process, CancellationToken cancellationToken)
         {
             cancellationToken.RegisterWithoutCaptureExecutionContext(static _ => {}, this).Dispose();
             process.TryPopBlock<IfBlock>(out var block);
@@ -23,7 +23,7 @@ namespace Kairou
             ParentPage.FindBlockStartIndex(this);
             int s = ifBlock.StartIndex;
             int e = ifBlock.EndIndex;
-            await UniTask.Yield(cancellationToken);
+            return UniTask.Yield(cancellationToken);
         }
     }
 }

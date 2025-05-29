@@ -8,9 +8,9 @@ namespace Kairou
     public partial class YieldCommand : AsyncCommand
     {
         [CommandExecute]
-        async UniTask ExecuteAsync(CancellationToken cancellationToken)
+        UniTask ExecuteAsync(CancellationToken cancellationToken)
         {
-            await UniTask.Yield(cancellationToken);
+            return UniTask.Yield(cancellationToken);
         }
     }
 }
