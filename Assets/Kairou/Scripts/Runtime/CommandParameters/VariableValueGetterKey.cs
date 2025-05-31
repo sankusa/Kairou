@@ -23,6 +23,21 @@ namespace Kairou
             return process.FindVariable(VariableName, TargetScope);
         }
 
+        public bool IsValidDefinition(VariableDefinition definition)
+        {
+            return TypeConverterCache.CanConvert(definition.TargetType, TargetType);
+        }
+
+        public (VariableDefinition, FoundVariableScope) FindDefinition(Command command)
+        {
+            return VariableKeySharedLogic.FindVariableDefinition(
+                command,
+                _variableName,
+                _targetScope,
+                (definition) => IsValidDefinition(definition)
+            );
+        }
+
         public string GetSummary() => VariableKeySharedLogic.GetSummary(_variableName);
 
         public IEnumerable<string> Validate(Command command, string fieldName)

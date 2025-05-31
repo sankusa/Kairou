@@ -15,7 +15,7 @@ namespace Kairou
         [SerializeField] string _bookPropertyPath;
         public string BookPropertyPath => _bookPropertyPath;
 
-        ScriptBook _book;
+        [NonSerialized] ScriptBook _book;
         public ScriptBook Book
         {
             get

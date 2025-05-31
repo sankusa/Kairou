@@ -25,7 +25,7 @@ namespace Kairou.Editor
         public void Initialize(VisualElement parent, Action onCommandChanged)
         {
             var scrollView = new ScrollView() { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
-            scrollView.style.marginRight = 2;
+            scrollView.style.marginRight = 4;
             _parent = scrollView;
             parent.Add(_parent);
             _onCommandChanged = onCommandChanged;

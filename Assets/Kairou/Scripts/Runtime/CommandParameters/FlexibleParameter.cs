@@ -15,6 +15,8 @@ namespace Kairou
 
         [SerializeField] protected ResolveType _resolveType;
 
+        public abstract Type TargetType { get; }
+
         public abstract IEnumerable<string> Validate(Command command, string fieldName);
     }
 
@@ -23,6 +25,8 @@ namespace Kairou
     {
         [SerializeField] T _value;
         [SerializeField] VariableValueGetterKey<T> _variable;
+
+        public override Type TargetType => typeof(T);
 
         public T ResolveValue(IProcessInterface process)
         {

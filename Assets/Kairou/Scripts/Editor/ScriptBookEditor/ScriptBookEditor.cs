@@ -44,7 +44,7 @@ namespace Kairou.Editor
             EditorApplication.hierarchyChanged -= OnProjectOrHierarchyChanged;
         }
 
-        public void CreateGUI()
+        void CreateGUI()
         {
             var root = rootVisualElement;
 

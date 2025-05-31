@@ -24,7 +24,7 @@ namespace Kairou.Editor
             int lastNameSpaceDotindex = typeArgNameMain.LastIndexOf('.');
             var typeArgSimpleName = lastNameSpaceDotindex == -1 ? typeArgTypeFullName : typeArgTypeFullName[(lastNameSpaceDotindex + 1)..];
 
-            GUI.Box(typeRect, $"{TypeNameUtil.ConvertToPrimitiveTypeName(typeArgSimpleName.ToString())}", new GUIStyle("Badge"));
+            GUI.Box(typeRect, $"{TypeNameUtil.ConvertToPrimitiveTypeName(typeArgSimpleName.ToString())}", GUIStyles.Badge);
 
             using var _ = new LabelWidthScope(80);
 
