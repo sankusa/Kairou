@@ -89,9 +89,10 @@ namespace Kairou.Editor
             position.yMin += foundDefinitionRect.height + EditorGUIUtility.standardVerticalSpacing;
 
             var foundDefinitionIconRect = new Rect(foundDefinitionRect);
+            foundDefinitionIconRect.xMin += GUICommon.GetIndentWidth(1) - 1;
 
             var foundDefinitionLabelRect = new Rect(foundDefinitionRect);
-            foundDefinitionLabelRect.xMin += 20;
+            foundDefinitionLabelRect.xMin += 20 + GUICommon.GetIndentWidth(1);
 
             GUI.Box(foundDefinitionRect, "", GUIStyles.GroupBox);
             
