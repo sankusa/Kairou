@@ -23,6 +23,9 @@ namespace Kairou
             return new ScriptBook();
         }
 
+        [SerializeField] string _id;
+        public string Id => _id;
+
         [SerializeField] List<Page> _pages = new();
         public IReadOnlyList<Page> Pages => _pages;
 

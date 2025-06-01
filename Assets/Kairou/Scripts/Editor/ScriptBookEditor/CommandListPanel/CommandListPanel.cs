@@ -84,6 +84,8 @@ namespace Kairou.Editor
             {
                 element.userData = i;
 
+                element.parent.style.paddingTop = 0;
+                element.parent.style.paddingBottom = 0;
                 element.parent.style.paddingLeft = 0;
                 element.parent.style.paddingRight = 0;
                 element.parent.parent.Q<VisualElement>("unity-list-view__reorderable-handle").style.display = DisplayStyle.None;

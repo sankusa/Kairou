@@ -1,5 +1,9 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <editor:Toolbar>
-        <editor:ObjectField enabled="false" />
+        <engine:Label text=" Book" style="-unity-text-align: middle-left; -unity-font-style: bold;" />
+        <engine:VisualElement style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.4); width: 1px; min-width: 1px; max-width: 1px;" />
+        <engine:Label text=" Id:" style="-unity-text-align: middle-left; -unity-font-style: normal;" />
+        <engine:TextField style="flex-grow: 0; min-width: 80px;" />
+        <editor:ToolbarSpacer style="flex-grow: 1;" />
     </editor:Toolbar>
 </engine:UXML>

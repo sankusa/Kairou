@@ -86,6 +86,7 @@ namespace Kairou.Editor
 
         public void Reload(int selectedPageIndex)
         {
+            if(IsInitialized == false) return;
             ThrowIfNotInitialized();
 
             if (_bookHolder.HasValidBook)
@@ -100,6 +101,7 @@ namespace Kairou.Editor
             }
 
             _listView.SetSelectionWithoutNotify(new int[] {selectedPageIndex});
+            _listView.RefreshItems();
         }
 
         public void OnProjectOrHierarchyChanged()

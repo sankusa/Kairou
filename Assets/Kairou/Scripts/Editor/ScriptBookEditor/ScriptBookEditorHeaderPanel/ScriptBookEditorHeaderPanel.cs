@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using Kairou.Editor;
-using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -9,19 +8,25 @@ using UnityEngine.UIElements;
 namespace Kairou
 {
     [Serializable]
-    public class BookHeaderPanel
+    public class ScriptBookEditorHeaderPanel
     {
         [SerializeField] RestorableBookHolder _bookHolder = new();
 
-        TextField _bookIdField;
-        bool IsInitialized => _bookIdField != null;
+        ObjectField _objectField;
+        Label _bookPathLabel;
+        ToolbarToggle _variableDisplayToggle;
+        public ToolbarToggle VariableDisplayToggle => _variableDisplayToggle;
+        
+        bool IsInitialized => _objectField != null;
 
-        public void Initialize(VisualElement parent, VisualTreeAsset bookHeaderPanelUXML)
+        public void Initialize(VisualElement parent, VisualTreeAsset headerPanelUXML)
         {
-            var bookHeaderPanel = bookHeaderPanelUXML.Instantiate();
-            parent.Add(bookHeaderPanel);
+            var headerPanel = headerPanelUXML.Instantiate();
+            parent.Add(headerPanel);
 
-            _bookIdField = bookHeaderPanel.Q<TextField>();
+            _objectField = headerPanel.Q<ObjectField>();
+            _bookPathLabel = headerPanel.Q<Label>("BookPath");
+            _variableDisplayToggle = headerPanel.Q<ToolbarToggle>();
 
             Reload();
         }
@@ -36,14 +41,8 @@ namespace Kairou
         {
             ThrowIfNotInitialized();
 
-            _bookIdField.Unbind();
-
-            if (_bookHolder.HasValidBook)
-            {
-                var serializedObject = new SerializedObject(_bookHolder.Owner);
-                var bookProp = serializedObject.FindProperty(_bookHolder.BookPropertyPath);
-                _bookIdField.BindProperty(bookProp.FindPropertyRelative("_id"));
-            }
+            _objectField.value = _bookHolder.Owner;
+            _bookPathLabel.text = $".{_bookHolder.BookPropertyPath}";
         }
 
         public void OnProjectOrHierarchyChanged()

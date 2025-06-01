@@ -5,10 +5,14 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - m_ViewDataDictionary: {instanceID: 0}
+  - _headerPanelUXML: {fileID: 9197481963319205126, guid: 231fac61f9d3f164184d99590009190c, type: 3}
   - _bookHeaderUXML: {fileID: 9197481963319205126, guid: 390a94737ec20834090553ddc89a4057, type: 3}
   - _pageListPanelUXML: {fileID: 9197481963319205126, guid: a1422bf4f94c6fa4a82bc5c29838c639, type: 3}
+  - _pageHeaderPanelUXML: {fileID: 9197481963319205126, guid: 2a1beffc2bd4df847a1d7f82906083f0, type: 3}
   - _commandListPanelUXML: {fileID: 9197481963319205126, guid: b228be7b4f5b3e84eb39d6f49bb0ed62, type: 3}
   - _variablePanelUXML: {fileID: 9197481963319205126, guid: e19eaa836190ddd47b999fe5af527827, type: 3}
+  - _pagePaneUXML: {fileID: 9197481963319205126, guid: 28b614eb758d96c4d996f1fdb3568207, type: 3}
+  - _commandPaneUXML: {fileID: 9197481963319205126, guid: d2fdff1555a628f43ae4e6457d2ba9ac, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

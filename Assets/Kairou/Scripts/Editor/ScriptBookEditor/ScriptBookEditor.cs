@@ -17,15 +17,21 @@ namespace Kairou.Editor
             window.SetTarget(bookOwner, bookPropertyPath);
         }
 
+        [SerializeField] VisualTreeAsset _headerPanelUXML;
         [SerializeField] VisualTreeAsset _bookHeaderUXML;
         [SerializeField] VisualTreeAsset _pageListPanelUXML;
+        [SerializeField] VisualTreeAsset _pageHeaderPanelUXML;
         [SerializeField] VisualTreeAsset _commandListPanelUXML;
         [SerializeField] VisualTreeAsset _variablePanelUXML;
+        [SerializeField] VisualTreeAsset _pagePaneUXML;
+        [SerializeField] VisualTreeAsset _commandPaneUXML;
 
         [SerializeField] RestorableBookHolder _bookHolder = new();
 
+        [SerializeField] ScriptBookEditorHeaderPanel _headerPanel = new();
         [SerializeField] BookHeaderPanel _bookHeaderPanel = new();
         [SerializeField] PageListPanel _pageListPanel = new();
+        [SerializeField] PageHeaderPanel _pageHeaderPanel = new();
         [SerializeField] CommandListPanel _commandListPanel = new();
         [SerializeField] CommandPanel _commandPanel = new();
         [SerializeField] VariablePanel _variablePanel = new();
@@ -48,25 +54,20 @@ namespace Kairou.Editor
         {
             var root = rootVisualElement;
 
-            var toolbar = new Toolbar();
-            rootVisualElement.Add(toolbar);
+            _headerPanel.Initialize(rootVisualElement, _headerPanelUXML);
 
             (var bookPane, var variablePane) = UIToolkitUtil.CreateSplitView(
                 out TwoPaneSplitView rootSplitView,
                 rootVisualElement,
                 viewDataKey: "Split0");
 
-            toolbar.Add(new ToolbarSpacer() {flex = true});
-            var variableToggle = new ToolbarToggle() {text = "Variables", viewDataKey = "VariableToggle"}; 
-            toolbar.Add(variableToggle);
-
             rootSplitView.schedule.Execute(() =>
             {
-                if (variableToggle.value) return;
+                if (_headerPanel.VariableDisplayToggle.value) return;
                 rootSplitView.CollapseChild(1);
             });
 
-            variableToggle.RegisterValueChangedCallback(evt =>
+            _headerPanel.VariableDisplayToggle.RegisterValueChangedCallback(evt =>
             {
                 if (evt.newValue)
                 {
@@ -82,13 +83,26 @@ namespace Kairou.Editor
 
             var panes = UIToolkitUtil.CreateSplitView(bookPane, viewDataKey: "Split1");
             var leftPane = panes.leftPane;
-            var (centerPane, rightPane) = UIToolkitUtil.CreateSplitView(panes.rightPane, 1, 200f, viewDataKey: "Split2");
+
+            var pagePane = _pagePaneUXML.Instantiate();
+            pagePane.style.flexGrow = 1;
+            panes.rightPane.Add(pagePane);
+            var pagePaneInner = pagePane.Q<VisualElement>("Pane");
+
+            _pageHeaderPanel.Initialize(
+                pagePaneInner,
+                _pageHeaderPanelUXML,
+                () => _pageListPanel.Reload()
+            );
+
+            var (centerPane, rightPane) = UIToolkitUtil.CreateSplitView(pagePaneInner, 1, 200f, viewDataKey: "Split2");
 
             _pageListPanel.Initialize(
                 leftPane,
                 _pageListPanelUXML,
                 (bookId, pageIndex) =>
                 {
+                    _pageHeaderPanel.SetTarget(bookId, pageIndex);
                     _commandListPanel.SetTarget(bookId, pageIndex);
                     _commandPanel.SetTarget(bookId, pageIndex, 0);
                     _variablePanel.SetTarget(bookId, pageIndex);
@@ -107,8 +121,13 @@ namespace Kairou.Editor
                 () => _commandPanel.Reload()
             );
 
+            var commandPane = _commandPaneUXML.Instantiate();
+            commandPane.style.flexGrow = 1;
+            rightPane.Add(commandPane);
+            var commandPaneInner = commandPane.Q<VisualElement>("Pane");
+
             _commandPanel.Initialize(
-                rightPane,
+                commandPaneInner,
                 () => _commandListPanel.Reflesh()
             );
 
@@ -122,8 +141,10 @@ namespace Kairou.Editor
         {
             _bookHolder.Reset(bookOwner, bookPropertyPath);
 
+            _headerPanel.SetTarget(_bookHolder.BookId);
             _bookHeaderPanel.SetTarget(_bookHolder.BookId);
             _pageListPanel.SetTarget(_bookHolder.BookId);
+            _pageHeaderPanel.SetTarget(_bookHolder.BookId, 0);
             _commandListPanel.SetTarget(_bookHolder.BookId, 0);
             _commandPanel.SetTarget(_bookHolder.BookId, 0, 0);
             _variablePanel.SetTarget(_bookHolder.BookId, 0);
