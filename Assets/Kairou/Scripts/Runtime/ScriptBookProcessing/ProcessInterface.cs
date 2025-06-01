@@ -97,6 +97,11 @@ namespace Kairou
             return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.Resolve<T>();
         }
 
+        public bool TryResolve<T>(out T value)
+        {
+            return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.TryResolve(out value);
+        }
+
         public IEnumerable<T> ResolveAll<T>()
         {
             return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.ResolveAll<T>();

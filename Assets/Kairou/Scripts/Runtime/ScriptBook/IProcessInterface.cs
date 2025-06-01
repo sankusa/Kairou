@@ -29,6 +29,7 @@ namespace Kairou
         VariableValueAccessor<T> FindVariableValueAccessor<T>(string name, TargetVariableScope targetScope = TargetVariableScope.None);
 
         T Resolve<T>();
+        bool TryResolve<T>(out T value);
         IEnumerable<T> ResolveAll<T>();
     }
 }

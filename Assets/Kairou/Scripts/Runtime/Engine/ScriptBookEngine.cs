@@ -4,6 +4,9 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
+#if KAIROU_VCONTAINER_SUPPORT
+using VContainer;
+#endif
 
 namespace Kairou
 {
@@ -54,6 +57,15 @@ namespace Kairou
         public UnityEvent OnEndRunningAll => _onEndRunningAll;
 
         int _runningCount;
+
+#if KAIROU_VCONTAINER_SUPPORT
+        [VContainer.Inject]
+        VContainer.IObjectResolver _vcontainerResolver;
+#endif
+#if KAIROU_EXTENJECT_SUPPORT
+        [Zenject.Inject]
+        Zenject.DiContainer _extenjectDiContainer;
+#endif
 
         void Awake()
         {
@@ -183,6 +195,18 @@ namespace Kairou
         {
             var rootProcess = RootProcess.Rent();
             rootProcess.ObjectResolver.Add(_componentBinding);
+#if KAIROU_VCONTAINER_SUPPORT
+            if (_vcontainerResolver != null)
+            {
+                rootProcess.ObjectResolver.SetVContainerResolver(_vcontainerResolver);
+            }
+#endif
+#if KAIROU_EXTENJECT_SUPPORT
+            if (_extenjectDiContainer != null)
+            {
+                rootProcess.ObjectResolver.SetExtenjectDiContainer(_extenjectDiContainer);
+            }
+#endif
 
             return ProcessRunner.RunMainSequenceAsync(
                 rootProcess,
