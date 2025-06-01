@@ -69,6 +69,14 @@ namespace Kairou
             ((ICommandInternalForPage)command).SetParentPage(this);
         }
 
+        internal void InsertCommand(int index, Command command)
+        {
+            if (command == null) throw new ArgumentNullException(nameof(command));
+            if (_commands.Contains(command)) throw new ArgumentException(nameof(command) + " is already added.");
+            _commands.Insert(index, command);
+            ((ICommandInternalForPage)command).SetParentPage(this);
+        }
+
         internal void RemoveCommand(Command command)
         {
             if (command == null) return;

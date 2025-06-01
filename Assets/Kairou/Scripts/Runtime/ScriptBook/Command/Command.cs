@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Kairou
 {
@@ -57,5 +60,14 @@ namespace Kairou
         }
 
         public virtual void GetPreloadTargetBooks(ICollection<ScriptBook> books) {}
+
+#if UNITY_EDITOR
+        public Command Copy()
+        {
+            var copied = (Command)Activator.CreateInstance(GetType());
+            EditorJsonUtility.FromJsonOverwrite(EditorJsonUtility.ToJson(this), copied);
+            return copied;
+        }
+#endif
     }
 }

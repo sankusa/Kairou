@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -43,8 +44,49 @@ namespace Kairou.Editor
             parent.Add(commandListPanel);
 
             _listView = commandListPanel.Q<ListView>("CommandList");
+            _listView.makeItem = () =>
+            {
+                var item = _listView.itemTemplate.CloneTree();
+                var copyButton = item.Q<Button>("CopyButton");
+                copyButton.clicked += () =>
+                {
+                    int index = (int)item.userData;
+                    var sourceCommand = _bookHolder.Book.Pages[_pageIndex].Commands[index];
+                    var copied = sourceCommand.Copy();
+                    BookUtilForEditor.InsertCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, index, copied);
+                    _listView.Rebuild();
+                    onCollectionChanged?.Invoke();
+                };
+                var copyIcon = new Image() { image = GUISkin.Instance.copyIcon };
+                copyIcon.style.width = 14;
+                copyIcon.style.height = 14;
+                copyIcon.style.opacity = 0.5f;
+                copyButton.Add(copyIcon);
+
+                var deleteButton = item.Q<Button>("DeleteButton");
+                deleteButton.clicked += () =>
+                {
+                    int index = (int)item.userData;
+                    var command = _bookHolder.Book.Pages[_pageIndex].Commands[index];
+                    BookUtilForEditor.RemoveCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, index);
+                    _listView.Rebuild();
+                    onCollectionChanged?.Invoke();
+                };
+                var deleteIcon = new Image() { image = GUISkin.Instance.deleteIcon };
+                deleteIcon.style.width = 14;
+                deleteIcon.style.height = 14;
+                deleteIcon.style.opacity = 0.5f;
+                deleteButton.Add(deleteIcon);
+                return item;
+            };
+
             _listView.bindItem = (element, i) =>
             {
+                element.userData = i;
+
+                element.parent.style.paddingLeft = 0;
+                element.parent.style.paddingRight = 0;
+                element.parent.parent.Q<VisualElement>("unity-list-view__reorderable-handle").style.display = DisplayStyle.None;
                 Command command = _bookHolder.Book.Pages[_pageIndex].Commands[i];
                 CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
                 element.Q<Label>("NameLabel").text = commandInfo.CommandName;

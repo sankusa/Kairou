@@ -52,6 +52,16 @@ namespace Kairou.Editor
             EditorUtility.SetDirty(bookOwner);
         }
 
+        public static void InsertCommand(Object bookOwner, ScriptBook book, int pageIndex, int insertIndex, Command command)
+        {
+            if (bookOwner == null) throw new ArgumentNullException(nameof(bookOwner));
+            if (book == null) throw new ArgumentNullException(nameof(book));
+            
+            Undo.RecordObject(bookOwner, "Insert Command");
+            book.Pages[pageIndex].InsertCommand(insertIndex, command);
+            EditorUtility.SetDirty(bookOwner);
+        }
+
         public static void RemoveCommand(Object bookOwner, ScriptBook book, int pageIndex, int commandIndex)
         {
             if (bookOwner == null) throw new ArgumentNullException(nameof(bookOwner));
