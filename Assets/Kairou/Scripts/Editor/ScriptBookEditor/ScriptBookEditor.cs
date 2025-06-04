@@ -59,6 +59,7 @@ namespace Kairou.Editor
             (var bookPane, var variablePane) = UIToolkitUtil.CreateSplitView(
                 out TwoPaneSplitView rootSplitView,
                 rootVisualElement,
+                fixedPaneIndex: 1,
                 viewDataKey: "Split0");
 
             rootSplitView.schedule.Execute(() =>
