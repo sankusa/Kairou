@@ -35,17 +35,20 @@ namespace Kairou
         /// <summary>
         /// プロジェクト内の対象型のアセットを全てロード
         /// </summary>
-        public static List<T> LoadAllAssets<T>() where T : Object {
-            List<T> list = new List<T>(); 
-            
+        public static T[] LoadAllAssets<T>(Func<T, bool> predicate = null) where T : Object
+        {   
             string[] guids = AssetDatabase.FindAssets("t:" + typeof(T).Name);
 
-            foreach(string guid in guids) {
+            var list = new List<T>();
+            foreach(string guid in guids)
+            {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
-                T asset = (T)AssetDatabase.LoadAssetAtPath(path, typeof(T));
+                T asset = AssetDatabase.LoadAssetAtPath<T>(path);
+                if (asset == null) continue;
+                if (predicate != null && !predicate(asset)) continue;
                 list.Add(asset);
             }
-            return list;
+            return list.ToArray();
         }
     }
 }

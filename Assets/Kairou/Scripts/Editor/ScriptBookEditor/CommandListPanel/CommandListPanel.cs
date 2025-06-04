@@ -27,8 +27,17 @@ namespace Kairou.Editor
 
         bool IsInitialized => _listView != null;
 
+        CommandSettingTableSet _commandSettingTableSet = new();
+        CommandCategoryTableSet _commandCategoryTableSet = new();
+
+        static readonly Color _selectedRowOverlayColor = new(1, 1, 0.95f, 0.15f);
+        static readonly Color _hoverRowOverlayColor = new(0, 0, 0, 0.15f);
+
         public void Initialize(VisualElement parent, VisualTreeAsset commandListPanelUXML, CommandSpecificAction onSelectionChanged, Action onCollectionChanged)
         {
+            _commandSettingTableSet.Reload();
+            _commandCategoryTableSet.Reload();
+
             // AdvancedDropdown
             var commandAdvancedDropdown = new CommandAdvancedDropdown(_commandDropdownState);
             commandAdvancedDropdown.OnSelected += command =>
@@ -77,6 +86,25 @@ namespace Kairou.Editor
                 deleteIcon.style.height = 14;
                 deleteIcon.style.opacity = 0.5f;
                 deleteButton.Add(deleteIcon);
+
+                var overlay = item.Q<VisualElement>("Overlay");
+                item.RegisterCallback<MouseEnterEvent>(evt =>
+                {
+                    int idnex = (int)item.userData;
+                    if (_listView.selectedIndices.Contains(idnex) == false)
+                    {
+                        overlay.style.backgroundColor = _hoverRowOverlayColor;
+                    }
+                });
+                item.RegisterCallback<MouseLeaveEvent>(evt =>
+                {
+                    int idnex = (int)item.userData;
+                    if (_listView.selectedIndices.Contains(idnex) == false)
+                    {
+                        overlay.style.backgroundColor = Color.clear;
+                    }
+                });
+
                 return item;
             };
 
@@ -91,12 +119,17 @@ namespace Kairou.Editor
                 element.parent.parent.Q<VisualElement>("unity-list-view__reorderable-handle").style.display = DisplayStyle.None;
                 Command command = _bookHolder.Book.Pages[_pageIndex].Commands[i];
                 CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
+                var commandSetting = _commandSettingTableSet.Find(command.GetType());
+                var commandCategory = commandSetting == null ? null : _commandCategoryTableSet.Find(commandSetting.Category);
+                var summaryBox = element.Q<VisualElement>("SummaryBox");
+                summaryBox.style.backgroundColor = commandCategory == null ? Color.clear : commandCategory.SummaryBackgroundColor;
                 element.Q<Label>("NameLabel").text = commandInfo.CommandName;
                 element.Q<Label>("SummaryLabel").text = command.GetSummary();
                 var indentBox = element.Q<VisualElement>("IndentBox");
                 indentBox.style.width = 12 * command.CalculateBlockLevel();
                 indentBox.style.flexShrink = 0;
                 indentBox.style.flexGrow = 0;
+                UpdateOverlayColor(i);
 
                 string errorMessage = string.Join('\n', command.InvokeValidate());
                 if (string.IsNullOrEmpty(errorMessage))
@@ -145,18 +178,35 @@ namespace Kairou.Editor
                 _listView.Rebuild();
                 onCollectionChanged?.Invoke();
                 // When dragging and swapping ListView elements, selectedIndicesChanged is not triggered, so it is manually triggered here instead.
-                onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, toIndex);
+                // onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, toIndex);
+                _listView.selectedIndex = toIndex;
             };
 
             _listView.selectedIndicesChanged += commandIndices =>
             {
                 _selectedCommandIndex = _listView.selectedIndex;
+                UpdateOverlayColor();
                 if (ExistsTargetPage == false) return;
                 var selectedCommandIndex = commandIndices.FirstOrDefault();
                 onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, selectedCommandIndex);
             };
             
             Reload();
+        }
+
+        void UpdateOverlayColor()
+        {
+            for (int i = 0; i < _listView.itemsSource.Count; i++)
+            {
+                UpdateOverlayColor(i);
+            }
+        }
+
+        void UpdateOverlayColor(int index)
+        {
+            var row = _listView.GetRootElementForIndex(index);
+            if (row == null) return;
+            row.Q<VisualElement>("Overlay").style.backgroundColor = _listView.selectedIndices.Contains(index) ? _selectedRowOverlayColor : Color.clear;
         }
 
         public void SetTarget(BookId bookId, int pageIndex)
@@ -201,7 +251,7 @@ namespace Kairou.Editor
 
         public void OnUndoRedoPerformed()
         {
-            ThrowIfNotInitialized();
+            if (IsInitialized == false) return;
             _listView.Rebuild();
         }
 

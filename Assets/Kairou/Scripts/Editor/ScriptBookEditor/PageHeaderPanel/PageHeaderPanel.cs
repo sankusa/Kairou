@@ -63,7 +63,7 @@ namespace Kairou
 
         public void OnUndoRedoPerformed()
         {
-            ThrowIfNotInitialized();
+            
         }
 
         void ThrowIfNotInitialized()

@@ -125,7 +125,7 @@ namespace Kairou.Editor
 
         public void OnUndoRedoPerformed()
         {
-            ThrowIfNotInitialized();
+            if (IsInitialized == false) return;
             _bookListView.Rebuild();
         }
 

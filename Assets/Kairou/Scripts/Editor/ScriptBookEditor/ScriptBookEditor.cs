@@ -158,8 +158,10 @@ namespace Kairou.Editor
             {
 
             }
+            _headerPanel.OnProjectOrHierarchyChanged();
             _bookHeaderPanel.OnProjectOrHierarchyChanged();
             _pageListPanel.OnProjectOrHierarchyChanged();
+            _pageHeaderPanel.OnProjectOrHierarchyChanged();
             _commandListPanel.OnProjectOrHierarchyChanged();
             _commandPanel.OnProjectOrHierarchyChanged();
             _variablePanel.OnProjectOrHierarchyChanged();
@@ -167,8 +169,10 @@ namespace Kairou.Editor
 
         void OnUndoRedoPerformed()
         {
+            _headerPanel.OnUndoRedoPerformed();
             _bookHeaderPanel.OnUndoRedoPerformed();
             _pageListPanel.OnUndoRedoPerformed();
+            _pageHeaderPanel.OnUndoRedoPerformed();
             _commandListPanel.OnUndoRedoPerformed();
             _commandListPanel.OnUndoRedoPerformed();
             _variablePanel.OnUndoRedoPerformed();

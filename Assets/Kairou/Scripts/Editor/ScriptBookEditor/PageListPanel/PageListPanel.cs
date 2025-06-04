@@ -114,13 +114,13 @@ namespace Kairou.Editor
 
         public void OnUndoRedoPerformed()
         {
-            ThrowIfNotInitialized();
+            if (IsInitialized == false) return;
             _listView.Rebuild();
         }
 
         void ThrowIfNotInitialized()
         {
-            if (IsInitialized == false) throw new InvalidOperationException($"{nameof(PageListPanel)} is not initialized.");
+            if (IsInitialized == false) throw new InvalidOperationException($"{nameof(PageListPanel)} is not initialized."); 
         }
     }
 }
