@@ -27,6 +27,8 @@ namespace Kairou.Editor
 
         bool IsInitialized => _listView != null;
 
+        ActionDebouncer _refleshDebouncer;
+
         CommandSettingTableSet _commandSettingTableSet = new();
         CommandCategoryTableSet _commandCategoryTableSet = new();
 
@@ -190,6 +192,8 @@ namespace Kairou.Editor
                 var selectedCommandIndex = commandIndices.FirstOrDefault();
                 onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, selectedCommandIndex);
             };
+
+            _refleshDebouncer = new ActionDebouncer(_listView, 0.05f, 5, () => _listView.RefreshItems());
             
             Reload();
         }
@@ -239,7 +243,7 @@ namespace Kairou.Editor
             _listView.SetSelectionWithoutNotify(new int[] {selectedCommandIndex});
         }
 
-        public void Reflesh() => _listView.RefreshItems();//  _listView.Rebuild();
+        public void Reflesh() => _refleshDebouncer.Schedule();
 
         public void OnProjectOrHierarchyChanged()
         {

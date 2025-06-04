@@ -59,27 +59,27 @@ namespace Kairou.Editor
                 int typeNameStartIndex = commandProp.type.IndexOf('<') + 1;
                 int typeNameEndIndex = commandProp.type.LastIndexOf('>');
                 string typeName = commandProp.type[typeNameStartIndex..typeNameEndIndex];
-                // var propertyField = new PropertyField(commandProp, typeName);
-                // _parent.Add(propertyField);
-                // propertyField.BindProperty(commandProp);
-                // propertyField.TrackSerializedObjectValue(commandProp.serializedObject, _ => _onCommandChanged?.Invoke());
-                // propertyField.style.display = DisplayStyle.Flex;
+                var propertyField = new PropertyField(commandProp, typeName);
+                _parent.Add(propertyField);
+                propertyField.BindProperty(commandProp);
+                propertyField.TrackSerializedObjectValue(commandProp.serializedObject, _ => _onCommandChanged?.Invoke());
+                propertyField.style.display = DisplayStyle.Flex;
 
-                var container = new IMGUIContainer(() =>
-                {
-                    if (serializedObject.targetObject == null) return;
-                    serializedObject.UpdateIfRequiredOrScript();
-                    // using var _ = new LabelWidthScope(120);
-                    EditorGUI.BeginChangeCheck();
-                    EditorGUILayout.PropertyField(commandProp, new GUIContent(typeName), true);
-                    serializedObject.ApplyModifiedProperties();
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        _onCommandChanged?.Invoke();
-                    }
-                });
+                // var container = new IMGUIContainer(() =>
+                // {
+                //     if (serializedObject.targetObject == null) return;
+                //     serializedObject.UpdateIfRequiredOrScript();
+                //     // using var _ = new LabelWidthScope(120);
+                //     EditorGUI.BeginChangeCheck();
+                //     EditorGUILayout.PropertyField(commandProp, new GUIContent(typeName), true);
+                //     serializedObject.ApplyModifiedProperties();
+                //     if (EditorGUI.EndChangeCheck())
+                //     {
+                //         _onCommandChanged?.Invoke();
+                //     }
+                // });
 
-                _parent.Add(container);
+                // _parent.Add(container);
             }
         }
 
