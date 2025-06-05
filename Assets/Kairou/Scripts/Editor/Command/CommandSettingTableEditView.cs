@@ -68,6 +68,7 @@ namespace Kairou.Editor
                     return parent;
                 },
             });
+            _multiColumnListView.columns.Add(new Column { title = "Name", bindingPath = "_name", stretchable = true });
             _multiColumnListView.columns.Add(new Column {
                 bindingPath = "_category",
                 title = "Category",

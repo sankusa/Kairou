@@ -118,21 +118,11 @@ namespace Kairou.Editor
             {
                 element.userData = i;
                 Command command = _bookHolder.Book.Pages[_pageIndex].Commands[i];
+                Type commandType = command.GetType();
                 AsyncCommand asyncCommand = command as AsyncCommand;
                 CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
-                var (commandSetting, commandCategory) = _commandDatabase.FindSetting(command.GetType());
-                Texture2D icon = null;
-                Color iconColor = Color.clear;
-                if (commandSetting != null && commandSetting.Icon != null)
-                {
-                    icon = commandSetting.Icon;
-                    iconColor = commandSetting.IconColor == Color.clear ? commandCategory.DefaultCommandIconColor : commandSetting.IconColor;
-                }
-                else if (commandCategory != null && commandCategory.DefaultCommandIcon != null)
-                {
-                    icon = commandCategory.DefaultCommandIcon;
-                    iconColor = commandCategory.DefaultCommandIconColor;
-                }
+                var commandProfile = _commandDatabase.GetProfile(commandType);
+                var (icon, iconColor) = commandProfile.Icon;
 
                 element.parent.style.paddingTop = 0;
                 element.parent.style.paddingBottom = 0;
@@ -144,15 +134,15 @@ namespace Kairou.Editor
                 var notAwaitIcon = element.Q<VisualElement>("NotAwaitIcon");
                 notAwaitIcon.style.display = (asyncCommand != null && asyncCommand.AsyncCommandParameter.Await == false) ? DisplayStyle.Flex : DisplayStyle.None;
                 var summaryBox = element.Q<VisualElement>("SummaryBox");
-                summaryBox.style.backgroundColor = commandCategory == null ? Color.clear : commandCategory.SummaryBackgroundColor;
+                summaryBox.style.backgroundColor = commandProfile.SummaryBackgoundColor;
                 var iconBox = element.Q<VisualElement>("IconBox");
-                iconBox.style.display = commandCategory?.DefaultCommandIcon == null ? DisplayStyle.None : DisplayStyle.Flex;
+                iconBox.style.display = icon == null ? DisplayStyle.None : DisplayStyle.Flex;
                 var iconImage = iconBox.Q<Image>();
                 iconImage.image = icon;
                 iconImage.tintColor = iconColor;
                 var nameLabel = element.Q<Label>("NameLabel");
-                nameLabel.text = commandInfo.CommandName;
-                nameLabel.style.color = commandCategory == null ? Color.grey : commandCategory.CommandNameColor;
+                nameLabel.text = commandProfile.Name;
+                nameLabel.style.color = commandProfile.NameColor;
                 var summaryLabel = element.Q<Label>("SummaryLabel");
                 summaryLabel.text = command.GetSummary();
                 summaryLabel.style.color = _summaryColor;
@@ -163,13 +153,13 @@ namespace Kairou.Editor
 
                 var summaryMainBox = element.Q<VisualElement>("SummaryMainBox");
                 var summaryIndent = element.Q<VisualElement>("SummaryIndent");
-                if (commandSetting == null || commandSetting.SummaryPosition == SummaryPositionType.Right)
+                if (commandProfile.SummaryPositionType == SummaryPositionType.Right)
                 {
                     summaryMainBox.style.flexDirection = FlexDirection.Row;
                     summaryIndent.style.display = DisplayStyle.None;
                     nameLabel.style.flexGrow = 0;
                 }
-                else if (commandSetting.SummaryPosition == SummaryPositionType.Bottom)
+                else if (commandProfile.SummaryPositionType == SummaryPositionType.Bottom)
                 {
                     summaryMainBox.style.flexDirection = FlexDirection.Column;
                     summaryIndent.style.display = DisplayStyle.Flex;

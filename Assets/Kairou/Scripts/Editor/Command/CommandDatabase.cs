@@ -39,11 +39,17 @@ namespace Kairou.Editor
             _categoryTableSet.Reload();
         }
 
-        public (CommandSetting setting, CommandCategory category) FindSetting(Type type)
+        (CommandSetting setting, CommandCategory category) FindSetting(Type type)
         {
             var setting = _settingTableSet.Find(type);
             var category = _categoryTableSet.Find(setting);
             return (setting, category);
+        }
+
+        public CommandProfile GetProfile(Type type)
+        {
+            var (setting, category) = FindSetting(type);
+            return new CommandProfile(type, setting, category);
         }
     }
 }

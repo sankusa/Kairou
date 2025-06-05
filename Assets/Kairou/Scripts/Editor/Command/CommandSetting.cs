@@ -26,6 +26,9 @@ namespace Kairou.Editor
             }
         }
 
+        [SerializeField] string _name;
+        public string Name => _name;
+
         [SerializeField] string _category;
         public string Category => _category;
 

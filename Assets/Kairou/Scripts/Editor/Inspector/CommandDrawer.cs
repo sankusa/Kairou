@@ -14,21 +14,26 @@ namespace Kairou.Editor
         {
             Command command = property.GetObject() as Command;
             Type commandType = command.GetType();
-            var commandInfo = commandType.GetCustomAttribute<CommandInfoAttribute>();
 
-            var (commandSetting, commandCategory) = CommandDatabase.Load().FindSetting(commandType);
+            var commandProfile = CommandDatabase.Load().GetProfile(commandType);
 
             var root = new VisualElement();
 
-            var labelBox = new Box();
-            if (commandCategory != null) labelBox.style.backgroundColor = commandCategory.SummaryBackgroundColor;
+            var labelBox = new VisualElement();
+            labelBox.style.flexDirection = FlexDirection.Row;
+            labelBox.style.backgroundColor = commandProfile.SummaryBackgoundColor;
             labelBox.style.borderBottomWidth = 1;
             labelBox.style.borderBottomColor = Color.black;
 
-            var label = new Label(commandInfo == null ? commandType.Name : commandInfo.CommandName);
-            if (commandCategory != null) label.style.color = commandCategory.CommandNameColor;
+            var label = new Label(commandProfile.Name);
+            label.style.color = commandProfile.NameColor;
+
+            // var typeFullNameLabel = new Label(commandType.FullName);
+            // typeFullNameLabel.style.color = new Color(1, 1, 1, 0.2f);
 
             labelBox.Add(label);
+            // labelBox.Add(new VisualElement() { style = { flexGrow = 1 } });
+            // labelBox.Add(typeFullNameLabel);
 
             root.Add(labelBox);
 
