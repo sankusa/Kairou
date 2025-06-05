@@ -29,8 +29,7 @@ namespace Kairou.Editor
 
         ActionDebouncer _refleshDebouncer;
 
-        CommandSettingTableSet _commandSettingTableSet = new();
-        CommandCategoryTableSet _commandCategoryTableSet = new();
+        CommandDatabase _commandDatabase => CommandDatabase.Load();
 
         static readonly Color _selectedRowOverlayColor = new(1, 1, 0.95f, 0.15f);
         static readonly Color _hoverRowOverlayColor = new(0, 0, 0, 0.15f);
@@ -43,9 +42,6 @@ namespace Kairou.Editor
 
         public void Initialize(VisualElement parent, VisualTreeAsset commandListPanelUXML, CommandSpecificAction onSelectionChanged, Action onCollectionChanged)
         {
-            _commandSettingTableSet.Reload();
-            _commandCategoryTableSet.Reload();
-
             // AdvancedDropdown
             var commandAdvancedDropdown = new CommandAdvancedDropdown(_commandDropdownState);
             commandAdvancedDropdown.OnSelected += command =>
@@ -124,8 +120,7 @@ namespace Kairou.Editor
                 Command command = _bookHolder.Book.Pages[_pageIndex].Commands[i];
                 AsyncCommand asyncCommand = command as AsyncCommand;
                 CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
-                var commandSetting = _commandSettingTableSet.Find(command.GetType());
-                var commandCategory = commandSetting == null ? null : _commandCategoryTableSet.Find(commandSetting.Category);
+                var (commandSetting, commandCategory) = _commandDatabase.FindSetting(command.GetType());
                 Texture2D icon = null;
                 Color iconColor = Color.clear;
                 if (commandSetting != null && commandSetting.Icon != null)

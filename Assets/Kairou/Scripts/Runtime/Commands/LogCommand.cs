@@ -8,7 +8,7 @@ namespace Kairou
     [CommandInfo("Debug", "Log")]
     public partial class LogCommand : Command
     {
-        [SerializeField, TextArea] string _format;
+        [SerializeField, TextArea(1, int.MaxValue)] string _format;
         [SerializeField] List<VariableValueGetterKey<object>> _args;
 
         [CommandExecute]

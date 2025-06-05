@@ -41,5 +41,11 @@ namespace Kairou.Editor
             }
             return null;
         }
+
+        public CommandCategory Find(CommandSetting commandSetting)
+        {
+            if (commandSetting == null) return null;
+            return Find(commandSetting.Category);
+        }
     }
 }
