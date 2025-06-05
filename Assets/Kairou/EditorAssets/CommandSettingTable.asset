@@ -21,123 +21,144 @@ MonoBehaviour:
       _icon: {fileID: 2800000, guid: e75eca1da841e6e4da960dccfb9c020f, type: 3}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 1
+      _script: {fileID: 11500000, guid: 02759cb6298aa824f838600ee371ec53, type: 3}
     - _typeFullName: Kairou.ExitCommand
       _name: exit
       _category: Flow
       _icon: {fileID: 2800000, guid: f6965bf5a0c78874a8a38bc94311ea1b, type: 3}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: fb7fdc36eaf2c1147b6b41e4df06320f, type: 3}
     - _typeFullName: Kairou.LabelCommand
       _name: label
       _category: Flow
       _icon: {fileID: 2800000, guid: 06bbd5ec628aacf4eb1a7f83470176ed, type: 3}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: 639ec56d10cdad941a102a65917b4e67, type: 3}
     - _typeFullName: Kairou.GoToLabel
       _name: goto label
       _category: Flow
       _icon: {fileID: 2800000, guid: 06bbd5ec628aacf4eb1a7f83470176ed, type: 3}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: a4b805ff30c2e5f43928be3ecdd55d8c, type: 3}
     - _typeFullName: Kairou.BreakCommand
       _name: break
       _category: Flow
       _icon: {fileID: 2800000, guid: bfccff855529d774cb2a7b2cdb33752d, type: 3}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: a9e47ab2614be8345bc3510e0b45a3fc, type: 3}
     - _typeFullName: Kairou.ContinueCommand
       _name: continue
       _category: Flow
       _icon: {fileID: 2800000, guid: bfccff855529d774cb2a7b2cdb33752d, type: 3}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: c0f8455a35e30a84bb6fcd6a87e49967, type: 3}
     - _typeFullName: Kairou.IfCommand
       _name: if
       _category: Flow
       _icon: {fileID: 2800000, guid: a7b6f21766555b243b6346c085464095, type: 3}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: 314a0b48a9a2eb745bb3488ca02a1be8, type: 3}
     - _typeFullName: Kairou.ElseIfCommand
       _name: else if
       _category: Flow
       _icon: {fileID: 2800000, guid: 3d502c58c840f504aa5a422d4128f022, type: 3}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: 799dc72cecff0b341b74f5c2965e865d, type: 3}
     - _typeFullName: Kairou.ElseCommand
       _name: else
       _category: Flow
       _icon: {fileID: 2800000, guid: 3d502c58c840f504aa5a422d4128f022, type: 3}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: bebb4b72ac97e7441981c1cfc9040ed4, type: 3}
     - _typeFullName: Kairou.EndIfCommand
       _name: end if
       _category: Flow
       _icon: {fileID: 2800000, guid: bb4ffaf6a72552846a615f931301f714, type: 3}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: 5edcf776ce118354d89a9e0a0393266a, type: 3}
     - _typeFullName: Kairou.WhileCommand
       _name: while
       _category: Flow
       _icon: {fileID: 2800000, guid: 401d7ee49cf45d143967e3cc3ac37abc, type: 3}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: b3f54eb63f93f49428cb1ecad506fe41, type: 3}
     - _typeFullName: Kairou.EndWhileCommand
       _name: end while
       _category: Flow
       _icon: {fileID: 2800000, guid: bb4ffaf6a72552846a615f931301f714, type: 3}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: d3889217c8a9a3240a7318d094806895, type: 3}
     - _typeFullName: Kairou.DelayCommand
       _name: delay
       _category: Async
       _icon: {fileID: 0}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: 7cb1292ecd1d37240926029c49f85a2b, type: 3}
     - _typeFullName: Kairou.YieldCommand
       _name: yield
       _category: Async
       _icon: {fileID: 0}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: 13d268776d01d9147865013e2a5a5048, type: 3}
     - _typeFullName: Kairou.WhenAllCommand
       _name: when all
       _category: Async
       _icon: {fileID: 0}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: 3bebd420ce1e80b4e872f1db34f2cc3b, type: 3}
     - _typeFullName: Kairou.WhenAnyCommand
       _name: when any
       _category: Async
       _icon: {fileID: 0}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: d0f4deb8bf13e1849a81dc04af1a47db, type: 3}
     - _typeFullName: Kairou.SetVariableCommand
       _name: set variable
       _category: Variable
       _icon: {fileID: 0}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: a662916b0ad299748bc90088396f816d, type: 3}
     - _typeFullName: Kairou.RunBookCommand
       _name: run book
       _category: Process
       _icon: {fileID: 0}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 1
+      _script: {fileID: 11500000, guid: 49f9154ed62c4e746a0af699bb0aebef, type: 3}
     - _typeFullName: Kairou.SwitchBookCommand
       _name: switch book
       _category: Process
       _icon: {fileID: 0}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 1
+      _script: {fileID: 11500000, guid: 0c38a64533be9de48919d44fc3e9ac27, type: 3}
     - _typeFullName: Kairou.RunPageCommand
       _name: run page
       _category: Process
       _icon: {fileID: 0}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: 6055ee71566a4034886757c89aa6ec5c, type: 3}
     - _typeFullName: Kairou.SwitchPageCommand
       _name: switch page
       _category: Process
       _icon: {fileID: 0}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
+      _script: {fileID: 11500000, guid: 62056ed081abf084faff9df98227d2a2, type: 3}

@@ -46,10 +46,12 @@ namespace Kairou.Editor
             var commandAdvancedDropdown = new CommandAdvancedDropdown(_commandDropdownState);
             commandAdvancedDropdown.OnSelected += command =>
             {
-                BookUtilForEditor.AddCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, command);
+                // BookUtilForEditor.AddCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, command);
+                int insertIndex = _listView.selectedIndex == -1 ? _bookHolder.Book.Pages[_pageIndex].Commands.Count : (_listView.selectedIndex + 1);
+                BookUtilForEditor.InsertCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, insertIndex, command);
                 _listView.Rebuild();
                 onCollectionChanged?.Invoke();
-                _listView.SetSelection(_bookHolder.Book.Pages[_pageIndex].Commands.Count - 1);
+                _listView.SetSelection(insertIndex);
             };
 
             // ListView

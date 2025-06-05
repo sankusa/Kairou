@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 
 namespace Kairou.Editor
@@ -85,5 +86,7 @@ namespace Kairou.Editor
                 return _setting.SummaryPosition;
             }
         }
+
+        public MonoScript Script => _setting.Script;
     }
 }

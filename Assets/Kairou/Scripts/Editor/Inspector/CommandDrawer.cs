@@ -28,14 +28,40 @@ namespace Kairou.Editor
             var label = new Label(commandProfile.Name);
             label.style.color = commandProfile.NameColor;
 
-            // var typeFullNameLabel = new Label(commandType.FullName);
-            // typeFullNameLabel.style.color = new Color(1, 1, 1, 0.2f);
+            var typeFullNameLabel = new Label(commandType.FullName);
+            typeFullNameLabel.style.color = new Color(1, 1, 1, 0.2f);
+            typeFullNameLabel.style.display = DisplayStyle.None;
+            typeFullNameLabel.style.flexShrink = 1;
+
+            var infoToggle = new ToolbarToggle();
+            infoToggle.Add(new Image() { image = GUICommon.InfoIcon });
+            infoToggle.style.height = 15;
 
             labelBox.Add(label);
-            // labelBox.Add(new VisualElement() { style = { flexGrow = 1 } });
-            // labelBox.Add(typeFullNameLabel);
+            labelBox.Add(new VisualElement() { style = { flexGrow = 1 } });
+            labelBox.Add(typeFullNameLabel);
+            labelBox.Add(infoToggle);
+
+            infoToggle.RegisterValueChangedCallback(evt =>
+            {
+                typeFullNameLabel.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
+            });
 
             root.Add(labelBox);
+
+            if (commandProfile.Script != null)
+            {
+                var scriptField = new ObjectField("Script");
+                scriptField.value = commandProfile.Script;
+                scriptField.enabledSelf = false;
+                scriptField.style.display = DisplayStyle.None;
+                infoToggle.RegisterValueChangedCallback(evt =>
+                {
+                    scriptField.style.display = evt.newValue ? DisplayStyle.Flex : DisplayStyle.None;
+                });
+
+                root.Add(scriptField);
+            }
 
             var iterator = property.Copy();
             var endProperty = iterator.GetEndProperty();

@@ -1,4 +1,5 @@
 using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace Kairou.Editor
@@ -40,5 +41,8 @@ namespace Kairou.Editor
 
         [SerializeField] SummaryPositionType _summaryPosition = SummaryPositionType.Right;
         public SummaryPositionType SummaryPosition => _summaryPosition;
+
+        [SerializeField] MonoScript _script;
+        public MonoScript Script => _script;
     }
 }

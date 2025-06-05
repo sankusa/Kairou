@@ -9,6 +9,19 @@ namespace Kairou.Editor
         public static Color ValidColor => Color.green;
         public static Color InvalidColor => Color.red;
 
+        static Texture2D _infoIcon;
+        public static Texture2D InfoIcon
+        {
+            get
+            {
+                if (_infoIcon == null)
+                {
+                    _infoIcon = (Texture2D)EditorGUIUtility.Load("d_UnityEditor.InspectorWindow");
+                }
+                return _infoIcon;
+            }
+        }
+
         static Texture2D _validIcon;
         public static Texture2D ValidIcon
         {
