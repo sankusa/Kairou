@@ -27,6 +27,9 @@ namespace Kairou.Editor
                 reorderMode = ListViewReorderMode.Animated,
             };
             _multiColumnListView.columns.Add(new Column { bindingPath = "_name", title = "Name", stretchable = true });
+            _multiColumnListView.columns.Add(new Column { bindingPath = "_defaultCommandIcon", title = "DefaultCommandIcon", stretchable = true });
+            _multiColumnListView.columns.Add(new Column { bindingPath = "_defaultCommandIconColor", title = "DefaultCommandIconColor", stretchable = true });
+            _multiColumnListView.columns.Add(new Column { bindingPath = "_commandNameColor", title = "CommandNameColor", stretchable = true });
             _multiColumnListView.columns.Add(new Column { bindingPath = "_summaryBackgroundColor", title = "SummaryBackgroundColor", stretchable = true });
 
             Add(_multiColumnListView);

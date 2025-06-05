@@ -101,6 +101,9 @@ namespace Kairou.Editor
                     return parent;
                 },
             });
+            _multiColumnListView.columns.Add(new Column { title = "Icon", bindingPath = "_icon", stretchable = true });
+            _multiColumnListView.columns.Add(new Column { title = "IconColor", bindingPath = "_iconColor", stretchable = true });
+            _multiColumnListView.columns.Add(new Column { title = "SummaryPosition", bindingPath = "_summaryPosition", stretchable = true });
 
             Add(_multiColumnListView);
         }

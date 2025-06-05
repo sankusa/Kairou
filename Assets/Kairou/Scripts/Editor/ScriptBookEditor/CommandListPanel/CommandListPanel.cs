@@ -35,6 +35,12 @@ namespace Kairou.Editor
         static readonly Color _selectedRowOverlayColor = new(1, 1, 0.95f, 0.15f);
         static readonly Color _hoverRowOverlayColor = new(0, 0, 0, 0.15f);
 
+        static readonly Color _summaryColor = new Func<Color>(() =>
+        {
+            ColorUtility.TryParseHtmlString("#C6B8A3", out Color color);
+            return color;
+        })();
+
         public void Initialize(VisualElement parent, VisualTreeAsset commandListPanelUXML, CommandSpecificAction onSelectionChanged, Action onCollectionChanged)
         {
             _commandSettingTableSet.Reload();
@@ -58,6 +64,8 @@ namespace Kairou.Editor
             _listView.makeItem = () =>
             {
                 var item = _listView.itemTemplate.CloneTree();
+                var iconBox = item.Q<VisualElement>("IconBox");
+                iconBox.Add(new Image());
                 var copyButton = item.Q<Button>("CopyButton");
                 copyButton.clicked += () =>
                 {
@@ -113,24 +121,66 @@ namespace Kairou.Editor
             _listView.bindItem = (element, i) =>
             {
                 element.userData = i;
+                Command command = _bookHolder.Book.Pages[_pageIndex].Commands[i];
+                AsyncCommand asyncCommand = command as AsyncCommand;
+                CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
+                var commandSetting = _commandSettingTableSet.Find(command.GetType());
+                var commandCategory = commandSetting == null ? null : _commandCategoryTableSet.Find(commandSetting.Category);
+                Texture2D icon = null;
+                Color iconColor = Color.clear;
+                if (commandSetting != null && commandSetting.Icon != null)
+                {
+                    icon = commandSetting.Icon;
+                    iconColor = commandSetting.IconColor == Color.clear ? commandCategory.DefaultCommandIconColor : commandSetting.IconColor;
+                }
+                else if (commandCategory != null && commandCategory.DefaultCommandIcon != null)
+                {
+                    icon = commandCategory.DefaultCommandIcon;
+                    iconColor = commandCategory.DefaultCommandIconColor;
+                }
 
                 element.parent.style.paddingTop = 0;
                 element.parent.style.paddingBottom = 0;
                 element.parent.style.paddingLeft = 0;
                 element.parent.style.paddingRight = 0;
                 element.parent.parent.Q<VisualElement>("unity-list-view__reorderable-handle").style.display = DisplayStyle.None;
-                Command command = _bookHolder.Book.Pages[_pageIndex].Commands[i];
-                CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
-                var commandSetting = _commandSettingTableSet.Find(command.GetType());
-                var commandCategory = commandSetting == null ? null : _commandCategoryTableSet.Find(commandSetting.Category);
+                var asyncCommandMark = element.Q<VisualElement>("AsyncCommandMark");
+                asyncCommandMark.visible = asyncCommand != null;
+                var notAwaitIcon = element.Q<VisualElement>("NotAwaitIcon");
+                notAwaitIcon.style.display = (asyncCommand != null && asyncCommand.AsyncCommandParameter.Await == false) ? DisplayStyle.Flex : DisplayStyle.None;
                 var summaryBox = element.Q<VisualElement>("SummaryBox");
                 summaryBox.style.backgroundColor = commandCategory == null ? Color.clear : commandCategory.SummaryBackgroundColor;
-                element.Q<Label>("NameLabel").text = commandInfo.CommandName;
-                element.Q<Label>("SummaryLabel").text = command.GetSummary();
+                var iconBox = element.Q<VisualElement>("IconBox");
+                iconBox.style.display = commandCategory?.DefaultCommandIcon == null ? DisplayStyle.None : DisplayStyle.Flex;
+                var iconImage = iconBox.Q<Image>();
+                iconImage.image = icon;
+                iconImage.tintColor = iconColor;
+                var nameLabel = element.Q<Label>("NameLabel");
+                nameLabel.text = commandInfo.CommandName;
+                nameLabel.style.color = commandCategory == null ? Color.grey : commandCategory.CommandNameColor;
+                var summaryLabel = element.Q<Label>("SummaryLabel");
+                summaryLabel.text = command.GetSummary();
+                summaryLabel.style.color = _summaryColor;
                 var indentBox = element.Q<VisualElement>("IndentBox");
-                indentBox.style.width = 12 * command.CalculateBlockLevel();
+                indentBox.style.width = 10 * command.CalculateBlockLevel();
                 indentBox.style.flexShrink = 0;
                 indentBox.style.flexGrow = 0;
+
+                var summaryMainBox = element.Q<VisualElement>("SummaryMainBox");
+                var summaryIndent = element.Q<VisualElement>("SummaryIndent");
+                if (commandSetting == null || commandSetting.SummaryPosition == SummaryPositionType.Right)
+                {
+                    summaryMainBox.style.flexDirection = FlexDirection.Row;
+                    summaryIndent.style.display = DisplayStyle.None;
+                    nameLabel.style.flexGrow = 0;
+                }
+                else if (commandSetting.SummaryPosition == SummaryPositionType.Bottom)
+                {
+                    summaryMainBox.style.flexDirection = FlexDirection.Column;
+                    summaryIndent.style.display = DisplayStyle.Flex;
+                    nameLabel.style.flexGrow = 1;
+                }
+
                 UpdateOverlayColor(i);
 
                 string errorMessage = string.Join('\n', command.InvokeValidate());

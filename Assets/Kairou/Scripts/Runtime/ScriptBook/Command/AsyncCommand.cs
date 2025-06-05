@@ -18,9 +18,12 @@ namespace Kairou
         {
             if (_await == false)
             {
-                foreach (string errorMessage in _uniTaskStoreVariable.Validate(command, $"{fieldName}.{nameof(_uniTaskStoreVariable)}"))
+                if (_uniTaskStoreVariable.IsEmpty() == false)
                 {
-                    yield return errorMessage;
+                    foreach (string errorMessage in _uniTaskStoreVariable.Validate(command, $"{fieldName}.{nameof(_uniTaskStoreVariable)}"))
+                    {
+                        yield return errorMessage;
+                    }
                 }
             }
             yield break;
