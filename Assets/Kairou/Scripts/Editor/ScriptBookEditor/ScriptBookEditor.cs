@@ -82,6 +82,7 @@ namespace Kairou.Editor
                     rootSplitView.CollapseChild(1);
                 }
             });
+            _headerPanel.ReloadButton.clicked += () => Reload();
 
             _bookHeaderPanel.Initialize(bookPane, _bookHeaderUXML);
 
@@ -163,6 +164,18 @@ namespace Kairou.Editor
             _variablePanel.SetTarget(_bookHolder.BookId, 0);
         }
 
+        void Reload()
+        {
+            _headerPanel.Reload();
+            _bookHeaderPanel.Reload();
+            _pageListPanel.Reload();
+            _pageHeaderPanel.Reload();
+            _commandListPanel.Reload();
+            _commandPanel.Reload();
+            _variablePanel.Reload();
+            _commandPickerPanel.Reload();
+        }
+
         // PlayMode遷移にも呼ばれる
         void OnProjectOrHierarchyChanged()
         {
@@ -189,11 +202,6 @@ namespace Kairou.Editor
             _commandListPanel.OnUndoRedoPerformed();
             _commandListPanel.OnUndoRedoPerformed();
             _variablePanel.OnUndoRedoPerformed();
-        }
-
-        void OnDestroy()
-        {
-            _commandPickerPanel.OnDestroy();
         }
     }
 }

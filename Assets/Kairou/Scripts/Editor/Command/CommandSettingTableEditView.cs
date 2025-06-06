@@ -15,12 +15,11 @@ namespace Kairou.Editor
         SerializedObject _serializedObject;
         SerializedProperty _listProp;
 
-        CommandCategorySettingTableSet _categoryTableSet = new();
+        CommandCategorySettingTableSet _categorySettingTableSet;
+        CommandCategorySettingTableSet CategorySettingTableSet => _categorySettingTableSet ??= CommandCategorySettingTableSet.Load();
 
         public CommandSettingTableEditView()
         {
-            _categoryTableSet.Reload();
-
             _priorityField = new PropertyField();
             Add(_priorityField);
 
@@ -83,13 +82,13 @@ namespace Kairou.Editor
                     var textField = new TextField();
                     textField.RegisterValueChangedCallback(_ =>
                     {
-                        icon.image = _categoryTableSet.CategoryNames.Contains(textField.value) ? GUICommon.ValidIcon : GUICommon.InvalidIcon;
+                        icon.image = CategorySettingTableSet.CategoryNames.Contains(textField.value) ? GUICommon.ValidIcon : GUICommon.InvalidIcon;
                     });
                     textField.style.flexGrow = 1;
                     var selectButton = new Button(() =>
                     {
                         var menu = new GenericMenu();
-                        foreach (var categoryName in _categoryTableSet.CategoryNames)
+                        foreach (var categoryName in CategorySettingTableSet.CategoryNames)
                         {
                             menu.AddItem(new GUIContent(categoryName), false, () => textField.value = categoryName);
                         }

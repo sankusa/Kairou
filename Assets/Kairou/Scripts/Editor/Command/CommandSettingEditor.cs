@@ -11,10 +11,15 @@ namespace Kairou.Editor
             GetWindow<CommandSettingEditor>();
         }
 
-        CommandSettingTableSet _tableSet = new();
+        CommandSettingTableSet _tableSet;
 
         ObjectDropdown _objectDropdown;
         CommandSettingTableEditView _tableEditView;
+
+        void OnEnable()
+        {
+            _tableSet = CommandSettingTableSet.Load();
+        }
 
         void CreateGUI()
         {
@@ -46,7 +51,6 @@ namespace Kairou.Editor
         void Reload()
         {
             // データをセット
-            _tableSet.Reload();
             _objectDropdown.SetObjects(_tableSet.Tables);
         }
     }

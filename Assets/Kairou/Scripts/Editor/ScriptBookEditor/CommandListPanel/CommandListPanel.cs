@@ -31,7 +31,8 @@ namespace Kairou.Editor
 
         ActionDebouncer _refleshDebouncer;
 
-        CommandDatabase _commandDatabase => CommandDatabase.Load();
+        CommandDatabase _commandDatabase;
+        CommandDatabase CommandDatabase => _commandDatabase ??= CommandDatabase.Load();
 
         public void Initialize(VisualElement parent, VisualTreeAsset commandListPanelUXML, CommandSpecificAction onSelectionChanged, Action onCollectionChanged)
         {
@@ -113,7 +114,7 @@ namespace Kairou.Editor
                 Type commandType = command.GetType();
                 AsyncCommand asyncCommand = command as AsyncCommand;
                 CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
-                var commandProfile = _commandDatabase.GetProfile(commandType);
+                var commandProfile = CommandDatabase.GetProfile(commandType);
                 var icon = commandProfile.Icon;
                 var iconColor = commandProfile.IconColor;
 

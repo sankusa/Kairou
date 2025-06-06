@@ -3,6 +3,7 @@
         <editor:ObjectField enabled="false" />
         <engine:Label text="Label" enabled="false" name="BookPath" style="-unity-text-align: middle-left;" />
         <editor:ToolbarSpacer style="flex-grow: 1;" />
-        <editor:ToolbarToggle label="Variables" view-data-key="VariableDisplayToggle" style="width: 66px;" />
+        <editor:ToolbarToggle label="Variables" view-data-key="VariableDisplayToggle" name="VariableToggle" style="width: 66px;" />
+        <editor:ToolbarButton text="Reload" name="ReloadButton" />
     </editor:Toolbar>
 </engine:UXML>

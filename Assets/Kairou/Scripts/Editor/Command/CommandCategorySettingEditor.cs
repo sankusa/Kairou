@@ -15,10 +15,15 @@ namespace Kairou.Editor
             GetWindow<CommandCategorySettingEditor>();
         }
 
-        CommandCategorySettingTableSet _tableSet = new();
+        CommandCategorySettingTableSet _tableSet;
 
         ObjectDropdown _objectDropdown;
         CommandCategorySettingTableEditView _tableEditView;
+
+        void OnEnable()
+        {
+            _tableSet = CommandCategorySettingTableSet.Load();
+        }
 
         void CreateGUI()
         {
@@ -50,7 +55,6 @@ namespace Kairou.Editor
         void Reload()
         {
             // データをセット
-            _tableSet.Reload();
             _objectDropdown.SetObjects(_tableSet.Tables);
         }
     }

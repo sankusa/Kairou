@@ -16,6 +16,8 @@ namespace Kairou
         Label _bookPathLabel;
         ToolbarToggle _variableDisplayToggle;
         public ToolbarToggle VariableDisplayToggle => _variableDisplayToggle;
+        ToolbarButton _reloadButton;
+        public ToolbarButton ReloadButton => _reloadButton;
         
         bool IsInitialized => _objectField != null;
 
@@ -27,6 +29,7 @@ namespace Kairou
             _objectField = headerPanel.Q<ObjectField>();
             _bookPathLabel = headerPanel.Q<Label>("BookPath");
             _variableDisplayToggle = headerPanel.Q<ToolbarToggle>();
+            _reloadButton = headerPanel.Q<ToolbarButton>();
 
             Reload();
         }

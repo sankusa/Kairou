@@ -10,7 +10,8 @@ namespace Kairou.Editor
     [Serializable]
     public class CommandPickerPanel
     {
-        CommandDatabase _commandDatabase => CommandDatabase.Load();
+        CommandDatabase _commandDatabase;
+        CommandDatabase CommandDatabase => _commandDatabase ??= CommandDatabase.Load();
 
         List<string> _categoryNames;
         ListView _categoryListView;
@@ -43,7 +44,7 @@ namespace Kairou.Editor
             _categoryListView.bindItem = (item, index) =>
             {
                 string categoryName = _categoryNames[index];
-                var categorySetting = _commandDatabase.FindCategorySetting(categoryName);
+                var categorySetting = CommandDatabase.FindCategorySetting(categoryName);
                 item.style.backgroundColor = categorySetting != null ? categorySetting.BackgroundColor : Color.clear;
                 var label = item.Q<Label>();
                 label.text = categoryName ?? "<Uncategorized>";
@@ -54,11 +55,11 @@ namespace Kairou.Editor
                 string categoryName = _categoryNames[_categoryListView.selectedIndex];
                 if (categoryName != null)
                 {
-                    _commandTypes = _commandDatabase.FindCommandsByCategoryName(categoryName).ToList();
+                    _commandTypes = CommandDatabase.FindCommandsByCategoryName(categoryName).ToList();
                 }
                 else
                 {
-                    _commandTypes = _commandDatabase.UncategorizedCommands().ToList();
+                    _commandTypes = CommandDatabase.UncategorizedCommands().ToList();
                 }
                 
                 _commandListView.itemsSource = _commandTypes;
@@ -92,12 +93,12 @@ namespace Kairou.Editor
             };
             _commandListView.bindItem = (item, index) =>
             {
-                var commandProfile = _commandDatabase.GetProfile(_commandTypes[index]);
+                var commandProfile = CommandDatabase.GetProfile(_commandTypes[index]);
 
                 item.style.backgroundColor = commandProfile.BackgoundColor;
 
                 var label = item.Q<Label>();
-                label.text = _commandDatabase.GetProfile(_commandTypes[index]).Name;
+                label.text = CommandDatabase.GetProfile(_commandTypes[index]).Name;
                 label.style.color = commandProfile.LabelColor;
 
                 var image = item.Q<Image>();
@@ -116,21 +117,16 @@ namespace Kairou.Editor
 
             parent.Add(root);
 
-            Reflesh();
-
-            _commandDatabase.OnReload += Reflesh;
+            Reload();
         }
 
-        public void Reflesh()
+        public void Reload()
         {
-            _categoryNames = _commandDatabase.GetCategories().Select(x => x.categoryName).Append(null).ToList();
+            _categoryNames = CommandDatabase.GetCategories().Select(x => x.categoryName).Append(null).ToList();
             _categoryListView.itemsSource = _categoryNames;
             _commandListView.RefreshItems();
-        }
-
-        public void OnDestroy()
-        {
-            _commandDatabase.OnReload -= Reflesh;
+            _commandTypes = null;
+            _commandListView.itemsSource = null;
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Kairou
         /// <summary>
         /// プロジェクト内の対象型のアセットを全てロード
         /// </summary>
-        public static T[] LoadAllAssets<T>(Func<T, bool> predicate = null) where T : Object
+        public static List<T> LoadAllAssets<T>(Func<T, bool> predicate = null) where T : Object
         {   
             string[] guids = AssetDatabase.FindAssets("t:" + typeof(T).Name);
 
@@ -48,7 +48,7 @@ namespace Kairou
                 if (predicate != null && !predicate(asset)) continue;
                 list.Add(asset);
             }
-            return list.ToArray();
+            return list;
         }
     }
 }

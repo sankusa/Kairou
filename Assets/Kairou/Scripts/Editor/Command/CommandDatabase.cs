@@ -11,39 +11,20 @@ namespace Kairou.Editor
     {
         static readonly WeakReference<CommandDatabase> _instance = new(null);
 
-        static CommandDatabase()
-        {
-            EditorApplication.projectChanged += ReloadDatabase;
-        }
-
         public static CommandDatabase Load()
         {
             if (!_instance.TryGetTarget(out var instance))
             {
                 instance = new CommandDatabase();
-                instance.Reload();
                 _instance.SetTarget(instance);
             }
             return instance;
         }
 
-        static void ReloadDatabase()
-        {
-            _instance.TryGetTarget(out var instance);
-            instance?.Reload();
-        }
+        readonly CommandSettingTableSet _commandSettingTableSet = CommandSettingTableSet.Load();
+        readonly CommandCategorySettingTableSet _categorySettingTableSet = CommandCategorySettingTableSet.Load();
 
-        readonly CommandSettingTableSet _commandSettingTableSet = new();
-        readonly CommandCategorySettingTableSet _categorySettingTableSet = new();
-
-        public event Action OnReload;
-
-        void Reload()
-        {
-            _commandSettingTableSet.Reload();
-            _categorySettingTableSet.Reload();
-            OnReload?.Invoke();
-        }
+        CommandDatabase() {}
 
         public CommandProfile GetProfile(Type type)
         {
