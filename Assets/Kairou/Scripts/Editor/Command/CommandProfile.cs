@@ -5,19 +5,19 @@ using UnityEngine;
 
 namespace Kairou.Editor
 {
-    public class CommandProfile
+    public readonly struct CommandProfile
     {
         readonly Type _type;
         readonly CommandInfoAttribute _commandInfo;
         readonly CommandSetting _setting;
-        readonly CommandCategory _category;
+        readonly CommandCategorySetting _category;
         
-        public CommandProfile(Type type, CommandSetting setting, CommandCategory category)
+        public CommandProfile(Type type, CommandSettingTableSet settingTableSet, CommandCategorySettingTableSet categoryTableSet)
         {
             _type = type;
-            _commandInfo = _type.GetCustomAttribute<CommandInfoAttribute>();
-            _setting = setting;
-            _category = category;
+            _setting = settingTableSet.Find(type);
+            _commandInfo = CommandTypeCache.FindCommandInfo(type);
+            _category = categoryTableSet.Find(GetCategoryName(_setting, _commandInfo));
         }
 
         public string Name
@@ -39,30 +39,49 @@ namespace Kairou.Editor
             }
         }
 
-        public (Texture2D icon, Color color) Icon
+        static string GetCategoryName(CommandSetting setting, CommandInfoAttribute commandInfo)
+        {
+            if (setting != null) return setting.Category;
+            if (commandInfo != null) return commandInfo.CategoryName;
+            return null;
+        }
+
+        public string CategoryName
         {
             get
             {
-                Texture2D icon = null;
-                Color color = Color.white;
-                if (_setting != null && _setting.Icon != null)
+                return GetCategoryName(_setting, _commandInfo);
+            }
+        }
+
+        public bool IsCategorized
+        {
+            get
+            {
+                return _setting != null || _commandInfo?.CategoryName != null;
+            }
+        }
+
+        public Texture2D Icon
+        {
+            get
+            {
+                if (_setting != null) return _setting.Icon;
+                if (_category != null) return _category.DefaultCommandIcon;
+                return null;
+            }
+        }
+
+        public Color IconColor
+        {
+            get
+            {
+                if (_setting != null && _setting.Icon != null && _setting.IconColor != Color.clear)
                 {
-                    icon = _setting.Icon;
-                    if (_setting.IconColor != Color.clear)
-                    {
-                        color = _setting.IconColor;
-                    }
-                    else
-                    {
-                        color = _category.DefaultCommandIconColor;
-                    }
+                    return _setting.IconColor;
                 }
-                else if (_category != null && _category.DefaultCommandIcon != null)
-                {
-                    icon = _category.DefaultCommandIcon;
-                    color = _category.DefaultCommandIconColor;
-                }
-                return (icon, color);
+                if (_category != null) return _category.DefaultCommandIconColor;
+                return Color.white;
             }
         }
 
@@ -87,6 +106,6 @@ namespace Kairou.Editor
             }
         }
 
-        public MonoScript Script => _setting.Script;
+        public MonoScript Script => _setting?.Script;
     }
 }

@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -30,26 +33,56 @@ namespace Kairou.Editor
             instance?.Reload();
         }
 
-        CommandSettingTableSet _settingTableSet = new();
-        CommandCategoryTableSet _categoryTableSet = new();
+        readonly CommandSettingTableSet _commandSettingTableSet = new();
+        readonly CommandCategorySettingTableSet _categorySettingTableSet = new();
 
         void Reload()
         {
-            _settingTableSet.Reload();
-            _categoryTableSet.Reload();
-        }
-
-        (CommandSetting setting, CommandCategory category) FindSetting(Type type)
-        {
-            var setting = _settingTableSet.Find(type);
-            var category = _categoryTableSet.Find(setting);
-            return (setting, category);
+            _commandSettingTableSet.Reload();
+            _categorySettingTableSet.Reload();
         }
 
         public CommandProfile GetProfile(Type type)
         {
-            var (setting, category) = FindSetting(type);
-            return new CommandProfile(type, setting, category);
+            return new CommandProfile(type, _commandSettingTableSet, _categorySettingTableSet);
+        }
+
+        public IEnumerable<Type> FindCommandsByCategoryName(string categoryName)
+        {
+            foreach (var type in CommandTypeCache.Types)
+            {
+                if (GetProfile(type).CategoryName == categoryName) yield return type;
+            }
+        }
+
+        public IEnumerable<(string categoryName, int priority)> GetCategories()
+        {
+            return CommandTypeCache.Types
+                .Select(x =>
+                {
+                    var categoryName = GetProfile(x).CategoryName;
+                    if (categoryName == null) return (null, 0);
+                    var categorySetting = _categorySettingTableSet.Find(categoryName);
+                    if (categorySetting == null) return (categoryName, 0);
+                    return (categoryName, categorySetting.Priority);
+                })
+                .Distinct()
+                .Where(x => x.categoryName != null)
+                .OrderByDescending(x => x.Item2)
+                .ThenBy(x => x.categoryName);
+        }
+
+        public IEnumerable<string> GetOutOfTableCategoryNames()
+        {
+            return GetCategories().Select(x => x.categoryName).Except(_categorySettingTableSet.GetCategories().Keys);
+        }
+
+        public IEnumerable<Type> UncategorizedCommands()
+        {
+            foreach (var type in CommandTypeCache.Types)
+            {
+                if (GetProfile(type).IsCategorized == false) yield return type;
+            }
         }
     }
 }

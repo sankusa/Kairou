@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
+using UnityEngine;
 
 namespace Kairou.Editor
 {
@@ -27,29 +28,44 @@ namespace Kairou.Editor
 
         protected override AdvancedDropdownItem BuildRoot()
         {
-            var root = new AdvancedDropdownItem("Root");
+            var commandDatabase = CommandDatabase.Load();
 
-            var commandTypes = TypeCache
-                .GetTypesWithAttribute(typeof(CommandInfoAttribute))
-                .Where(type => type.IsSubclassOf(typeof(Command)) && !type.IsAbstract);
+            var root = new AdvancedDropdownItem("Root");
+            AdvancedDropdownItem uncategorized = null;
+
+            var commandTypes = CommandTypeCache.Types;
+
+            int priorityOld = int.MaxValue;
+            foreach (var (category, priority) in commandDatabase.GetCategories())
+            {
+                if (priorityOld != int.MaxValue && priorityOld - priority >= 100)
+                {
+                    root.AddSeparator();
+                }
+                root.AddChild(new AdvancedDropdownItem(category));
+                priorityOld = priority;
+            }
 
             foreach (Type commandType in commandTypes)
             {
-                var commandInfo = commandType.GetCustomAttribute<CommandInfoAttribute>();
-                var categoryPath = commandInfo.CategoryPath.Split('/');
-
-                var parentItem = root;
-                foreach (string category in categoryPath)
+                var commandProfile = commandDatabase.GetProfile(commandType);
+                if (commandProfile.IsCategorized == false)
                 {
-                    var currentCategoryItem = root.children.FirstOrDefault(child => child.name == category);
-                    if (currentCategoryItem == null)
-                    {
-                        currentCategoryItem = new AdvancedDropdownItem(category);
-                        root.AddChild(currentCategoryItem);
-                    }
-                    parentItem = currentCategoryItem;
+                    uncategorized ??= new AdvancedDropdownItem("Uncategorized");
+                    uncategorized.AddChild(new CommandAdvancedDropdownItem(commandType, commandProfile.Name));
+                    continue;
                 }
-                parentItem.AddChild(new CommandAdvancedDropdownItem(commandType, commandInfo.CommandName));
+
+                var categoryPath = commandProfile.CategoryName.Split('/');
+
+                var categoryItem = root.children.FirstOrDefault(child => child.name == commandProfile.CategoryName);
+                categoryItem.AddChild(new CommandAdvancedDropdownItem(commandType, commandProfile.Name));
+            }
+
+            if (uncategorized != null)
+            {
+                root.AddSeparator();
+                root.AddChild(uncategorized);
             }
 
             return root;

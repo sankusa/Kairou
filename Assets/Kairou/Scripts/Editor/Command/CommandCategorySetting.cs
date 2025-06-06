@@ -4,10 +4,13 @@ using UnityEngine;
 namespace Kairou.Editor
 {
     [Serializable]
-    public class CommandCategory
+    public class CommandCategorySetting
     {
         [SerializeField] string _name;
         public string Name => _name;
+
+        [SerializeField] int _priority;
+        public int Priority => _priority;
 
         [SerializeField] Texture2D _defaultCommandIcon;
         public Texture2D DefaultCommandIcon => _defaultCommandIcon;

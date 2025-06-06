@@ -4,12 +4,12 @@ namespace Kairou
 {
     public class CommandInfoAttribute : Attribute
     {
-        public string CategoryPath { get; }
+        public string CategoryName { get; }
         public string CommandName { get; }
 
-        public CommandInfoAttribute(string categoryPath, string commandName)
+        public CommandInfoAttribute(string categoryName, string commandName)
         {
-            CategoryPath = categoryPath;
+            CategoryName = categoryName;
             CommandName = commandName;
         }
     }

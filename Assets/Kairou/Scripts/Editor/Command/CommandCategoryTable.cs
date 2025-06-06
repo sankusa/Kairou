@@ -6,32 +6,34 @@ using UnityEngine;
 
 namespace Kairou.Editor
 {
-    [CreateAssetMenu(fileName = nameof(CommandCategoryTable), menuName = nameof(Kairou) + "/" + nameof(CommandCategoryTable))]
-    public class CommandCategoryTable : ScriptableObject
+    [CreateAssetMenu(fileName = nameof(CommandCategorySettingTable), menuName = nameof(Kairou) + "/" + nameof(CommandCategorySettingTable))]
+    public class CommandCategorySettingTable : ScriptableObject
     {
         [SerializeField] int _priority = 0;
         public int Priority => _priority;
-        [SerializeField] ReadonlySerializableDictionary<string, CommandCategory> _categories = new(static c => c.Name);
-        public ReadonlySerializableDictionary<string, CommandCategory> Categories => _categories;
+        [SerializeField] ReadonlySerializableDictionary<string, CommandCategorySetting> _categories = new(static c => c.Name);
+        public ReadonlySerializableDictionary<string, CommandCategorySetting> Categories => _categories;
     }
 
-    public class CommandCategoryTableSet
+    public class CommandCategorySettingTableSet
     {
-        CommandCategoryTable[] _tables;
-        ReadOnlyCollection<CommandCategoryTable> _readOnlyTables;
-        public ReadOnlyCollection<CommandCategoryTable> Tables => _readOnlyTables;
+        CommandCategorySettingTable[] _tables;
+        ReadOnlyCollection<CommandCategorySettingTable> _readOnlyTables;
+        public ReadOnlyCollection<CommandCategorySettingTable> Tables => _readOnlyTables;
 
         public IEnumerable<string> CategoryNames => _tables.SelectMany(x => x.Categories.Keys).Distinct();
 
         public void Reload()
         {
-            _tables = AssetUtil.LoadAllAssets<CommandCategoryTable>();
+            _tables = AssetUtil.LoadAllAssets<CommandCategorySettingTable>();
             Array.Sort(_tables, (a, b) => b.Priority.CompareTo(a.Priority));
             _readOnlyTables = Array.AsReadOnly(_tables);
         }
 
-        public CommandCategory Find(string name)
+        public CommandCategorySetting Find(string name)
         {
+            if (name == null) return null;
+
             foreach (var table in _tables)
             {
                 if (table.Categories.TryGetValue(name, out var category))
@@ -42,10 +44,17 @@ namespace Kairou.Editor
             return null;
         }
 
-        public CommandCategory Find(CommandSetting commandSetting)
+        public Dictionary<string, CommandCategorySetting> GetCategories()
         {
-            if (commandSetting == null) return null;
-            return Find(commandSetting.Category);
+            Dictionary<string, CommandCategorySetting> categories = new();
+            foreach (var table in _tables.Reverse())
+            {
+                foreach (var category in table.Categories.Values)
+                {
+                    categories[category.Name] = category;
+                }
+            }
+            return categories;
         }
     }
 }

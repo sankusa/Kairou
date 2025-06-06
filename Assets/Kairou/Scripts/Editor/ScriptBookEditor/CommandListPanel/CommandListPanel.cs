@@ -47,7 +47,7 @@ namespace Kairou.Editor
             commandAdvancedDropdown.OnSelected += command =>
             {
                 // BookUtilForEditor.AddCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, command);
-                int insertIndex = _listView.selectedIndex == -1 ? _bookHolder.Book.Pages[_pageIndex].Commands.Count : (_listView.selectedIndex + 1);
+                int insertIndex = Mathf.Min(_selectedCommandIndex + 1, _bookHolder.Book.Pages[_pageIndex].Commands.Count);
                 BookUtilForEditor.InsertCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, insertIndex, command);
                 _listView.Rebuild();
                 onCollectionChanged?.Invoke();
@@ -124,7 +124,8 @@ namespace Kairou.Editor
                 AsyncCommand asyncCommand = command as AsyncCommand;
                 CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
                 var commandProfile = _commandDatabase.GetProfile(commandType);
-                var (icon, iconColor) = commandProfile.Icon;
+                var icon = commandProfile.Icon;
+                var iconColor = commandProfile.IconColor;
 
                 element.parent.style.paddingTop = 0;
                 element.parent.style.paddingBottom = 0;

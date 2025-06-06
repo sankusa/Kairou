@@ -15,7 +15,7 @@ namespace Kairou.Editor
         SerializedObject _serializedObject;
         SerializedProperty _listProp;
 
-        CommandCategoryTableSet _categoryTableSet = new();
+        CommandCategorySettingTableSet _categoryTableSet = new();
 
         public CommandSettingTableEditView()
         {

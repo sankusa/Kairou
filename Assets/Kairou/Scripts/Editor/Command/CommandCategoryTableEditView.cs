@@ -27,6 +27,7 @@ namespace Kairou.Editor
                 reorderMode = ListViewReorderMode.Animated,
             };
             _multiColumnListView.columns.Add(new Column { bindingPath = "_name", title = "Name", stretchable = true });
+            _multiColumnListView.columns.Add(new Column { bindingPath = "_priority", title = "Priority", stretchable = true });
             _multiColumnListView.columns.Add(new Column { bindingPath = "_defaultCommandIcon", title = "DefaultCommandIcon", stretchable = true });
             _multiColumnListView.columns.Add(new Column { bindingPath = "_defaultCommandIconColor", title = "DefaultCommandIconColor", stretchable = true });
             _multiColumnListView.columns.Add(new Column { bindingPath = "_commandNameColor", title = "CommandNameColor", stretchable = true });
@@ -35,7 +36,7 @@ namespace Kairou.Editor
             Add(_multiColumnListView);
         }
 
-        public void Bind(CommandCategoryTable table)
+        public void Bind(CommandCategorySettingTable table)
         {
             var so = new SerializedObject(table);
 

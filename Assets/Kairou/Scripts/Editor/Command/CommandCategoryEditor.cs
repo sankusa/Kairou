@@ -15,7 +15,7 @@ namespace Kairou.Editor
             GetWindow<CommandCategoryEditor>();
         }
 
-        CommandCategoryTableSet _tableSet = new();
+        CommandCategorySettingTableSet _tableSet = new();
 
         ObjectDropdown _objectDropdown;
         CommandCategoryTableEditView _tableEditView;
@@ -26,7 +26,7 @@ namespace Kairou.Editor
             var header = new Toolbar();
 
             _objectDropdown = new ObjectDropdown();
-            _objectDropdown.SetUp<CommandCategoryTable>("Edit Target", t => $"{t.Priority}: {t.name}", t => _tableEditView.Bind(t));
+            _objectDropdown.SetUp<CommandCategorySettingTable>("Edit Target", t => $"{t.Priority}: {t.name}", t => _tableEditView.Bind(t));
 
             var headerSpacer = new ToolbarSpacer();
             headerSpacer.style.flexGrow = 1;
