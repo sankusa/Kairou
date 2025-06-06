@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Kairou
 {
-    [CommandInfo("Variable", "SetVariable")]
     public partial class SetVariableCommand : Command
     {
         [GenerateValidation]

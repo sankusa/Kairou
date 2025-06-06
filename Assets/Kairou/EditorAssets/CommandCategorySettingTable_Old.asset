@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d06609cf8ff66941833d8e9f7e5949a, type: 3}
+  m_Name: CommandCategorySettingTable_Old
+  m_EditorClassIdentifier: 
+  _priority: -99
+  _settings:
+    _values:
+    - _name: Flow
+      _priority: 1000
+      _defaultCommandIcon: {fileID: 2800000, guid: bfccff855529d774cb2a7b2cdb33752d, type: 3}
+      _defaultCommandIconColor: {r: 0.62352943, g: 0.5294118, b: 0.39607847, a: 1}
+      _labelColor: {r: 0.6226415, g: 0.5301264, b: 0.3964934, a: 1}
+      _backgroundColor: {r: 0.25490198, g: 0.2, b: 0.16862746, a: 1}
+    - _name: Debug
+      _priority: 1000
+      _defaultCommandIcon: {fileID: 2800000, guid: e75eca1da841e6e4da960dccfb9c020f, type: 3}
+      _defaultCommandIconColor: {r: 0.5803922, g: 0.62352943, b: 0.39607847, a: 1}
+      _labelColor: {r: 0.5800711, g: 0.62352943, b: 0.39607844, a: 1}
+      _backgroundColor: {r: 0.20784314, g: 0.24705882, b: 0.16862746, a: 1}
+    - _name: Async
+      _priority: 1000
+      _defaultCommandIcon: {fileID: 2800000, guid: 79ab97594ce9cf8488ffffa6988f65c4, type: 3}
+      _defaultCommandIconColor: {r: 0.62352943, g: 0.39607847, b: 0.41176474, a: 1}
+      _labelColor: {r: 0.62352943, g: 0.39607844, b: 0.41118228, a: 1}
+      _backgroundColor: {r: 0.23529412, g: 0.18431373, b: 0.23529412, a: 1}
+    - _name: Variable
+      _priority: 1000
+      _defaultCommandIcon: {fileID: 2800000, guid: bfccff855529d774cb2a7b2cdb33752d, type: 3}
+      _defaultCommandIconColor: {r: 0.62352943, g: 0.43137258, b: 0.39607847, a: 1}
+      _labelColor: {r: 0.62352943, g: 0.43070856, b: 0.39607844, a: 1}
+      _backgroundColor: {r: 0.32156864, g: 0.18431373, b: 0.1764706, a: 1}
+    - _name: Process
+      _priority: 1000
+      _defaultCommandIcon: {fileID: 2800000, guid: b4014e1a34d486f4eabce02781fb11a8, type: 3}
+      _defaultCommandIconColor: {r: 0.38861695, g: 0.6698113, b: 0.59708863, a: 1}
+      _labelColor: {r: 0.39607844, g: 0.62352943, b: 0.5637317, a: 1}
+      _backgroundColor: {r: 0.14128695, g: 0.23584908, b: 0.21133298, a: 1}

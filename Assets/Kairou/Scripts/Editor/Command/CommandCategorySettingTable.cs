@@ -11,8 +11,8 @@ namespace Kairou.Editor
     {
         [SerializeField] int _priority = 0;
         public int Priority => _priority;
-        [SerializeField] ReadonlySerializableDictionary<string, CommandCategorySetting> _categories = new(static c => c.Name);
-        public ReadonlySerializableDictionary<string, CommandCategorySetting> Categories => _categories;
+        [SerializeField] ReadonlySerializableDictionary<string, CommandCategorySetting> _settings = new(static c => c.Name);
+        public ReadonlySerializableDictionary<string, CommandCategorySetting> Settings => _settings;
     }
 
     public class CommandCategorySettingTableSet
@@ -21,7 +21,7 @@ namespace Kairou.Editor
         ReadOnlyCollection<CommandCategorySettingTable> _readOnlyTables;
         public ReadOnlyCollection<CommandCategorySettingTable> Tables => _readOnlyTables;
 
-        public IEnumerable<string> CategoryNames => _tables.SelectMany(x => x.Categories.Keys).Distinct();
+        public IEnumerable<string> CategoryNames => _tables.SelectMany(x => x.Settings.Keys).Distinct();
 
         public void Reload()
         {
@@ -36,7 +36,7 @@ namespace Kairou.Editor
 
             foreach (var table in _tables)
             {
-                if (table.Categories.TryGetValue(name, out var category))
+                if (table.Settings.TryGetValue(name, out var category))
                 {
                     return category;
                 }
@@ -49,7 +49,7 @@ namespace Kairou.Editor
             Dictionary<string, CommandCategorySetting> categories = new();
             foreach (var table in _tables.Reverse())
             {
-                foreach (var category in table.Categories.Values)
+                foreach (var category in table.Settings.Values)
                 {
                     categories[category.Name] = category;
                 }

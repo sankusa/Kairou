@@ -1,6 +1,5 @@
 namespace Kairou
 {
-    [CommandInfo("Flow", "Continue")]
     public partial class ContinueCommand : Command
     {
         [CommandExecute]

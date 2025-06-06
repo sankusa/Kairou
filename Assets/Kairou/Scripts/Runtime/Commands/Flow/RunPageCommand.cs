@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Kairou
 {
-    [CommandInfo("Flow", "RunPage")]
     public partial class RunPageCommand : AsyncCommand
     {
         [GenerateValidation]

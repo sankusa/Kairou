@@ -1,6 +1,5 @@
 namespace Kairou
 {
-    [CommandInfo("Flow", "Exit")]
     public partial class ExitCommand : Command
     {
         [CommandExecute]

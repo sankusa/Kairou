@@ -36,15 +36,23 @@ namespace Kairou.Editor
         readonly CommandSettingTableSet _commandSettingTableSet = new();
         readonly CommandCategorySettingTableSet _categorySettingTableSet = new();
 
+        public event Action OnReload;
+
         void Reload()
         {
             _commandSettingTableSet.Reload();
             _categorySettingTableSet.Reload();
+            OnReload?.Invoke();
         }
 
         public CommandProfile GetProfile(Type type)
         {
             return new CommandProfile(type, _commandSettingTableSet, _categorySettingTableSet);
+        }
+
+        public CommandCategorySetting FindCategorySetting(string categoryName)
+        {
+            return _categorySettingTableSet.Find(categoryName);
         }
 
         public IEnumerable<Type> FindCommandsByCategoryName(string categoryName)

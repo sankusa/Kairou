@@ -30,12 +30,12 @@ namespace Kairou.Editor
             }
         }
 
-        public Color NameColor
+        public Color LabelColor
         {
             get
             {
-                if (_category != null) return _category.CommandNameColor;
-                return Color.white;
+                if (_category != null) return _category.LabelColor;
+                return GUICommon.DefaultLabelColor;
             }
         }
 
@@ -66,8 +66,8 @@ namespace Kairou.Editor
         {
             get
             {
-                if (_setting != null) return _setting.Icon;
-                if (_category != null) return _category.DefaultCommandIcon;
+                if (_setting != null && _setting.Icon != null) return _setting.Icon;
+                if (_category != null && _category.DefaultCommandIcon != null) return _category.DefaultCommandIcon;
                 return null;
             }
         }
@@ -85,13 +85,13 @@ namespace Kairou.Editor
             }
         }
 
-        public Color SummaryBackgoundColor
+        public Color BackgoundColor
         {
             get
             {
                 if (_category != null)
                 {
-                    return _category.SummaryBackgroundColor;
+                    return _category.BackgroundColor;
                 }
                 return Color.clear;
             }

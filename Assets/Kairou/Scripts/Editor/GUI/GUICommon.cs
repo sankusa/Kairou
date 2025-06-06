@@ -8,6 +8,9 @@ namespace Kairou.Editor
         public static float GetIndentWidth(int indentLevel) => indentLevel * 15f;
         public static Color ValidColor => Color.green;
         public static Color InvalidColor => Color.red;
+        public static Color HoverOverlayColor => new(0, 0, 0, 0.2f);
+        public static Color SelectedOverlayColor => new(1, 1, 0.95f, 0.15f);
+        public static Color DefaultLabelColor = new(0.8f, 0.8f, 0.8f);
 
         static Texture2D _infoIcon;
         public static Texture2D InfoIcon

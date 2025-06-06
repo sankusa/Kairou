@@ -25,6 +25,8 @@ namespace Kairou.Editor
         [SerializeField] VisualTreeAsset _variablePanelUXML;
         [SerializeField] VisualTreeAsset _pagePaneUXML;
         [SerializeField] VisualTreeAsset _commandPaneUXML;
+        [SerializeField] VisualTreeAsset _commandPicker_CategoryListUXML;
+        [SerializeField] VisualTreeAsset _commandPicker_CommandListUXML;
 
         [SerializeField] RestorableBookHolder _bookHolder = new();
 
@@ -35,6 +37,7 @@ namespace Kairou.Editor
         [SerializeField] CommandListPanel _commandListPanel = new();
         [SerializeField] CommandPanel _commandPanel = new();
         [SerializeField] VariablePanel _variablePanel = new();
+        [SerializeField] CommandPickerPanel _commandPickerPanel = new();
 
         void OnEnable()
         {
@@ -122,14 +125,23 @@ namespace Kairou.Editor
                 () => _commandPanel.Reload()
             );
 
+            var (commandPaneParent, commandPickerPane) = UIToolkitUtil.CreateSplitView(rightPane, 1, 200f, TwoPaneSplitViewOrientation.Vertical, viewDataKey: "Split3");
+
             var commandPane = _commandPaneUXML.Instantiate();
             commandPane.style.flexGrow = 1;
-            rightPane.Add(commandPane);
+            commandPaneParent.Add(commandPane);
             var commandPaneInner = commandPane.Q<VisualElement>("Pane");
 
             _commandPanel.Initialize(
                 commandPaneInner,
                 () => _commandListPanel.Reflesh()
+            );
+
+            _commandPickerPanel.Initialize(
+                commandPickerPane,
+                _commandPicker_CategoryListUXML,
+                _commandPicker_CommandListUXML,
+                (commandType) => _commandListPanel.InsertCommand(commandType)
             );
 
             _variablePanel.Initialize(
@@ -177,6 +189,11 @@ namespace Kairou.Editor
             _commandListPanel.OnUndoRedoPerformed();
             _commandListPanel.OnUndoRedoPerformed();
             _variablePanel.OnUndoRedoPerformed();
+        }
+
+        void OnDestroy()
+        {
+            _commandPickerPanel.OnDestroy();
         }
     }
 }

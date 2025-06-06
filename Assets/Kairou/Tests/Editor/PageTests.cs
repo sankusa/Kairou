@@ -75,6 +75,7 @@ namespace Kairou.Tests
     }
 }
 
+[HiddenCommand]
 public partial class PageTests_TestCommand : Command
 {
     [CommandExecute]

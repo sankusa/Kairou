@@ -1,6 +1,5 @@
 namespace Kairou
 {
-    [CommandInfo("Flow", "EndWhile")]
     public partial class EndWhileCommand : Command, IBlockEnd
     {
         public string BlockCategory => "While";

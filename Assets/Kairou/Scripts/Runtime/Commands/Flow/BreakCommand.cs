@@ -1,6 +1,5 @@
 namespace Kairou
 {
-    [CommandInfo("Flow", "Break")]
     public partial class BreakCommand : Command
     {
         [CommandExecute]

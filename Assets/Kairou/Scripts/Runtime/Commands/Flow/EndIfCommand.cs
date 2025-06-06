@@ -1,6 +1,5 @@
 namespace Kairou
 {
-    [CommandInfo("Flow", "EndIf")]
     public partial class EndIfCommand : Command, IBlockEnd
     {
         public string BlockCategory => "If";

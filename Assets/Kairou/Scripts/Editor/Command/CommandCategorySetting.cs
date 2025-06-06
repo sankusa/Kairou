@@ -18,10 +18,10 @@ namespace Kairou.Editor
         [SerializeField] Color _defaultCommandIconColor = Color.clear;
         public Color DefaultCommandIconColor => _defaultCommandIconColor;
 
-        [SerializeField] Color _commandNameColor = new(0.8f, 0.8f, 0.8f, 1);
-        public Color CommandNameColor => _commandNameColor;
+        [SerializeField] Color _labelColor = GUICommon.DefaultLabelColor;
+        public Color LabelColor => _labelColor;
 
-        [SerializeField] Color _summaryBackgroundColor = new(1, 1, 1, 1);
-        public Color SummaryBackgroundColor => _summaryBackgroundColor;
+        [SerializeField] Color _backgroundColor = new(1, 1, 1, 1);
+        public Color BackgroundColor => _backgroundColor;
     }
 }

@@ -27,31 +27,21 @@ namespace Kairou.Editor
 
         bool IsInitialized => _listView != null;
 
+        Action _onCollectionChanged;
+
         ActionDebouncer _refleshDebouncer;
 
         CommandDatabase _commandDatabase => CommandDatabase.Load();
 
-        static readonly Color _selectedRowOverlayColor = new(1, 1, 0.95f, 0.15f);
-        static readonly Color _hoverRowOverlayColor = new(0, 0, 0, 0.15f);
-
-        static readonly Color _summaryColor = new Func<Color>(() =>
-        {
-            ColorUtility.TryParseHtmlString("#C6B8A3", out Color color);
-            return color;
-        })();
-
         public void Initialize(VisualElement parent, VisualTreeAsset commandListPanelUXML, CommandSpecificAction onSelectionChanged, Action onCollectionChanged)
         {
+            _onCollectionChanged = onCollectionChanged;
+
             // AdvancedDropdown
             var commandAdvancedDropdown = new CommandAdvancedDropdown(_commandDropdownState);
-            commandAdvancedDropdown.OnSelected += command =>
+            commandAdvancedDropdown.OnSelected += commandType =>
             {
-                // BookUtilForEditor.AddCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, command);
-                int insertIndex = Mathf.Min(_selectedCommandIndex + 1, _bookHolder.Book.Pages[_pageIndex].Commands.Count);
-                BookUtilForEditor.InsertCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, insertIndex, command);
-                _listView.Rebuild();
-                onCollectionChanged?.Invoke();
-                _listView.SetSelection(insertIndex);
+                InsertCommand(commandType);
             };
 
             // ListView
@@ -71,10 +61,10 @@ namespace Kairou.Editor
                     var sourceCommand = _bookHolder.Book.Pages[_pageIndex].Commands[index];
                     var copied = sourceCommand.Copy();
                     BookUtilForEditor.InsertCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, index, copied);
-                    _listView.Rebuild();
-                    onCollectionChanged?.Invoke();
+                    _listView.RefreshItems();
+                    _onCollectionChanged?.Invoke();
                 };
-                var copyIcon = new Image() { image = GUISkin.Instance.copyIcon };
+                var copyIcon = new Image() { image = GUISkin.Instance.CopyIcon };
                 copyIcon.style.width = 14;
                 copyIcon.style.height = 14;
                 copyIcon.style.opacity = 0.5f;
@@ -86,10 +76,10 @@ namespace Kairou.Editor
                     int index = (int)item.userData;
                     var command = _bookHolder.Book.Pages[_pageIndex].Commands[index];
                     BookUtilForEditor.RemoveCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, index);
-                    _listView.Rebuild();
-                    onCollectionChanged?.Invoke();
+                    _listView.RefreshItems();
+                    _onCollectionChanged?.Invoke();
                 };
-                var deleteIcon = new Image() { image = GUISkin.Instance.deleteIcon };
+                var deleteIcon = new Image() { image = GUISkin.Instance.DeleteIcon };
                 deleteIcon.style.width = 14;
                 deleteIcon.style.height = 14;
                 deleteIcon.style.opacity = 0.5f;
@@ -101,7 +91,7 @@ namespace Kairou.Editor
                     int idnex = (int)item.userData;
                     if (_listView.selectedIndices.Contains(idnex) == false)
                     {
-                        overlay.style.backgroundColor = _hoverRowOverlayColor;
+                        overlay.style.backgroundColor = GUICommon.HoverOverlayColor;
                     }
                 });
                 item.RegisterCallback<MouseLeaveEvent>(evt =>
@@ -137,7 +127,7 @@ namespace Kairou.Editor
                 var notAwaitIcon = element.Q<VisualElement>("NotAwaitIcon");
                 notAwaitIcon.style.display = (asyncCommand != null && asyncCommand.AsyncCommandParameter.Await == false) ? DisplayStyle.Flex : DisplayStyle.None;
                 var summaryBox = element.Q<VisualElement>("SummaryBox");
-                summaryBox.style.backgroundColor = commandProfile.SummaryBackgoundColor;
+                summaryBox.style.backgroundColor = commandProfile.BackgoundColor;
                 var iconBox = element.Q<VisualElement>("IconBox");
                 iconBox.style.display = icon == null ? DisplayStyle.None : DisplayStyle.Flex;
                 var iconImage = iconBox.Q<Image>();
@@ -145,10 +135,10 @@ namespace Kairou.Editor
                 iconImage.tintColor = iconColor;
                 var nameLabel = element.Q<Label>("NameLabel");
                 nameLabel.text = commandProfile.Name;
-                nameLabel.style.color = commandProfile.NameColor;
+                nameLabel.style.color = commandProfile.LabelColor;
                 var summaryLabel = element.Q<Label>("SummaryLabel");
                 summaryLabel.text = command.GetSummary();
-                summaryLabel.style.color = _summaryColor;
+                summaryLabel.style.color = GUISkin.Instance.DefaultSummaryColor;
                 var indentBox = element.Q<VisualElement>("IndentBox");
                 indentBox.style.width = 10 * command.CalculateBlockLevel();
                 indentBox.style.flexShrink = 0;
@@ -204,8 +194,8 @@ namespace Kairou.Editor
             {
                 if (ExistsTargetPage == false) return;
                 BookUtilForEditor.RemoveCommand(_bookHolder.Owner,_bookHolder.Book, _pageIndex, _listView.selectedIndex);
-                _listView.Rebuild();
-                onCollectionChanged?.Invoke();
+                _listView.RefreshItems();
+                _onCollectionChanged?.Invoke();
             };
 
             _listView.itemIndexChanged += (fromIndex, toIndex) =>
@@ -215,8 +205,8 @@ namespace Kairou.Editor
                 // the move is first reverted, recorded with Undo, and then moved again.
                 _bookHolder.Book.Pages[_pageIndex].MoveCommand(toIndex, fromIndex);
                 BookUtilForEditor.MoveCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, fromIndex, toIndex);
-                _listView.Rebuild();
-                onCollectionChanged?.Invoke();
+                _listView.RefreshItems();
+                _onCollectionChanged?.Invoke();
                 // When dragging and swapping ListView elements, selectedIndicesChanged is not triggered, so it is manually triggered here instead.
                 // onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, toIndex);
                 _listView.selectedIndex = toIndex;
@@ -248,7 +238,7 @@ namespace Kairou.Editor
         {
             var row = _listView.GetRootElementForIndex(index);
             if (row == null) return;
-            row.Q<VisualElement>("Overlay").style.backgroundColor = _listView.selectedIndices.Contains(index) ? _selectedRowOverlayColor : Color.clear;
+            row.Q<VisualElement>("Overlay").style.backgroundColor = _listView.selectedIndices.Contains(index) ? GUICommon.SelectedOverlayColor : Color.clear;
         }
 
         public void SetTarget(BookId bookId, int pageIndex)
@@ -294,12 +284,24 @@ namespace Kairou.Editor
         public void OnUndoRedoPerformed()
         {
             if (IsInitialized == false) return;
-            _listView.Rebuild();
+            _listView.RefreshItems();
         }
 
         void ThrowIfNotInitialized()
         {
             if (IsInitialized == false) throw new InvalidOperationException($"{nameof(CommandListPanel)} is not initialized.");
+        }
+
+        public void InsertCommand(Type commandType)
+        {
+            ThrowIfNotInitialized();
+
+            var command = Command.CreateInstance(commandType);
+            int insertIndex = Mathf.Min(_selectedCommandIndex + 1, _bookHolder.Book.Pages[_pageIndex].Commands.Count);
+            BookUtilForEditor.InsertCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, insertIndex, command);
+            _listView.RefreshItems();
+            _onCollectionChanged?.Invoke();
+            _listView.SetSelection(insertIndex);
         }
     }
 }

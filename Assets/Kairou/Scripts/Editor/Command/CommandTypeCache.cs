@@ -20,6 +20,7 @@ namespace Kairou.Editor
             foreach (var type in TypeCache.GetTypesDerivedFrom<Command>())
             {
                 if (type.IsAbstract) continue;
+                if (type.IsDefined(typeof(HiddenCommandAttribute))) continue;
                 _commandDic[type.FullName] = type;
 
                 var commandInfo = type.GetCustomAttribute<CommandInfoAttribute>();

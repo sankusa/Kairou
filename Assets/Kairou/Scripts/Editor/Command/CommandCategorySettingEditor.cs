@@ -7,18 +7,18 @@ using System.Linq;
 
 namespace Kairou.Editor
 {
-    public class CommandCategoryEditor : EditorWindow
+    public class CommandCategorySettingEditor : EditorWindow
     {
-        [MenuItem("Window/" + nameof(Kairou) + "/" + nameof(CommandCategoryEditor))]
+        [MenuItem("Window/" + nameof(Kairou) + "/" + nameof(CommandCategorySettingEditor))]
         static void Open()
         {
-            GetWindow<CommandCategoryEditor>();
+            GetWindow<CommandCategorySettingEditor>();
         }
 
         CommandCategorySettingTableSet _tableSet = new();
 
         ObjectDropdown _objectDropdown;
-        CommandCategoryTableEditView _tableEditView;
+        CommandCategorySettingTableEditView _tableEditView;
 
         void CreateGUI()
         {
@@ -39,7 +39,7 @@ namespace Kairou.Editor
             header.Add(headerSpacer);
             header.Add(reloadButton);
 
-            _tableEditView = new CommandCategoryTableEditView();
+            _tableEditView = new CommandCategorySettingTableEditView();
             
             rootVisualElement.Add(header);
             rootVisualElement.Add(_tableEditView);

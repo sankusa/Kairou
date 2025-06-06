@@ -1,6 +1,5 @@
 namespace Kairou
 {
-    [CommandInfo("Flow", "Else")]
     public partial class ElseCommand : Command, IBlockEnd, IBlockStart
     {
         public string BlockCategory => "If";

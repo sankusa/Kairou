@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Kairou
 {
-    [CommandInfo("Flow", "RunBook")]
     public partial class RunBookCommand : AsyncCommand
     {
         [SerializeField] bool _switchSeries;

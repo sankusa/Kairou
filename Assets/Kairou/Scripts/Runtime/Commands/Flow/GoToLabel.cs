@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Kairou
 {
-    [CommandInfo("Flow", "GoToLabel")]
     public partial class GoToLabel : Command
     {
         [SerializeField] string _label;

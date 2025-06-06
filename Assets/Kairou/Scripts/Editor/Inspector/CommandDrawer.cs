@@ -21,12 +21,12 @@ namespace Kairou.Editor
 
             var labelBox = new VisualElement();
             labelBox.style.flexDirection = FlexDirection.Row;
-            labelBox.style.backgroundColor = commandProfile.SummaryBackgoundColor;
+            labelBox.style.backgroundColor = commandProfile.BackgoundColor;
             labelBox.style.borderBottomWidth = 1;
             labelBox.style.borderBottomColor = Color.black;
 
             var label = new Label(commandProfile.Name);
-            label.style.color = commandProfile.NameColor;
+            label.style.color = commandProfile.LabelColor;
 
             var typeFullNameLabel = new Label(commandType.FullName);
             typeFullNameLabel.style.color = new Color(1, 1, 1, 0.2f);

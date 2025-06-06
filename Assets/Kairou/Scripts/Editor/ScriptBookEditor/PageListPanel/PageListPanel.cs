@@ -35,7 +35,7 @@ namespace Kairou.Editor
             {
                 if (_bookHolder.Book == null) return;
                 BookUtilForEditor.AddSetUpPage(_bookHolder.Owner, _bookHolder.Book);
-                _listView.Rebuild();
+                _listView.RefreshItems();
                 onCollectionChanged?.Invoke();
             };
 
@@ -44,7 +44,7 @@ namespace Kairou.Editor
                 if (_bookHolder.Book == null) return;
                 var selectedPage = (Page)_listView.selectedItem;
                 BookUtilForEditor.RemovePage(_bookHolder.Owner, _bookHolder.Book, selectedPage);
-                _listView.Rebuild();
+                _listView.RefreshItems();
                 onCollectionChanged?.Invoke();
             };
 
@@ -55,7 +55,7 @@ namespace Kairou.Editor
                 // the move is first reverted, recorded with Undo, and then moved again.
                 _bookHolder.Book.MovePage(toIndex, fromIndex);
                 BookUtilForEditor.MovePage(_bookHolder.Owner, _bookHolder.Book, fromIndex, toIndex);
-                _listView.Rebuild();
+                _listView.RefreshItems();
                 onCollectionChanged?.Invoke();
                 // When dragging and swapping ListView elements, selectedIndicesChanged is not triggered, so it is manually triggered here instead.
                 onSelectionChanged?.Invoke(_bookHolder.BookId, toIndex);
@@ -115,7 +115,7 @@ namespace Kairou.Editor
         public void OnUndoRedoPerformed()
         {
             if (IsInitialized == false) return;
-            _listView.Rebuild();
+            _listView.RefreshItems();
         }
 
         void ThrowIfNotInitialized()

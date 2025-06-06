@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Kairou
 {
-    [CommandInfo("Flow", "While")]
     public partial class WhileCommand : Command, IBlockStart
     {
         public string BlockCategory => "While";

@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace Kairou
 {
+    [HiddenCommand]
     public partial class WarmupCommand : AsyncCommand, IBlockStart, IBlockEnd
     {
         public string BlockCategory => "If";

@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Kairou
 {
-    [CommandInfo("Flow", "SwitchBook")]
     public partial class SwitchBookCommand : Command
     {
         [SerializeField] bool _switchSeries;

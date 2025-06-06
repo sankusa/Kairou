@@ -18,7 +18,7 @@ namespace Kairou.Editor
 
     public class CommandAdvancedDropdown : AdvancedDropdown
     {
-        public event Action<Command> OnSelected;
+        public event Action<Type> OnSelected;
 
         public CommandAdvancedDropdown(AdvancedDropdownState state) : base(state) {
             var minSize = minimumSize;
@@ -77,8 +77,7 @@ namespace Kairou.Editor
             {
                 throw new ArgumentException($"item is not {nameof(CommandAdvancedDropdownItem)}");
             }
-            var command = Command.CreateInstance(commandItem.CommandType);
-            OnSelected?.Invoke(command);
+            OnSelected?.Invoke(commandItem.CommandType);
         }
     }
 }

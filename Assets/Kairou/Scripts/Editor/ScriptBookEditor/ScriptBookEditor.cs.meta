@@ -13,6 +13,8 @@ MonoImporter:
   - _variablePanelUXML: {fileID: 9197481963319205126, guid: e19eaa836190ddd47b999fe5af527827, type: 3}
   - _pagePaneUXML: {fileID: 9197481963319205126, guid: 28b614eb758d96c4d996f1fdb3568207, type: 3}
   - _commandPaneUXML: {fileID: 9197481963319205126, guid: d2fdff1555a628f43ae4e6457d2ba9ac, type: 3}
+  - _commandPicker_CategoryListUXML: {fileID: 9197481963319205126, guid: 70be9fd7e4741db409286d87ffbe3e8e, type: 3}
+  - _commandPicker_CommandListUXML: {fileID: 9197481963319205126, guid: a7502c70fb57a9d4b8b1fc5465020798, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

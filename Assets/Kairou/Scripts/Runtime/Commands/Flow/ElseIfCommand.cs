@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Kairou
 {
-    [CommandInfo("Flow", "ElseIf")]
     public partial class ElseIfCommand : Command, IBlockEnd, IBlockStart
     {
         public string BlockCategory => "If";

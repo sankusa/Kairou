@@ -11,12 +11,17 @@ namespace Kairou.Editor
         {
             get
             {
-                if (_instance == null) _instance = AssetUtil.LoadAllAssets<GUISkin>().FirstOrDefault();
+                if (_instance == null) _instance = AssetUtil.LoadAllAssets<GUISkin>().FirstOrDefault(x => x.name == nameof(GUISkin));
                 return _instance;
             }
         }
 
-        public Texture2D copyIcon;
-        public Texture2D deleteIcon;
+        [SerializeField] Texture2D _copyIcon;
+        public Texture2D CopyIcon => _copyIcon;
+        [SerializeField] Texture2D _deleteIcon;
+        public Texture2D DeleteIcon => _deleteIcon;
+
+        [SerializeField] Color _defaultSummaryColor = Color.white;
+        public Color DefaultSummaryColor => _defaultSummaryColor;
     }
 }
