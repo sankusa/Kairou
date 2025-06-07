@@ -8,12 +8,24 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
 using Object = UnityEngine.Object;
+using System.Collections.Generic;
 
 namespace Kairou.Editor
 {
     [Serializable]
     public class CommandListPanel
     {
+        [Serializable]
+        public class CommandList
+        {
+            [SerializeReference] List<Command> _commands;
+            public List<Command> Commands
+            {
+                get => _commands;
+                set => _commands = value;
+            }
+        }
+
         public delegate void CommandSpecificAction(BookId bookId, int pageIndex, int commandIndex);
 
         [SerializeField] RestorableBookHolder _bookHolder = new();
@@ -222,6 +234,43 @@ namespace Kairou.Editor
                 onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, selectedCommandIndex);
             };
 
+            _listView.RegisterCallback<KeyDownEvent>(evt =>
+            {
+                if (evt.ctrlKey && evt.keyCode == KeyCode.C)
+                {
+                    var commands = new CommandList();
+                    commands.Commands = _listView.selectedIndices.OrderBy(x => x).Select(x => _bookHolder.Book.Pages[_pageIndex].Commands[x]).ToList();
+                    string json = EditorJsonUtility.ToJson(commands);
+                    EditorGUIUtility.systemCopyBuffer = json;
+                    evt.StopImmediatePropagation();
+                }
+
+                if (evt.ctrlKey && evt.keyCode == KeyCode.X)
+                {
+                    var commands = new CommandList();
+                    commands.Commands = _listView.selectedIndices.OrderBy(x => x).Select(x => _bookHolder.Book.Pages[_pageIndex].Commands[x]).ToList();
+                    string json = EditorJsonUtility.ToJson(commands);
+                    EditorGUIUtility.systemCopyBuffer = json;
+                    RemoveCommands(commands.Commands);
+                    evt.StopImmediatePropagation();
+                }
+
+                if (evt.ctrlKey && evt.keyCode == KeyCode.V)
+                {
+                    if (string.IsNullOrEmpty(EditorGUIUtility.systemCopyBuffer)) return;
+                    var commands = new CommandList();
+                    try
+                    {
+                        EditorJsonUtility.FromJsonOverwrite(EditorGUIUtility.systemCopyBuffer, commands);
+                    }
+                    catch (ArgumentException) {}
+                    if (commands.Commands != null)
+                    {
+                        InsertCommands(commands.Commands);
+                    }
+                }
+            });
+
             _refleshDebouncer = new ActionDebouncer(_listView, 0.05f, 5, () => _listView.RefreshItems());
             
             Reload();
@@ -305,6 +354,22 @@ namespace Kairou.Editor
             _listView.RefreshItems();
             _onCollectionChanged?.Invoke();
             _listView.SetSelection(insertIndex);
+        }
+
+        void InsertCommands(IEnumerable<Command> commands)
+        {
+            int insertIndex = Mathf.Min(_selectedCommandIndex + 1, _bookHolder.Book.Pages[_pageIndex].Commands.Count);
+            BookUtilForEditor.InsertCommands(_bookHolder.Owner, _bookHolder.Book, _pageIndex, insertIndex, commands);
+            _listView.RefreshItems();
+            _onCollectionChanged?.Invoke();
+            _listView.SetSelection(Enumerable.Range(insertIndex, commands.Count()));
+        }
+
+        void RemoveCommands(IEnumerable<Command> commands)
+        {
+            BookUtilForEditor.RemoveCommands(_bookHolder.Owner, _bookHolder.Book, _pageIndex, commands);
+            _listView.RefreshItems();
+            _onCollectionChanged?.Invoke();
         }
     }
 }

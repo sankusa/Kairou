@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -62,6 +63,17 @@ namespace Kairou.Editor
             EditorUtility.SetDirty(bookOwner);
         }
 
+        public static void InsertCommands(Object bookOwner, ScriptBook book, int pageIndex, int insertIndex, IEnumerable<Command> commands)
+        {
+            if (bookOwner == null) throw new ArgumentNullException(nameof(bookOwner));
+            if (book == null) throw new ArgumentNullException(nameof(book));
+            if (commands == null) throw new ArgumentNullException(nameof(commands));
+            
+            Undo.RecordObject(bookOwner, "Insert Commands");
+            book.Pages[pageIndex].InsertCommands(insertIndex, commands);
+            EditorUtility.SetDirty(bookOwner);
+        }
+
         public static void RemoveCommand(Object bookOwner, ScriptBook book, int pageIndex, int commandIndex)
         {
             if (bookOwner == null) throw new ArgumentNullException(nameof(bookOwner));
@@ -69,6 +81,20 @@ namespace Kairou.Editor
             
             Undo.RecordObject(bookOwner, "Remove Command");
             book.Pages[pageIndex].RemoveCommandAt(commandIndex);
+            EditorUtility.SetDirty(bookOwner);
+        }
+
+        public static void RemoveCommands(Object bookOwner, ScriptBook book, int pageIndex, IEnumerable<Command> commands)
+        {
+            if (bookOwner == null) throw new ArgumentNullException(nameof(bookOwner));
+            if (book == null) throw new ArgumentNullException(nameof(book));
+            if (commands == null) throw new ArgumentNullException(nameof(commands));
+            
+            Undo.RecordObject(bookOwner, "Remove Command");
+            foreach (var command in commands)
+            {
+                book.Pages[pageIndex].RemoveCommand(command);
+            }
             EditorUtility.SetDirty(bookOwner);
         }
 
