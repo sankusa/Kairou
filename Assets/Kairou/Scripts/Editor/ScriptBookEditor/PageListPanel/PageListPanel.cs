@@ -87,7 +87,6 @@ namespace Kairou.Editor
         public void Reload(int selectedPageIndex)
         {
             if(IsInitialized == false) return;
-            ThrowIfNotInitialized();
 
             if (_bookHolder.HasValidBook)
             {

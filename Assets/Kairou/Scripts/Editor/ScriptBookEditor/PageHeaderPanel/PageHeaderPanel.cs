@@ -38,7 +38,7 @@ namespace Kairou
 
         public void Reload()
         {
-            ThrowIfNotInitialized();
+            if (IsInitialized == false) return;
 
             _textField.Unbind();
 

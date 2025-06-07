@@ -82,7 +82,7 @@ namespace Kairou.Editor
 
         public void Reload()
         {
-            ThrowIfNotInitialized();
+            if (IsInitialized == false) return;
             if (_bookHolder.HasValidBook)
             {
                 _serializedObject = new SerializedObject(_bookHolder.Owner);

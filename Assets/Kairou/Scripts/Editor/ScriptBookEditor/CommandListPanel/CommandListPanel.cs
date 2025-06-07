@@ -257,7 +257,7 @@ namespace Kairou.Editor
 
         public void Reload(int selectedCommandIndex)
         {
-            ThrowIfNotInitialized();
+            if (IsInitialized == false) return;
 
             if (ExistsTargetPage)
             {

@@ -16,10 +16,22 @@ namespace Kairou
         bool TryPopBlock<TBlock>(out TBlock block) where TBlock : Block;
 
         void SwitchPage(string pageId);
+        /// <summary>
+        /// Switch book. If pageId is null or empty, run entry page.
+        /// </summary>
         void SwitchBook(ScriptBook book, string pageId);
+        /// <summary>
+        /// Switch book as new series. If pageId is null or empty, run entry page.
+        /// </summary>
         void SwitchBookAsNewSeries(ScriptBook book, string pageId);
         UniTask RunPageAsync(string pageId, CancellationToken cancellationToken);
+        /// <summary>
+        /// Run book. If pageId is null or empty, run entry page.
+        /// </summary>
         UniTask RunBookAsync(ScriptBook book, string pageId, CancellationToken cancellationToken);
+        /// <summary>
+        /// Run book as new series. If pageId is null or empty, run entry page.
+        /// </summary>
         UniTask RunBookAsNewSeriesAsync(ScriptBook book, string pageId, CancellationToken cancellationToken);
 
         Variable FindVariable(string name, TargetVariableScope targetScope = TargetVariableScope.None);

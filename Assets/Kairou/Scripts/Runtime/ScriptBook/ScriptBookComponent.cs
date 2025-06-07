@@ -8,5 +8,10 @@ namespace Kairou
         public ScriptBook Book => _book;
 
         public string BookPropertyPath => nameof(_book);
+
+        void Awake()
+        {
+            BookReference.Add(_book);
+        }
     }
 }

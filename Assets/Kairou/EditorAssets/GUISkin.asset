@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _copyIcon: {fileID: 2800000, guid: de2bfd9564c2d8a409bfd4919c613729, type: 3}
   _deleteIcon: {fileID: 2800000, guid: 29a11a73f1126b54fa97e27879124cca, type: 3}
-  _defaultSummaryColor: {r: 0.6981132, g: 0.60499185, b: 0.4708971, a: 1}
+  _defaultSummaryColor: {r: 0.7764706, g: 0.72156864, b: 0.6392157, a: 1}

@@ -24,6 +24,7 @@ namespace Kairou
         public void OnEnable()
         {
             if (Book == null) return;
+            BookReference.Add(Book);
             if (_autoPreload)
             {
                 Book.Preloader.PreloadAsync(this).Forget();
@@ -51,6 +52,7 @@ namespace Kairou
         public void OnEnable()
         {
             if (Book == null) return;
+            BookReference.Add(Book);
             if (_autoPreload)
             {
                 Book.Preloader.PreloadAsync(this).Forget();
@@ -64,6 +66,23 @@ namespace Kairou
             {
                 Book.Preloader.Release(this);
             }
+        }
+    }
+
+    [Serializable]
+    public class LiveBookIdSlot : ILiveBookSlot
+    {
+        [SerializeField] string _bookId;
+        public ScriptBook Book => BookReference.Find(_bookId);
+
+        public void OnEnable()
+        {
+
+        }
+
+        public void OnDisable()
+        {
+
         }
     }
 }

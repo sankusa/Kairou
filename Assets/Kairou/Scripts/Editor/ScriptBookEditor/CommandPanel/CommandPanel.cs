@@ -120,7 +120,7 @@ namespace Kairou.Editor
 
         public void Reload()
         {
-            ThrowIfNotInitialized();
+            if (IsInitialized == false) return;
 
             _bodyRoot.Clear();
 

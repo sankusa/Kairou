@@ -9,6 +9,11 @@ namespace Kairou.Editor
         public override void OnInspectorGUI()
         {
             var asset = (ScriptBookAsset)target;
+            serializedObject.UpdateIfRequiredOrScript();
+            var bookProp = serializedObject.FindProperty("_book");
+            var idProp = bookProp.FindPropertyRelative("_id");
+            EditorGUILayout.PropertyField(idProp);
+            serializedObject.ApplyModifiedProperties();
             if (GUILayout.Button("Open ScriptBookEditor"))
             {
                 ScriptBookEditor.Open(asset, asset.BookPropertyPath);

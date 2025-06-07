@@ -42,7 +42,7 @@ namespace Kairou
 
         public void Reload()
         {
-            ThrowIfNotInitialized();
+            if (IsInitialized == false) return;
 
             _objectField.value = _bookHolder.Owner;
             _bookPathLabel.text = $".{_bookHolder.BookPropertyPath}";

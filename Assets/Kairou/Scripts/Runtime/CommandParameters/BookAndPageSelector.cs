@@ -9,15 +9,15 @@ namespace Kairou
     public class BookAndPageSelector : IValidatableAsCommandField
     {
         [SerializeReference, SerializeReferencePopup] IBookSlot _bookSlot;
-        public ScriptBook Book => _bookSlot.Book;
+        public ScriptBook Book => _bookSlot?.Book;
 
         [SerializeField] string _pageId;
         public string PageId => _pageId;
 
         public string GetSummary()
         {
-            if (_bookSlot == null) return "";
-            return $"{_bookSlot.Book} : {_pageId}";
+            if (_bookSlot == null) return "null";
+            return $"{_bookSlot.GetSummary()}  {(string.IsNullOrEmpty(_pageId) ? "EntryPage" : $"PageId:[{_pageId}]")}";
         }
 
         public IEnumerable<string> Validate(Command command, string fieldName)
@@ -26,17 +26,21 @@ namespace Kairou
             {
                 yield return $"{fieldName} : BookSlot is null";
             }
-            else if (_bookSlot.Book == null)
+            else if (_bookSlot.ResolveOnRuntime == false)
             {
-                yield return $"{fieldName} : Book is null";
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(_pageId) == false && _bookSlot.Book.Pages.FirstOrDefault(x => x.Id == _pageId) == null)
+                if (_bookSlot.Book == null)
                 {
-                    yield return $"{fieldName} : Page is not found. PageId: {_pageId}";
+                    yield return $"{fieldName} : Book is null";
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(_pageId) == false && _bookSlot.Book.Pages.FirstOrDefault(x => x.Id == _pageId) == null)
+                    {
+                        yield return $"{fieldName} : Page is not found. PageId: {_pageId}";
+                    }
                 }
             }
+
         }
     }
 }
