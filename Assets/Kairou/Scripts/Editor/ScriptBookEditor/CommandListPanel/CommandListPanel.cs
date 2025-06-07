@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEditor.UIElements;
 using Object = UnityEngine.Object;
 
 namespace Kairou.Editor
@@ -209,7 +210,6 @@ namespace Kairou.Editor
                 _listView.RefreshItems();
                 _onCollectionChanged?.Invoke();
                 // When dragging and swapping ListView elements, selectedIndicesChanged is not triggered, so it is manually triggered here instead.
-                // onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, toIndex);
                 _listView.selectedIndex = toIndex;
             };
 
@@ -261,6 +261,8 @@ namespace Kairou.Editor
 
             if (ExistsTargetPage)
             {
+                // _listView.bindingPath = $"{_bookHolder.BookPropertyPath}._pages.Array.data[{_pageIndex}]._commands";
+                // _listView.Bind(new SerializedObject(_bookHolder.Owner));
                 _listView.itemsSource = _bookHolder.Book.Pages[_pageIndex].Commands as IList;
                 _listView.enabledSelf = true;
             }

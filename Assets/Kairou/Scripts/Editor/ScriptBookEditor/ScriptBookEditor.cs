@@ -200,7 +200,7 @@ namespace Kairou.Editor
             _pageListPanel.OnUndoRedoPerformed();
             _pageHeaderPanel.OnUndoRedoPerformed();
             _commandListPanel.OnUndoRedoPerformed();
-            _commandListPanel.OnUndoRedoPerformed();
+            _commandPanel.OnUndoRedoPerformed();
             _variablePanel.OnUndoRedoPerformed();
         }
     }
