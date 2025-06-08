@@ -83,36 +83,36 @@ namespace Kairou.Editor
         public void Reload()
         {
             if (IsInitialized == false) return;
-            if (_bookHolder.HasValidBook)
-            {
-                _serializedObject = new SerializedObject(_bookHolder.Owner);
-                _bookVariablesProp = _serializedObject
-                    .FindProperty(_bookHolder.BookPropertyPath)
-                    .FindPropertyRelative("_variables");
-                _bookListView.BindProperty(_bookVariablesProp);
-            }
-            else
-            {
-                _serializedObject = null;
-                _bookVariablesProp = null;
-                _bookListView.Unbind();
+            // if (_bookHolder.HasValidBook)
+            // {
+            //     _serializedObject = new SerializedObject(_bookHolder.Owner);
+            //     _bookVariablesProp = _serializedObject
+            //         .FindProperty(_bookHolder.BookPropertyPath)
+            //         .FindPropertyRelative("_variables");
+            //     _bookListView.BindProperty(_bookVariablesProp);
+            // }
+            // else
+            // {
+            //     _serializedObject = null;
+            //     _bookVariablesProp = null;
+            //     _bookListView.Unbind();
 
-            }
+            // }
 
-            if (ExistsPage)
-            {
-                _pageVariablesProp = _serializedObject
-                    .FindProperty(_bookHolder.BookPropertyPath)
-                    .FindPropertyRelative("_pages")
-                    .GetArrayElementAtIndex(_pageIndex)
-                    .FindPropertyRelative("_variables");
-                _pageListView.BindProperty(_pageVariablesProp);
-            }
-            else
-            {
-                _pageVariablesProp = null;
-                _pageListView.Unbind();
-            }
+            // if (ExistsPage)
+            // {
+            //     _pageVariablesProp = _serializedObject
+            //         .FindProperty(_bookHolder.BookPropertyPath)
+            //         .FindPropertyRelative("_pages")
+            //         .GetArrayElementAtIndex(_pageIndex)
+            //         .FindPropertyRelative("_variables");
+            //     _pageListView.BindProperty(_pageVariablesProp);
+            // }
+            // else
+            // {
+            //     _pageVariablesProp = null;
+            //     _pageListView.Unbind();
+            // }
         }
 
         public void OnProjectOrHierarchyChanged()

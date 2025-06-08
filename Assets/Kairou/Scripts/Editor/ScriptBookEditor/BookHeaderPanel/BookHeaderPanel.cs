@@ -11,8 +11,6 @@ namespace Kairou
     [Serializable]
     public class BookHeaderPanel
     {
-        [SerializeField] RestorableBookHolder _bookHolder = new();
-
         TextField _bookIdField;
         bool IsInitialized => _bookIdField != null;
 
@@ -26,37 +24,16 @@ namespace Kairou
             Reload();
         }
 
-        public void SetTarget(BookId bookId)
+        public void SetTarget(string bookPropertyPath)
         {
-            _bookHolder.Reset(bookId);
-            if (IsInitialized) Reload();
+            if (IsInitialized)
+            {
+                _bookIdField.bindingPath = $"{bookPropertyPath}._id";
+            }
         }
 
         public void Reload()
         {
-            if (IsInitialized == false) return;
-
-            _bookIdField.Unbind();
-
-            if (_bookHolder.HasValidBook)
-            {
-                var serializedObject = new SerializedObject(_bookHolder.Owner);
-                var bookProp = serializedObject.FindProperty(_bookHolder.BookPropertyPath);
-                _bookIdField.BindProperty(bookProp.FindPropertyRelative("_id"));
-            }
-        }
-
-        public void OnProjectOrHierarchyChanged()
-        {
-            if (_bookHolder.RestoreObjectIfNull())
-            {
-                Reload();
-            }
-        }
-
-        public void OnUndoRedoPerformed()
-        {
-            
         }
 
         void ThrowIfNotInitialized()

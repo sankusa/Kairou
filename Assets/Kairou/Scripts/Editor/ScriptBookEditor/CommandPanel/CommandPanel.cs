@@ -11,13 +11,9 @@ namespace Kairou.Editor
     [Serializable]
     public class CommandPanel
     {
-        [SerializeField] RestorableBookHolder _bookHolder = new();
-        [SerializeField] int _pageIndex;
-        [SerializeField] int _commandIndex;
-        bool ExistsTargetCommand => _bookHolder.HasValidBook && _bookHolder.Book.ExistsCommandAt(_pageIndex, _commandIndex);
-
         VisualElement _header;
         ScrollView _bodyRoot;
+        PropertyField _propertyField;
 
         Action _onCommandChanged;
 
@@ -69,7 +65,7 @@ namespace Kairou.Editor
                         {
                             if (evt.newValue)
                             {
-                                PropertyFieldToDelayedField(_bodyRoot.Query<PropertyField>().First());
+                                PropertyFieldToDelayedField(_propertyField);
                             }
                         });
 
@@ -97,114 +93,64 @@ namespace Kairou.Editor
             /* body*/ {
                 _bodyRoot = new ScrollView() { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
                 _bodyRoot.style.flexGrow = 1;
+                _propertyField = new PropertyField();
+                _propertyField.RegisterValueChangeCallback(evt => _onCommandChanged?.Invoke());
+                _propertyField.style.display = DisplayStyle.Flex;
+                _bodyRoot.Add(_propertyField);
                 parent.Add(_bodyRoot);
             }
 
             _onCommandChanged = onCommandChanged;
-            Reload();
         }
 
         static void PropertyFieldToDelayedField(PropertyField propertyField)
         {
             if (propertyField == null) return;
             propertyField.Query<TextField>().ForEach(x => x.isDelayed = true);
+            propertyField.Query<FloatField>().ForEach(x => x.isDelayed = true);
+            propertyField.Query<IntegerField>().ForEach(x => x.isDelayed = true);
+            propertyField.Query<DoubleField>().ForEach(x => x.isDelayed = true);
+            propertyField.Query<LongField>().ForEach(x => x.isDelayed = true);
+            propertyField.Query<Hash128Field>().ForEach(x => x.isDelayed = true);
+            propertyField.Query<UnsignedLongField>().ForEach(x => x.isDelayed = true);
+            propertyField.Query<UnsignedIntegerField>().ForEach(x => x.isDelayed = true);
         }
 
-        public void SetTarget(BookId bookId, int pageIndex, int commandIndex)
-        {
-            _bookHolder.Reset(bookId);
-            _pageIndex = pageIndex;
-            _commandIndex = commandIndex;
-            if (IsInitialized) Reload();
-        }
-
-        public void Reload()
+        public void SetTarget(SerializedProperty commandProp)
         {
             if (IsInitialized == false) return;
+            if (commandProp == null) return;
 
-            _bodyRoot.Clear();
+            Command command = commandProp.GetObject() as Command;
+            Type commandType = command.GetType();
+            var commandProfile = CommandDatabase.Load().GetProfile(commandType);
 
-            if (ExistsTargetCommand)
+            var header = _header.Q<VisualElement>("Header");
+            header.style.backgroundColor = commandProfile.BackgoundColor;
+
+            var nameLabel = header.Q<Label>("NameLabel");
+            nameLabel.text = commandProfile.Name;
+            nameLabel.style.color = commandProfile.LabelColor;
+
+            var typeFullNameLabel = header.Q<Label>("TypeFullNameLabel");
+            typeFullNameLabel.text = commandType.FullName;
+
+            var scriptField = _header.Q<ObjectField>("ScriptField");
+            scriptField.value = commandProfile.Script;
+
+            var delayedFieldToggle = header.Q<ToolbarToggle>("DelayedField");
+            if (delayedFieldToggle.value)
             {
-                var serializedObject = new SerializedObject(_bookHolder.Owner);
-                var bookProp = serializedObject.FindProperty(_bookHolder.BookPropertyPath);
-                var commandProp = bookProp
-                    .FindPropertyRelative("_pages")
-                    .GetArrayElementAtIndex(_pageIndex)
-                    .FindPropertyRelative("_commands")
-                    .GetArrayElementAtIndex(_commandIndex);
-
-                Command command = commandProp.GetObject() as Command;
-                Type commandType = command.GetType();
-                var commandProfile = CommandDatabase.Load().GetProfile(commandType);
-
-                var header = _header.Q<VisualElement>("Header");
-                header.style.backgroundColor = commandProfile.BackgoundColor;
-
-                var nameLabel = header.Q<Label>("NameLabel");
-                nameLabel.text = commandProfile.Name;
-                nameLabel.style.color = commandProfile.LabelColor;
-
-                var typeFullNameLabel = header.Q<Label>("TypeFullNameLabel");
-                typeFullNameLabel.text = commandType.FullName;
-
-                var scriptField = _header.Q<ObjectField>("ScriptField");
-                scriptField.value = commandProfile.Script;
-
-                int typeNameStartIndex = commandProp.type.IndexOf('<') + 1;
-                int typeNameEndIndex = commandProp.type.LastIndexOf('>');
-                string typeName = commandProp.type[typeNameStartIndex..typeNameEndIndex];
-                var propertyField = new PropertyField(commandProp, typeName);
-                _bodyRoot.Add(propertyField);
-                propertyField.BindProperty(commandProp);
-                propertyField.TrackSerializedObjectValue(commandProp.serializedObject, _ => _onCommandChanged?.Invoke());
-                propertyField.style.display = DisplayStyle.Flex;
-
-                var delayedFieldToggle = header.Q<ToolbarToggle>("DelayedField");
-                if (delayedFieldToggle.value)
+                // 色々試したけどisDelayedが反映されなかったが、少し遅らせたらちゃんと反映された
+                EditorApplication.delayCall += () =>
                 {
-                    // 色々試したけどisDelayedが反映されなかったが、少し遅らせたらちゃんと反映された
-                    EditorApplication.delayCall += () =>
-                    {
-                        PropertyFieldToDelayedField(propertyField);
-                    };
-                }
-
-                // var container = new IMGUIContainer(() =>
-                // {
-                //     if (serializedObject.targetObject == null) return;
-                //     serializedObject.UpdateIfRequiredOrScript();
-                //     // using var _ = new LabelWidthScope(120);
-                //     EditorGUI.BeginChangeCheck();
-                //     EditorGUILayout.PropertyField(commandProp, new GUIContent(typeName), true);
-                //     serializedObject.ApplyModifiedProperties();
-                //     if (EditorGUI.EndChangeCheck())
-                //     {
-                //         _onCommandChanged?.Invoke();
-                //     }
-                // });
-
-                // _parent.Add(container);
+                    PropertyFieldToDelayedField(_propertyField);
+                };
             }
+
+            _propertyField.bindingPath = commandProp.propertyPath;
         }
 
-        public void OnProjectOrHierarchyChanged()
-        {
-            if (_bookHolder.RestoreObjectIfNull())
-            {
-                Reload();
-            }
-        }
-
-        public void OnUndoRedoPerformed()
-        {
-            if (IsInitialized == false) return;
-            Reload();
-        }
-
-        void ThrowIfNotInitialized()
-        {
-            if (IsInitialized == false) throw new InvalidOperationException($"{nameof(CommandPanel)} is not initialized.");
-        }
+        public void Reload() {}
     }
 }

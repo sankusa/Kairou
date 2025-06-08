@@ -11,10 +11,6 @@ namespace Kairou
     [Serializable]
     public class PageHeaderPanel
     {
-        [SerializeField] RestorableBookHolder _bookHolder = new();
-        [SerializeField] int _pageIndex;
-        bool ExistsTargetPage => _bookHolder.HasValidBook && _bookHolder.Book.Pages.HasElementAt(_pageIndex);
-
         TextField _textField;
         bool IsInitialized => _textField != null;
 
@@ -29,46 +25,14 @@ namespace Kairou
             Reload();
         }
 
-        public void SetTarget(BookId bookId, int pageIndex)
+        public void SetTarget(string pagePropertyPath)
         {
-            _bookHolder.Reset(bookId);
-            _pageIndex = pageIndex;
-            if (IsInitialized) Reload();
-        }
-
-        public void Reload()
-        {
-            if (IsInitialized == false) return;
-
-            _textField.Unbind();
-
-            if (ExistsTargetPage)
+            if (IsInitialized)
             {
-                var serializedObject = new SerializedObject(_bookHolder.Owner);
-                var bookProp = serializedObject.FindProperty(_bookHolder.BookPropertyPath);
-                var pagesProp = bookProp.FindPropertyRelative("_pages");
-                var targetPageProp = pagesProp.GetArrayElementAtIndex(_pageIndex);
-
-                _textField.BindProperty(targetPageProp.FindPropertyRelative("_id"));
+                _textField.bindingPath = $"{pagePropertyPath}._id";
             }
         }
 
-        public void OnProjectOrHierarchyChanged()
-        {
-            if (_bookHolder.RestoreObjectIfNull())
-            {
-                Reload();
-            }
-        }
-
-        public void OnUndoRedoPerformed()
-        {
-            
-        }
-
-        void ThrowIfNotInitialized()
-        {
-            if (IsInitialized == false) throw new InvalidOperationException($"{nameof(PageHeaderPanel)} is not initialized.");
-        }
+        public void Reload() {}
     }
 }
