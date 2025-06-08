@@ -66,6 +66,8 @@ namespace Kairou.Editor
             _listView.makeItem = () =>
             {
                 var item = _listView.itemTemplate.CloneTree();
+                var rowNumberLabel = item.Q<Label>("RowNumberLabel");
+                item.style.color = Color.grey;
                 var iconBox = item.Q<VisualElement>("IconBox");
                 iconBox.Add(new Image());
                 var copyButton = item.Q<Button>("CopyButton");
@@ -136,6 +138,9 @@ namespace Kairou.Editor
                 element.parent.style.paddingLeft = 0;
                 element.parent.style.paddingRight = 0;
                 element.parent.parent.Q<VisualElement>("unity-list-view__reorderable-handle").style.display = DisplayStyle.None;
+                var rowNumberLabel = element.Q<Label>("RowNumberLabel");
+                rowNumberLabel.text = (i + 1).ToString();
+                rowNumberLabel.style.width = _bookHolder.Book.Pages[_pageIndex].Commands.Count.ToString().Length * 8 + 2;
                 var asyncCommandMark = element.Q<VisualElement>("AsyncCommandMark");
                 asyncCommandMark.visible = asyncCommand != null;
                 var notAwaitIcon = element.Q<VisualElement>("NotAwaitIcon");
@@ -354,6 +359,7 @@ namespace Kairou.Editor
             _listView.RefreshItems();
             _onCollectionChanged?.Invoke();
             _listView.SetSelection(insertIndex);
+            _listView.ScrollToItem(insertIndex);
         }
 
         void InsertCommands(IEnumerable<Command> commands)
@@ -363,6 +369,7 @@ namespace Kairou.Editor
             _listView.RefreshItems();
             _onCollectionChanged?.Invoke();
             _listView.SetSelection(Enumerable.Range(insertIndex, commands.Count()));
+            _listView.ScrollToItem(insertIndex + commands.Count() - 1);
         }
 
         void RemoveCommands(IEnumerable<Command> commands)
