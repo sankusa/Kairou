@@ -10,10 +10,6 @@ namespace Kairou.Editor
     [Serializable]
     public class VariablePanel
     {
-        [SerializeField] RestorableBookHolder _bookHolder = new();
-        [SerializeField] int _pageIndex;
-        bool ExistsPage => _bookHolder.HasValidBook && _bookHolder.Book.Pages.HasElementAt(_pageIndex);
-
         ListView _bookListView;
         ListView _pageListView;
 
@@ -32,15 +28,13 @@ namespace Kairou.Editor
             _bookListView = bookTab.Q<ListView>();
             _bookListView.onAdd = _ =>
             {
-                if (_bookHolder.Book == null) return;
-
                 var menu = new GenericMenu();
                 foreach (var type in VariableTypeDictionary.Dic.Keys)
                 {
                     menu.AddItem(new GUIContent(TypeNameUtil.ConvertToPrimitiveTypeName(type.Name)), false, () =>
                     {
                         var variable = (VariableDefinition)Activator.CreateInstance(typeof(VariableDefinition<>).MakeGenericType(type));
-                        _serializedObject.Update();
+                        _serializedObject.UpdateIfRequiredOrScript();
                         _bookVariablesProp.InsertArrayElementAtIndex(_bookVariablesProp.arraySize);
                         _bookVariablesProp.GetArrayElementAtIndex(_bookVariablesProp.arraySize - 1).managedReferenceValue = variable;
                         _serializedObject.ApplyModifiedProperties();
@@ -53,15 +47,13 @@ namespace Kairou.Editor
             _pageListView = pageTab.Q<ListView>();
             _pageListView.onAdd = _ =>
             {
-                if (ExistsPage == false) return;
-
                 var menu = new GenericMenu();
                 foreach (var type in VariableTypeDictionary.Dic.Keys)
                 {
                     menu.AddItem(new GUIContent(TypeNameUtil.ConvertToPrimitiveTypeName(type.Name)), false, () =>
                     {
                         var variable = (VariableDefinition)Activator.CreateInstance(typeof(VariableDefinition<>).MakeGenericType(type));
-                        _serializedObject.Update();
+                        _serializedObject.UpdateIfRequiredOrScript();
                         _pageVariablesProp.InsertArrayElementAtIndex(_pageVariablesProp.arraySize);
                         _pageVariablesProp.GetArrayElementAtIndex(_pageVariablesProp.arraySize - 1).managedReferenceValue = variable;
                         _serializedObject.ApplyModifiedProperties();
@@ -73,62 +65,41 @@ namespace Kairou.Editor
             Reload();
         }
 
-        public void SetTarget(BookId bookId, int pageIndex)
-        {
-            _bookHolder.Reset(bookId);
-            _pageIndex = pageIndex;
-            if (IsInitialized) Reload();
-        }
-
-        public void Reload()
+        public void Bind(SerializedObject serializedObject, string bookPropertyPath, string pagePropertyPath)
         {
             if (IsInitialized == false) return;
-            if (_bookHolder.HasValidBook)
+
+            _serializedObject = serializedObject;
+            if (_serializedObject == null || bookPropertyPath == null)
             {
-                _serializedObject = new SerializedObject(_bookHolder.Owner);
-                _bookVariablesProp = _serializedObject
-                    .FindProperty(_bookHolder.BookPropertyPath)
-                    .FindPropertyRelative("_variables");
-                _bookListView.BindProperty(_bookVariablesProp);
-            }
-            else
-            {
-                _serializedObject = null;
                 _bookVariablesProp = null;
+                _pageVariablesProp = null;
+                _bookListView.bindingPath = null;
+                _pageListView.bindingPath = null;
                 _bookListView.Unbind();
-
+                _pageListView.Unbind();
+                return;
             }
 
-            if (ExistsPage)
+            _bookVariablesProp = serializedObject.FindProperty($"{bookPropertyPath}._variables");
+            _bookListView.bindingPath = _bookVariablesProp.propertyPath;
+            _bookListView.Bind(_serializedObject);
+            
+            if (pagePropertyPath != null)
             {
-                _pageVariablesProp = _serializedObject
-                    .FindProperty(_bookHolder.BookPropertyPath)
-                    .FindPropertyRelative("_pages")
-                    .GetArrayElementAtIndex(_pageIndex)
-                    .FindPropertyRelative("_variables");
-                _pageListView.BindProperty(_pageVariablesProp);
+                _pageVariablesProp = serializedObject.FindProperty($"{pagePropertyPath}._variables");
+                _pageListView.bindingPath = _pageVariablesProp.propertyPath;
+                _pageListView.Bind(_serializedObject);
             }
             else
             {
                 _pageVariablesProp = null;
+                _pageListView.bindingPath = null;
                 _pageListView.Unbind();
             }
         }
 
-        public void OnProjectOrHierarchyChanged()
-        {
-            if (_bookHolder.RestoreObjectIfNull())
-            {
-                Reload();
-            }
-        }
-
-        public void OnUndoRedoPerformed()
-        {
-            if (IsInitialized == false) return;
-            _bookListView.RefreshItems();
-            _pageListView?.RefreshItems();
-        }
+        public void Reload() {}
 
         void ThrowIfNotInitialized()
         {

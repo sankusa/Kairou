@@ -47,6 +47,8 @@ namespace Kairou.Editor
         CommandDatabase _commandDatabase;
         CommandDatabase CommandDatabase => _commandDatabase ??= CommandDatabase.Load();
 
+        List<int> _selectedIndicesOld = new();
+
         public void Initialize(VisualElement parent, VisualTreeAsset commandListPanelUXML, CommandSpecificAction onSelectionChanged, Action onCollectionChanged)
         {
             _onCollectionChanged = onCollectionChanged;
@@ -132,6 +134,7 @@ namespace Kairou.Editor
                 var commandProfile = CommandDatabase.GetProfile(commandType);
                 var icon = commandProfile.Icon;
                 var iconColor = commandProfile.IconColor;
+                int blockLevel = command.CalculateBlockLevel();
 
                 element.parent.style.paddingTop = 0;
                 element.parent.style.paddingBottom = 0;
@@ -159,7 +162,8 @@ namespace Kairou.Editor
                 summaryLabel.text = command.GetSummary();
                 summaryLabel.style.color = GUISkin.Instance.DefaultSummaryColor;
                 var indentBox = element.Q<VisualElement>("IndentBox");
-                indentBox.style.width = 10 * command.CalculateBlockLevel();
+                indentBox.style.display = blockLevel == 0 ? DisplayStyle.None : DisplayStyle.Flex;
+                indentBox.style.width = 10 * blockLevel;
                 indentBox.style.flexShrink = 0;
                 indentBox.style.flexGrow = 0;
 
@@ -224,19 +228,21 @@ namespace Kairou.Editor
                 // the move is first reverted, recorded with Undo, and then moved again.
                 _bookHolder.Book.Pages[_pageIndex].MoveCommand(toIndex, fromIndex);
                 BookUtilForEditor.MoveCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, fromIndex, toIndex);
-                _listView.RefreshItems();
+                //_listView.RefreshItems(); // 入れ替え時、自動的にリフレッシュされるので不要
                 _onCollectionChanged?.Invoke();
                 // When dragging and swapping ListView elements, selectedIndicesChanged is not triggered, so it is manually triggered here instead.
                 _listView.selectedIndex = toIndex;
             };
 
-            _listView.selectedIndicesChanged += commandIndices =>
+            _listView.selectedIndicesChanged += indices =>
             {
                 _selectedCommandIndex = _listView.selectedIndex;
-                UpdateOverlayColor();
+                UpdateOverlayColor(_selectedIndicesOld);
+                UpdateOverlayColor(indices);
                 if (ExistsTargetPage == false) return;
-                var selectedCommandIndex = commandIndices.FirstOrDefault();
+                var selectedCommandIndex = indices.FirstOrDefault();
                 onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, selectedCommandIndex);
+                _selectedIndicesOld = indices.ToList();
             };
 
             _listView.RegisterCallback<KeyDownEvent>(evt =>
@@ -281,11 +287,11 @@ namespace Kairou.Editor
             Reload();
         }
 
-        void UpdateOverlayColor()
+        void UpdateOverlayColor(IEnumerable<int> indices)
         {
-            for (int i = 0; i < _listView.itemsSource.Count; i++)
+            foreach (var index in indices)
             {
-                UpdateOverlayColor(i);
+                UpdateOverlayColor(index);
             }
         }
 

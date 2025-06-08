@@ -1,9 +1,9 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Assets/Kairou/Scripts/Editor/ScriptBookEditor/CommandListPanel/CommandListItem.uss?fileID=7433441132597879392&amp;guid=4f42de23e3e48914787323901bb927ab&amp;type=3#CommandListItem" />
-    <engine:VisualElement style="flex-grow: 1; flex-direction: row; margin-top: -1px;">
+    <engine:VisualElement style="flex-grow: 1; flex-direction: row; border-bottom-width: 1px; border-left-color: rgb(19, 19, 19); border-right-color: rgb(19, 19, 19); border-top-color: rgb(19, 19, 19); border-bottom-color: rgb(19, 19, 19);">
         <engine:Label text="22" name="RowNumberLabel" />
-        <engine:VisualElement name="IndentBox" style="flex-grow: 1; background-color: rgb(32, 32, 32);" />
-        <engine:VisualElement name="SummaryBox" style="flex-grow: 1; border-left-color: rgb(19, 19, 19); border-right-color: rgb(19, 19, 19); border-top-color: rgb(19, 19, 19); border-bottom-color: rgb(19, 19, 19); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; flex-direction: row;">
+        <engine:VisualElement name="IndentBox" style="flex-grow: 1; background-color: rgb(32, 32, 32); border-left-width: 1px; border-left-color: rgb(19, 19, 19); border-right-color: rgb(19, 19, 19); border-top-color: rgb(19, 19, 19); border-bottom-color: rgb(19, 19, 19);" />
+        <engine:VisualElement name="SummaryBox" style="flex-grow: 1; border-left-color: rgb(19, 19, 19); border-right-color: rgb(19, 19, 19); border-top-color: rgb(19, 19, 19); border-bottom-color: rgb(19, 19, 19); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 1px; flex-direction: row;">
             <engine:VisualElement name="AsyncCommandMark" style="flex-grow: 0; flex-shrink: 0; width: 2px; background-color: rgb(22, 22, 22); height: auto; margin-left: 2px;" />
             <engine:VisualElement name="NotAwaitIcon" style="flex-grow: 0; flex-shrink: 0; background-image: url(&quot;project://database/Assets/Kairou/Textures/Branch.png?fileID=2800000&amp;guid=970d85c6c5c3c054f9585053d924b6f6&amp;type=3#Branch&quot;); width: 8px; background-size: 8px 16px; -unity-background-image-tint-color: rgb(22, 22, 22); margin-right: -2px; display: none;" />
             <engine:VisualElement style="flex-grow: 0; flex-shrink: 0; width: 1px;" />
@@ -21,8 +21,8 @@
                 <engine:VisualElement name="ErrorBox" style="flex-grow: 1;" />
             </engine:VisualElement>
         </engine:VisualElement>
-        <engine:Button name="CopyButton" focusable="false" style="width: 21px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: -1px; border-top-left-radius: 2px; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 2px; justify-content: center; align-items: center;" />
-        <engine:Button name="DeleteButton" focusable="false" style="width: 21px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: -1px; border-top-left-radius: 0; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 0; justify-content: center; align-items: center;" />
+        <engine:Button name="CopyButton" focusable="false" style="width: 20px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; justify-content: center; align-items: center; border-top-width: 0; border-right-width: 1px; border-bottom-width: 0; border-left-width: 1px;" />
+        <engine:Button name="DeleteButton" focusable="false" style="width: 20px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; justify-content: center; align-items: center; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; border-top-width: 0; border-right-width: 1px; border-bottom-width: 0; border-left-width: 0;" />
     </engine:VisualElement>
     <engine:VisualElement name="Overlay" picking-mode="Ignore" class="my-class" style="flex-grow: 1; top: 0; left: 0; bottom: 0; right: 0; position: absolute;" />
 </engine:UXML>

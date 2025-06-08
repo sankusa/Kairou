@@ -33,7 +33,7 @@ namespace Kairou
             if (_holder.Owner == null)
             {
                 _holder.Reset(GlobalObjectId.GlobalObjectIdentifierToObjectSlow(_globalObjectId));
-                return true;
+                return _holder.Owner != null;
             }
             return false;
         }

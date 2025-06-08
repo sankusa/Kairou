@@ -11,10 +11,6 @@ namespace Kairou
     [Serializable]
     public class PageHeaderPanel
     {
-        [SerializeField] RestorableBookHolder _bookHolder = new();
-        [SerializeField] int _pageIndex;
-        bool ExistsTargetPage => _bookHolder.HasValidBook && _bookHolder.Book.Pages.HasElementAt(_pageIndex);
-
         TextField _textField;
         bool IsInitialized => _textField != null;
 
@@ -29,46 +25,20 @@ namespace Kairou
             Reload();
         }
 
-        public void SetTarget(BookId bookId, int pageIndex)
-        {
-            _bookHolder.Reset(bookId);
-            _pageIndex = pageIndex;
-            if (IsInitialized) Reload();
-        }
-
-        public void Reload()
+        public void Bind(SerializedObject serializedObject, string pagePropertyPath)
         {
             if (IsInitialized == false) return;
-
-            _textField.Unbind();
-
-            if (ExistsTargetPage)
+            if (serializedObject == null || pagePropertyPath == null)
             {
-                var serializedObject = new SerializedObject(_bookHolder.Owner);
-                var bookProp = serializedObject.FindProperty(_bookHolder.BookPropertyPath);
-                var pagesProp = bookProp.FindPropertyRelative("_pages");
-                var targetPageProp = pagesProp.GetArrayElementAtIndex(_pageIndex);
-
-                _textField.BindProperty(targetPageProp.FindPropertyRelative("_id"));
+                _textField.bindingPath = null;
+                _textField.Unbind();
+                _textField.value = null;
+                return;
             }
+            _textField.bindingPath = $"{pagePropertyPath}._id";
+            _textField.Bind(serializedObject);
         }
 
-        public void OnProjectOrHierarchyChanged()
-        {
-            if (_bookHolder.RestoreObjectIfNull())
-            {
-                Reload();
-            }
-        }
-
-        public void OnUndoRedoPerformed()
-        {
-            
-        }
-
-        void ThrowIfNotInitialized()
-        {
-            if (IsInitialized == false) throw new InvalidOperationException($"{nameof(PageHeaderPanel)} is not initialized.");
-        }
+        public void Reload() {}
     }
 }
