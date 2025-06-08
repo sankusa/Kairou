@@ -1,5 +1,5 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
-    <editor:Toolbar style="background-color: rgb(87, 72, 61);">
+    <editor:Toolbar style="background-color: rgb(87, 74, 63);">
         <engine:Label text=" Page" style="-unity-text-align: middle-left; -unity-font-style: bold;" />
         <engine:VisualElement style="flex-grow: 1; width: 1px; min-width: 1px; max-width: 1px; background-color: rgba(0, 0, 0, 0.4);" />
         <engine:Label text=" Id:" style="-unity-text-align: middle-left;" />

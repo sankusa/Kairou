@@ -116,39 +116,59 @@ namespace Kairou.Editor
             propertyField.Query<UnsignedIntegerField>().ForEach(x => x.isDelayed = true);
         }
 
-        public void SetTarget(SerializedProperty commandProp)
+        public void Bind(SerializedObject serializedObject, string commandPropertyPath)
         {
             if (IsInitialized == false) return;
-            if (commandProp == null) return;
-
-            Command command = commandProp.GetObject() as Command;
-            Type commandType = command.GetType();
-            var commandProfile = CommandDatabase.Load().GetProfile(commandType);
-
-            var header = _header.Q<VisualElement>("Header");
-            header.style.backgroundColor = commandProfile.BackgoundColor;
-
-            var nameLabel = header.Q<Label>("NameLabel");
-            nameLabel.text = commandProfile.Name;
-            nameLabel.style.color = commandProfile.LabelColor;
-
-            var typeFullNameLabel = header.Q<Label>("TypeFullNameLabel");
-            typeFullNameLabel.text = commandType.FullName;
-
-            var scriptField = _header.Q<ObjectField>("ScriptField");
-            scriptField.value = commandProfile.Script;
-
-            var delayedFieldToggle = header.Q<ToolbarToggle>("DelayedField");
-            if (delayedFieldToggle.value)
+            if (serializedObject == null || commandPropertyPath == null)
             {
-                // 色々試したけどisDelayedが反映されなかったが、少し遅らせたらちゃんと反映された
-                EditorApplication.delayCall += () =>
-                {
-                    PropertyFieldToDelayedField(_propertyField);
-                };
+                _propertyField.bindingPath = null;
+                _propertyField.Unbind();
+                _propertyField.style.display = DisplayStyle.None;
+                UpdateHeader(null);
+                return;
             }
 
+            var commandProp = serializedObject.FindProperty(commandPropertyPath);
             _propertyField.bindingPath = commandProp.propertyPath;
+            _propertyField.Bind(serializedObject);
+            _propertyField.style.display = DisplayStyle.Flex;
+
+            UpdateHeader(commandProp);
+        }
+
+        void UpdateHeader(SerializedProperty commandProp)
+        {
+            var header = _header.Q<VisualElement>("Header");
+            var nameLabel = header.Q<Label>("NameLabel");
+            var typeFullNameLabel = header.Q<Label>("TypeFullNameLabel");
+            var scriptField = _header.Q<ObjectField>("ScriptField");
+            var delayedFieldToggle = header.Q<ToolbarToggle>("DelayedField");
+
+            if (commandProp != null)
+            {
+                Command command = commandProp.GetObject() as Command;
+                Type commandType = command.GetType();
+                var commandProfile = CommandDatabase.Load().GetProfile(commandType);
+
+                header.style.backgroundColor = commandProfile.BackgoundColor;
+                nameLabel.text = commandProfile.Name;
+                nameLabel.style.color = commandProfile.LabelColor;
+                typeFullNameLabel.text = commandType.FullName;
+                scriptField.value = commandProfile.Script;
+                if (delayedFieldToggle.value)
+                {
+                    // 色々試したけどisDelayedが反映されなかったが、少し遅らせたらちゃんと反映された
+                    EditorApplication.delayCall += () =>
+                    {
+                        PropertyFieldToDelayedField(_propertyField);
+                    };
+                }
+                _header.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                _header.style.display = DisplayStyle.None;
+            }
         }
 
         public void Reload() {}

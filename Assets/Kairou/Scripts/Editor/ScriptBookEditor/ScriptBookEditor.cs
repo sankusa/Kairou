@@ -43,6 +43,9 @@ namespace Kairou.Editor
         [SerializeField] CommandPickerPanel _commandPickerPanel = new();
 
         SerializedObject _serializedObject;
+        SerializedProperty _bookProp;
+        SerializedProperty _pageProp;
+        SerializedProperty _commandProp;
 
         void OnEnable()
         {
@@ -112,7 +115,7 @@ namespace Kairou.Editor
                 _pageListPanelUXML,
                 (bookId, pageIndex) =>
                 {
-                    ChangePageIndex(bookId, pageIndex);
+                    SetPageIndex(pageIndex);
                 },
                 () =>
                 {
@@ -124,8 +127,8 @@ namespace Kairou.Editor
             _commandListPanel.Initialize(
                 centerPane,
                 _commandListPanelUXML,
-                (bookId, pageIndex, commandIndex) => ChangeCommandIndex(bookId, pageIndex, commandIndex),
-                () => _commandPanel.Reload()
+                (bookId, pageIndex, commandIndex) => SetCommandIndex(commandIndex),
+                () => {_serializedObject.UpdateIfRequiredOrScript();_commandPanel.Reload();}
             );
 
             var (commandPaneParent, commandPickerPane) = UIToolkitUtil.CreateSplitView(rightPane, 1, 200f, TwoPaneSplitViewOrientation.Vertical, viewDataKey: "Split3");
@@ -163,66 +166,70 @@ namespace Kairou.Editor
                 {
                     _serializedObject = new SerializedObject(_bookHolder.Owner);
                 }
-                var bookProp = _serializedObject.FindProperty(_bookHolder.BookPropertyPath);
-                var pagesProp = bookProp.FindPropertyRelative("_pages");
-
-                _bookHeaderPanel.SetTarget(bookProp.propertyPath);
-                if (0 <= _pageIndex && _pageIndex < pagesProp.arraySize)
-                {
-                    var pageProp = pagesProp.GetArrayElementAtIndex(_pageIndex);
-                    var commandsProp = pageProp.FindPropertyRelative("_commands");
-                    if (0 <= _commandIndex && _commandIndex < commandsProp.arraySize)
-                    {
-                        var commandProp = commandsProp.GetArrayElementAtIndex(_commandIndex);
-                        _commandPanel.SetTarget(commandProp);
-                    }
-                    else
-                    {
-                        // bindingPath削除
-                        _commandPanel.SetTarget(null);
-                    }
-                    _pageHeaderPanel.SetTarget(pageProp.propertyPath);
-                }
-                else
-                {
-                    // bindingPath削除
-                    // _pageHeaderPanel.SetTarget(pagesProp.propertyPath);
-                }
-                Profiler.BeginSample("ScriptBookEditor.Bind");
-                rootVisualElement.Bind(_serializedObject);
-                Profiler.EndSample();
+                _bookProp = _serializedObject.FindProperty(_bookHolder.BookPropertyPath);
             }
+            else
+            {
+                _serializedObject = null;
+                _bookProp = null;
+            }
+            _headerPanel.SetTarget(_bookHolder.BookId);
+            _pageListPanel.SetTarget(_bookHolder.BookId);
+            _bookHeaderPanel.Bind(_serializedObject, _bookProp?.propertyPath);
+            SetPageIndex(_pageIndex, _commandIndex);
         }
 
         void SetTarget(Object bookOwner, string bookPropertyPath)
         {
             _bookHolder.Reset(bookOwner, bookPropertyPath);
             Rebind();
-
-            _headerPanel.SetTarget(_bookHolder.BookId);
-            // _bookHeaderPanel.SetTarget(_bookHolder.BookId);
-            _pageListPanel.SetTarget(_bookHolder.BookId);
-            // _pageHeaderPanel.SetTarget(_bookHolder.BookId, 0);
-            _commandListPanel.SetTarget(_bookHolder.BookId, 0);
-            // _commandPanel.SetTarget(_bookHolder.BookId, 0, 0);
-            _variablePanel.SetTarget(_bookHolder.BookId, 0);
         }
 
-        void ChangePageIndex(BookId bookId, int pageIndex)
+        void SetPageIndex(int pageIndex, int commandIndex = 0)
         {
             _pageIndex = pageIndex;
-            _commandIndex = 0;
-            Rebind();
-            _commandListPanel.SetTarget(bookId, pageIndex);
-            // _commandPanel.SetTarget(bookId, pageIndex, 0);
-            _variablePanel.SetTarget(bookId, pageIndex);
+            if (_bookProp == null)
+            {
+                _pageProp = null;
+            }
+            else
+            {
+                var pagesProp = _bookProp.FindPropertyRelative("_pages");
+                if (0 <= _pageIndex && _pageIndex < pagesProp.arraySize)
+                {
+                    _pageProp = pagesProp.GetArrayElementAtIndex(_pageIndex);
+                }
+                else
+                {
+                    _pageProp = null;
+                }
+            }
+            _pageHeaderPanel.Bind(_serializedObject, _pageProp?.propertyPath);
+            _commandListPanel.SetTarget(_bookHolder.BookId, pageIndex);
+            _variablePanel.Bind(_serializedObject, _bookProp?.propertyPath, _pageProp?.propertyPath);
+            SetCommandIndex(commandIndex);
         }
 
-        void ChangeCommandIndex(BookId bookId, int pageIndex, int commandIndex)
+        void SetCommandIndex(int commandIndex)
         {
             _commandIndex = commandIndex;
-            Rebind();
-            // _commandPanel.SetTarget(bookId, pageIndex, commandIndex);
+            if (_pageProp == null)
+            {
+                _commandProp = null;
+            }
+            else
+            {
+                var commandsProp = _pageProp.FindPropertyRelative("_commands");
+                if (0 <= _commandIndex && _commandIndex < commandsProp.arraySize)
+                {
+                    _commandProp = commandsProp.GetArrayElementAtIndex(_commandIndex);
+                }
+                else
+                {
+                    _commandProp = null;
+                }
+            }
+            _commandPanel.Bind(_serializedObject, _commandProp?.propertyPath);
         }
 
         void Reload()
@@ -240,34 +247,51 @@ namespace Kairou.Editor
         // PlayMode遷移にも呼ばれる
         void OnProjectOrHierarchyChanged()
         {
-            // ObjectがDestroyされた場合など
             if (_bookHolder.RestoreObjectIfNull())
             {
+                _serializedObject = new SerializedObject(_bookHolder.Owner);
                 Rebind();
             }
+            else if (_serializedObject != null)
+            {
+                if (_serializedObject.targetObject == null)
+                {
+                    _serializedObject = null;
+                    Rebind();
+                }
+                else if (_serializedObject.UpdateIfRequiredOrScript())
+                {
+                    Rebind();
+                }
+            }
             _headerPanel.OnProjectOrHierarchyChanged();
-            // _bookHeaderPanel.OnProjectOrHierarchyChanged();
             _pageListPanel.OnProjectOrHierarchyChanged();
-            // _pageHeaderPanel.OnProjectOrHierarchyChanged();
             _commandListPanel.OnProjectOrHierarchyChanged();
-            // _commandPanel.OnProjectOrHierarchyChanged();
-            _variablePanel.OnProjectOrHierarchyChanged();
         }
 
         void OnUndoRedoPerformed()
         {
-            // ObjectがDestroyされた場合など
             if (_bookHolder.RestoreObjectIfNull())
             {
+                _serializedObject = new SerializedObject(_bookHolder.Owner);
                 Rebind();
             }
+            else if (_serializedObject != null)
+            {
+                if (_serializedObject.targetObject == null)
+                {
+                    _serializedObject = null;
+                    Rebind();
+                }
+                else if (_serializedObject.UpdateIfRequiredOrScript())
+                {
+                    Rebind();
+                }
+            }
+
             _headerPanel.OnUndoRedoPerformed();
-            // _bookHeaderPanel.OnUndoRedoPerformed();
             _pageListPanel.OnUndoRedoPerformed();
-            // _pageHeaderPanel.OnUndoRedoPerformed();
             _commandListPanel.OnUndoRedoPerformed();
-            // _commandPanel.OnUndoRedoPerformed();
-            _variablePanel.OnUndoRedoPerformed();
         }
     }
 }

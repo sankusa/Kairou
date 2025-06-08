@@ -24,12 +24,18 @@ namespace Kairou
             Reload();
         }
 
-        public void SetTarget(string bookPropertyPath)
+        public void Bind(SerializedObject serializedObject, string bookPropertyPath)
         {
-            if (IsInitialized)
+            if (IsInitialized == false) return;
+            if (serializedObject == null || bookPropertyPath == null)
             {
-                _bookIdField.bindingPath = $"{bookPropertyPath}._id";
+                _bookIdField.bindingPath = null;
+                _bookIdField.Unbind();
+                _bookIdField.value = null;
+                return;
             }
+            _bookIdField.bindingPath = $"{bookPropertyPath}._id";
+            _bookIdField.Bind(serializedObject);
         }
 
         public void Reload()
