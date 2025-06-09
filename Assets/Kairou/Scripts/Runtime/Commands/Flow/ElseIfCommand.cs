@@ -45,7 +45,7 @@ namespace Kairou
 
         public override string GetSummary()
         {
-            return _condition.GetSummary();
+            return _condition == null ? "null" : _condition.GetSummary();
         }
     }
 }

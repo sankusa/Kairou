@@ -9,6 +9,12 @@ namespace Kairou.Editor
     [CustomPropertyDrawer(typeof(VariableValueSetterKey<>))]
     public class VariableValueSetterKeyDrawer : PropertyDrawer
     {
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            var key = property.GetObject() as VariableValueSetterKey;
+            return VariableKeyDrawerSharedLogic.CreatePropertyGUI(property, typeof(VariableKey), key.TargetType, key.IsValidDefinition, (command) => key.FindDefinition(command));
+        }
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var key = property.GetObject() as VariableValueSetterKey;

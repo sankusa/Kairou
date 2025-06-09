@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Kairou.Editor
 {
@@ -10,6 +12,109 @@ namespace Kairou.Editor
         const int paddingWidth = 4;
 
         static bool _changed = false;
+
+        public static VisualElement CreatePropertyGUI(SerializedProperty property, Type baseType, Type targetType, Func<VariableDefinition, bool> definitionFilterPredicate, Func<Command, (VariableDefinition, FoundVariableScope)> definitionFindFunc)
+        {
+            var root = new VisualElement();
+
+            var command = CommandUtilForEditor.GetContainingCommand(property);
+
+            var variableNameProp = property.FindPropertyRelative("_variableName");
+            var targetScopeProp = property.FindPropertyRelative("_targetScope");
+
+            string typeName = $"{baseType.Name}<{TypeNameUtil.ConvertToPrimitiveTypeName(targetType.Name)}>";
+
+            var mainBox = new VisualElement();
+            mainBox.name = "MainBox";
+            root.Add(mainBox);
+            mainBox.style.marginLeft = 3;
+            mainBox.style.marginRight = 3;
+            mainBox.SetBorderColor(new Color(0.1f, 0.1f, 0.1f));
+            mainBox.SetBorderWidth(1);
+
+            var header = new VisualElement();
+            header.name = "Header";
+            header.style.flexDirection = FlexDirection.Row;
+            header.style.backgroundColor = new Color(0.15f, 0.15f, 0.15f);
+            var propertynameLabel = new Label(ObjectNames.NicifyVariableName(property.name));
+            propertynameLabel.style.color = new Color(0.7f, 0.7f, 0.7f);
+            header.Add(propertynameLabel);
+            header.Add(new VisualElement() { style = { flexGrow = 1 } });
+            var typeNameLabel = new Label(typeName);
+            typeNameLabel.style.color = Color.grey;
+            typeNameLabel.style.fontSize = 10;
+            typeNameLabel.style.unityTextAlign = TextAnchor.MiddleRight;
+            header.Add(typeNameLabel);
+            mainBox.Add(header);
+
+            var targetScopeField = new PropertyField(targetScopeProp);
+            mainBox.Add(targetScopeField);
+
+            var variableNameBox = new VisualElement();
+            variableNameBox.style.flexDirection = FlexDirection.Row;
+            mainBox.Add(variableNameBox);
+            var variableNameField = new PropertyField(variableNameProp);
+            variableNameField.style.flexGrow = 1;
+            variableNameBox.Add(variableNameField);
+
+            var button = new Button();
+            button.iconImage = GUICommon.DropdownIcon;
+            button.style.width = 20;
+            button.style.marginLeft = 1;
+            button.style.paddingLeft = 1;
+            button.style.paddingRight = 1;
+            button.clicked += () =>
+            {
+                new VariableSelectGenericMenu(
+                    command,
+                    (TargetVariableScope)targetScopeProp.enumValueIndex,
+                    variable =>
+                    {
+                        return definitionFilterPredicate.Invoke(variable);
+                    },
+                    variable =>
+                    {
+                        variableNameProp.stringValue = variable.Name;
+                        property.serializedObject.ApplyModifiedProperties();
+                        _changed = true;
+                    }
+                ).ShowAsContext();
+            };
+            variableNameBox.Add(button);
+
+            var availableVariableBox = new VisualElement();
+            availableVariableBox.style.flexDirection = FlexDirection.Row;
+            var resultImage = new Image();
+            availableVariableBox.Add(resultImage);
+            var resultLabel = new Label();
+            resultLabel.style.color = Color.grey;
+            availableVariableBox.Add(resultLabel);
+            mainBox.Add(availableVariableBox);
+
+            UpdateAvailableVariableResult(resultImage, resultLabel, definitionFindFunc, command);
+
+            root.TrackSerializedObjectValue(property.serializedObject, _ =>
+            {
+                UpdateAvailableVariableResult(resultImage, resultLabel, definitionFindFunc, command);
+            });
+
+            return root;
+        }
+
+        static void UpdateAvailableVariableResult(Image resultImage, Label resultLabel, Func<Command, (VariableDefinition, FoundVariableScope)> definitionFindFunc, Command command)
+        {
+            var (foundDefinition, foundScope) = definitionFindFunc(command);
+            if (foundDefinition == null)
+            {
+                resultImage.image = GUICommon.InvalidIcon;
+                resultLabel.text = "Variable not found";
+            }
+            else
+            {
+                resultImage.image = GUICommon.ValidIcon;
+                resultLabel.text = $"{foundScope} {TypeNameUtil.ConvertToPrimitiveTypeName(foundDefinition.TargetType.Name)} {foundDefinition.Name}";
+            }
+        }
 
         public static void OnGUI(Rect position, SerializedProperty property, GUIContent label, Type baseType, Type targetType, Func<VariableDefinition, bool> definitionFilterPredicate, Func<Command, (VariableDefinition, FoundVariableScope)> definitionFindFunc)
         {

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Kairou.Editor;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Kairou
 {
@@ -24,6 +26,66 @@ namespace Kairou
                 .Select(x => TypeNameUtil.ConvertToPrimitiveTypeName(x.Name))
                 .Prepend("null")
                 .ToArray();
+        }
+
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            var root = new VisualElement();
+
+            var variableSetter = property.GetObject() as VariableSetter;
+
+            var typeDropdown = new EasyDropdownField<Type>();
+            var mainBox = new VisualElement();
+            mainBox.style.marginLeft = GUICommon.GetIndentWidth(1);
+
+            typeDropdown.label = "Variable Setter";
+            typeDropdown.SetOptions(_variableTypes, _variableTypeNames.ToList());
+            typeDropdown.SetValue(variableSetter?.TargetType);
+            typeDropdown.RegisterValueChanged(type =>
+            {
+                property.managedReferenceValue = type == null ? null : Activator.CreateInstance(typeof(VariableSetter<>).MakeGenericType(type)) as VariableSetter;
+                property.serializedObject.ApplyModifiedProperties();
+
+                RebuildMain(mainBox, property);
+            }, null);
+
+            root.Add(typeDropdown);
+            root.Add(mainBox);
+
+            RebuildMain(mainBox, property);
+
+            return root;
+        }
+
+        static void RebuildMain(VisualElement root, SerializedProperty property)
+        {
+            root.Clear();
+
+            var variableSetter = property.GetObject() as VariableSetter;
+            if (variableSetter == null) return;
+
+            var variableProp = property.FindPropertyRelative("_variable");
+            var operatorProp = property.FindPropertyRelative("_operator");
+            var valueProp = property.FindPropertyRelative("_value");
+
+            var variableField = new PropertyField(variableProp);
+            root.Add(variableField);
+
+            var operators = variableSetter.GenerateAllowedOperators();
+            var operatorStrings = operators.Select(x => x.GetOperatorString()).ToList();
+            var operatorDropdown = new EasyDropdownField<VariableSetter.AssignOperator>();
+            operatorDropdown.label = "Operator";
+            operatorDropdown.SetOptions(operators, operatorStrings);
+            operatorDropdown.SetValue(variableSetter.Operator);
+            operatorDropdown.RegisterValueChanged(newValue =>
+            {
+                operatorProp.enumValueIndex = (int)newValue;
+                property.serializedObject.ApplyModifiedProperties();
+            }, default);
+            root.Add(operatorDropdown);
+
+            var valueField = new PropertyField(valueProp);
+            root.Add(valueField);
         }
 
         public override void OnGUI(Rect rect, SerializedProperty property, GUIContent label)

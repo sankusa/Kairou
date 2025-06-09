@@ -46,6 +46,20 @@ namespace Kairou
             CompareOperator.NotEqualTo,
         };
 
+        public CompareOperator[] GetOperators()
+        {
+            CompareOperator[] operators;
+            if(typeof(IComparable).IsAssignableFrom(TargetType))
+            {
+                operators = OperatorsForCompareable;
+            }
+            else
+            {
+                operators = OperatorsForNotCompareable;
+            }
+            return operators;
+        }
+
         public abstract Type TargetType { get; }
         public abstract CompareOperator Operator { get; }
 

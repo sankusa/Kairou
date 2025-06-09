@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Kairou.Editor
 {
@@ -8,6 +10,89 @@ namespace Kairou.Editor
     public class FlexibleParameterDrawer : PropertyDrawer
     {
         const int paddingWidth = 4;
+
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            var root = new VisualElement();
+
+            var command = CommandUtilForEditor.GetContainingCommand(property);
+            var flexibleParameter = property.GetObject() as FlexibleParameter;
+            string typeName = $"{nameof(FlexibleParameter)}<{TypeNameUtil.ConvertToPrimitiveTypeName(flexibleParameter.TargetType.Name)}>";
+
+            var resolveTypeProp = property.FindPropertyRelative("_resolveType");
+            
+            var valueProp = property.FindPropertyRelative("_value");
+            var variableProp = property.FindPropertyRelative("_variable");
+
+            var mainBox = new VisualElement();
+            root.Add(mainBox);
+            mainBox.style.marginLeft = 3;
+            mainBox.style.marginRight = 3;
+            mainBox.SetBorderColor(new Color(0.1f, 0.1f, 0.1f));
+            mainBox.SetBorderWidth(1);
+
+            var header = new VisualElement();
+            header.style.flexDirection = FlexDirection.Row;
+            header.style.backgroundColor = new Color(0.15f, 0.15f, 0.15f);
+            var propertynameLabel = new Label(ObjectNames.NicifyVariableName(property.name));
+            propertynameLabel.style.color = new Color(0.7f, 0.7f, 0.7f);
+            header.Add(propertynameLabel);
+            header.Add(new VisualElement() { style = { flexGrow = 1 } });
+            var typeNameLabel = new Label(typeName);
+            typeNameLabel.style.color = Color.grey;
+            typeNameLabel.style.fontSize = 10;
+            typeNameLabel.style.unityTextAlign = TextAnchor.MiddleRight;
+            header.Add(typeNameLabel);
+            mainBox.Add(header);
+
+            var resolveTypeField = new PropertyField(resolveTypeProp);
+            mainBox.Add(resolveTypeField);
+
+            VisualElement valueField = null;
+            if (valueProp == null)
+            {
+                var textField = new TextField();
+                textField.label = "Value";
+                textField.enabledSelf = false;
+                textField.value = "default";
+                mainBox.Add(textField);
+                valueField = textField;
+            }
+            else
+            {
+                valueField = new PropertyField(valueProp);
+                mainBox.Add(valueField);
+            }
+            
+            var variableField = new PropertyField(variableProp);
+            root.Add(variableField);
+
+            variableField.RegisterCallbackOnce<GeometryChangedEvent>(evt =>
+            {
+                var mainBox = variableField.Q<VisualElement>("MainBox");
+                mainBox.style.borderTopWidth = 0;
+                var header = variableField.Q<VisualElement>("Header");
+                header.style.display = DisplayStyle.None;
+            });
+
+            resolveTypeField.RegisterValueChangeCallback(evt =>
+            {
+                if (resolveTypeProp.enumValueIndex == (int)FlexibleParameter.ResolveType.Value)
+                {
+                    mainBox.style.borderBottomWidth = 1;
+                    valueField.style.display = DisplayStyle.Flex;
+                    variableField.style.display = DisplayStyle.None;
+                }
+                else if (resolveTypeProp.enumValueIndex == (int)FlexibleParameter.ResolveType.Variable)
+                {
+                    mainBox.style.borderBottomWidth = 0;
+                    valueField.style.display = DisplayStyle.None;
+                    variableField.style.display = DisplayStyle.Flex;
+                }
+            });
+
+            return root;
+        }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
