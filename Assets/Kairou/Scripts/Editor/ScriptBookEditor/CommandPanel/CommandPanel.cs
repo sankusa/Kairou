@@ -94,7 +94,7 @@ namespace Kairou.Editor
                 _bodyRoot = new ScrollView() { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
                 _bodyRoot.style.flexGrow = 1;
                 _propertyField = new PropertyField();
-                _propertyField.RegisterValueChangeCallback(evt => _onCommandChanged?.Invoke());
+                //_propertyField.RegisterValueChangeCallback(evt => _onCommandChanged?.Invoke());
                 _propertyField.style.display = DisplayStyle.Flex;
                 _bodyRoot.Add(_propertyField);
                 parent.Add(_bodyRoot);
@@ -119,10 +119,10 @@ namespace Kairou.Editor
         public void Bind(SerializedObject serializedObject, string commandPropertyPath)
         {
             if (IsInitialized == false) return;
+            _propertyField.Unbind();
             if (serializedObject == null || commandPropertyPath == null)
             {
                 _propertyField.bindingPath = null;
-                _propertyField.Unbind();
                 _propertyField.style.display = DisplayStyle.None;
                 UpdateHeader(null);
                 return;
@@ -132,6 +132,7 @@ namespace Kairou.Editor
             _propertyField.bindingPath = commandProp.propertyPath;
             _propertyField.Bind(serializedObject);
             _propertyField.style.display = DisplayStyle.Flex;
+            _propertyField.TrackSerializedObjectValue(serializedObject, _ => _onCommandChanged?.Invoke());
 
             UpdateHeader(commandProp);
         }

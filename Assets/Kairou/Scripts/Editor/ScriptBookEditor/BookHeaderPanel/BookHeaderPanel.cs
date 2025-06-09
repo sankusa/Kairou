@@ -27,10 +27,10 @@ namespace Kairou
         public void Bind(SerializedObject serializedObject, string bookPropertyPath)
         {
             if (IsInitialized == false) return;
+            _bookIdField.Unbind();
             if (serializedObject == null || bookPropertyPath == null)
             {
                 _bookIdField.bindingPath = null;
-                _bookIdField.Unbind();
                 _bookIdField.value = null;
                 return;
             }

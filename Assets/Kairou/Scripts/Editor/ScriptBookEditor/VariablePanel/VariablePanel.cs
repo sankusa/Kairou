@@ -68,6 +68,8 @@ namespace Kairou.Editor
         public void Bind(SerializedObject serializedObject, string bookPropertyPath, string pagePropertyPath)
         {
             if (IsInitialized == false) return;
+            _bookListView.Unbind();
+            _pageListView.Unbind();
 
             _serializedObject = serializedObject;
             if (_serializedObject == null || bookPropertyPath == null)
@@ -76,8 +78,6 @@ namespace Kairou.Editor
                 _pageVariablesProp = null;
                 _bookListView.bindingPath = null;
                 _pageListView.bindingPath = null;
-                _bookListView.Unbind();
-                _pageListView.Unbind();
                 return;
             }
 

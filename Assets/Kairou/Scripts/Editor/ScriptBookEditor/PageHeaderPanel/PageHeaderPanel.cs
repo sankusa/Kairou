@@ -28,10 +28,10 @@ namespace Kairou
         public void Bind(SerializedObject serializedObject, string pagePropertyPath)
         {
             if (IsInitialized == false) return;
+            _textField.Unbind();
             if (serializedObject == null || pagePropertyPath == null)
             {
                 _textField.bindingPath = null;
-                _textField.Unbind();
                 _textField.value = null;
                 return;
             }
