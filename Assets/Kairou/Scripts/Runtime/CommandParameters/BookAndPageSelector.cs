@@ -16,7 +16,7 @@ namespace Kairou
 
         public string GetSummary()
         {
-            if (_bookSlot == null) return "null";
+            if (_bookSlot == null) return SummaryCommon.Null;
             return $"{_bookSlot.GetSummary()}  {(string.IsNullOrEmpty(_pageId) ? "EntryPage" : $"PageId:[{_pageId}]")}";
         }
 

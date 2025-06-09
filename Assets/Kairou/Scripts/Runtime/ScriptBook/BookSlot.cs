@@ -20,7 +20,7 @@ namespace Kairou
 
         public bool ResolveOnRuntime => false;
 
-        public string GetSummary() => _bookComponent == null ? "null" : $"(Component) BookId:[{_bookComponent.Book.Id}]"; 
+        public string GetSummary() => _bookComponent == null ? SummaryCommon.Null : $"(Component) BookId:[{_bookComponent.Book.Id}]"; 
     }
 
     [Serializable]
@@ -31,7 +31,7 @@ namespace Kairou
 
         public bool ResolveOnRuntime => false;
 
-        public string GetSummary() => _bookAsset == null ? "null" : $"(Asset) BookId:[{_bookAsset.Book.Id}]";
+        public string GetSummary() => _bookAsset == null ? SummaryCommon.Null : $"(Asset) BookId:[{_bookAsset.Book.Id}]";
     }
 
     [Serializable]

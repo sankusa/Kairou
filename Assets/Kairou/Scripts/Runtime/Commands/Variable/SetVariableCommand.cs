@@ -13,6 +13,6 @@ namespace Kairou
             _variableSetter.Set(process);
         }
 
-        override public string GetSummary() => _variableSetter.GetSummary();
+        override public string GetSummary() => _variableSetter == null ? SummaryCommon.Null : _variableSetter.GetSummary();
     }
 }
