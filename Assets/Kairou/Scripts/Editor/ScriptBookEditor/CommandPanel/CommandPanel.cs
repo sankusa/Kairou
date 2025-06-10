@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
@@ -13,9 +14,7 @@ namespace Kairou.Editor
     {
         VisualElement _header;
         ScrollView _bodyRoot;
-        PropertyField _propertyField;
-
-        Action _onCommandChanged;
+        LightManagedReferenceField _propertyField;
 
         bool IsInitialized => _bodyRoot != null;
 
@@ -93,17 +92,15 @@ namespace Kairou.Editor
             /* body*/ {
                 _bodyRoot = new ScrollView() { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
                 _bodyRoot.style.flexGrow = 1;
-                _propertyField = new PropertyField();
+                _propertyField = new();
                 //_propertyField.RegisterValueChangeCallback(evt => _onCommandChanged?.Invoke());
                 _propertyField.style.display = DisplayStyle.Flex;
                 _bodyRoot.Add(_propertyField);
                 parent.Add(_bodyRoot);
             }
-
-            _onCommandChanged = onCommandChanged;
         }
 
-        static void PropertyFieldToDelayedField(PropertyField propertyField)
+        static void PropertyFieldToDelayedField(VisualElement propertyField)
         {
             if (propertyField == null) return;
             propertyField.Query<TextField>().ForEach(x => x.isDelayed = true);
@@ -122,19 +119,21 @@ namespace Kairou.Editor
             _propertyField.Unbind();
             if (serializedObject == null || commandPropertyPath == null)
             {
-                _propertyField.bindingPath = null;
                 _propertyField.style.display = DisplayStyle.None;
                 UpdateHeader(null);
                 return;
             }
 
             var commandProp = serializedObject.FindProperty(commandPropertyPath);
-            _propertyField.bindingPath = commandProp.propertyPath;
-            _propertyField.Bind(serializedObject);
+            _propertyField.Attach(commandProp);
             _propertyField.style.display = DisplayStyle.Flex;
-            _propertyField.TrackSerializedObjectValue(serializedObject, _ => _onCommandChanged?.Invoke());
 
             UpdateHeader(commandProp);
+        }
+
+        public void Refresh()
+        {
+            _propertyField.Refresh();
         }
 
         void UpdateHeader(SerializedProperty commandProp)

@@ -12,6 +12,9 @@ namespace Kairou
     public class PageHeaderPanel
     {
         TextField _textField;
+        SerializedObject _serializedObject;
+        SerializedProperty _pageProp;
+        SerializedProperty _idProp;
         bool IsInitialized => _textField != null;
 
         public void Initialize(VisualElement parent, VisualTreeAsset pageHeaderPanelUXML, Action onPageChanged)
@@ -20,7 +23,15 @@ namespace Kairou
             parent.Add(pageHeaderPanel);
 
             _textField = pageHeaderPanel.Q<TextField>();
-            _textField.RegisterValueChangedCallback(evt => onPageChanged?.Invoke());
+            _textField.RegisterValueChangedCallback(evt =>
+            {
+                if (_idProp != null)
+                {
+                    _idProp.stringValue = evt.newValue;
+                    _serializedObject.ApplyModifiedProperties();
+                }
+                onPageChanged?.Invoke();
+            });
 
             Reload();
         }
@@ -28,15 +39,17 @@ namespace Kairou
         public void Bind(SerializedObject serializedObject, string pagePropertyPath)
         {
             if (IsInitialized == false) return;
-            _textField.Unbind();
-            if (serializedObject == null || pagePropertyPath == null)
+            _serializedObject = serializedObject;
+            if (_serializedObject == null || pagePropertyPath == null)
             {
-                _textField.bindingPath = null;
+                _pageProp = null;
+                _idProp = null;
                 _textField.value = null;
                 return;
             }
-            _textField.bindingPath = $"{pagePropertyPath}._id";
-            _textField.Bind(serializedObject);
+            _pageProp = serializedObject.FindProperty(pagePropertyPath);
+            _idProp = _pageProp.FindPropertyRelative("_id");
+            _textField.value = _idProp.stringValue;
         }
 
         public void Reload() {}

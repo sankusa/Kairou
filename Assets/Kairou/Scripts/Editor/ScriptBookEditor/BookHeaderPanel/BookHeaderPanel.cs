@@ -12,6 +12,9 @@ namespace Kairou
     public class BookHeaderPanel
     {
         TextField _bookIdField;
+        SerializedObject _serializedObject;
+        SerializedProperty _bookProp;
+        SerializedProperty _idProp;
         bool IsInitialized => _bookIdField != null;
 
         public void Initialize(VisualElement parent, VisualTreeAsset bookHeaderPanelUXML)
@@ -20,6 +23,14 @@ namespace Kairou
             parent.Add(bookHeaderPanel);
 
             _bookIdField = bookHeaderPanel.Q<TextField>();
+            _bookIdField.RegisterValueChangedCallback(evt =>
+            {
+                if (_idProp != null)
+                {
+                    _idProp.stringValue = evt.newValue;
+                    _serializedObject.ApplyModifiedProperties();
+                }
+            });
 
             Reload();
         }
@@ -27,15 +38,18 @@ namespace Kairou
         public void Bind(SerializedObject serializedObject, string bookPropertyPath)
         {
             if (IsInitialized == false) return;
-            _bookIdField.Unbind();
+            _serializedObject = serializedObject;
             if (serializedObject == null || bookPropertyPath == null)
             {
+                _bookProp = null;
+                _idProp = null;
                 _bookIdField.bindingPath = null;
                 _bookIdField.value = null;
                 return;
             }
-            _bookIdField.bindingPath = $"{bookPropertyPath}._id";
-            _bookIdField.Bind(serializedObject);
+            _bookProp = serializedObject.FindProperty(bookPropertyPath);
+            _idProp = _bookProp.FindPropertyRelative("_id");
+            _bookIdField.value = _idProp.stringValue;
         }
 
         public void Reload()

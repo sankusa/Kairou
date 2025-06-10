@@ -140,7 +140,7 @@ namespace Kairou.Editor
 
             _commandPanel.Initialize(
                 commandPaneInner,
-                () => _commandListPanel.Reflesh()
+                () => {}
             );
 
             _commandPickerPanel.Initialize(
@@ -165,6 +165,7 @@ namespace Kairou.Editor
                 if (_serializedObject == null || _serializedObject.targetObject != _bookHolder.Owner)
                 {
                     _serializedObject = new SerializedObject(_bookHolder.Owner);
+                    //rootVisualElement.TrackSerializedObjectValue(_serializedObject , _ => {_commandListPanel.Reflesh();_commandPanel.Refresh();});
                 }
                 _bookProp = _serializedObject.FindProperty(_bookHolder.BookPropertyPath);
             }
@@ -183,6 +184,8 @@ namespace Kairou.Editor
         void SetTarget(Object bookOwner, string bookPropertyPath)
         {
             _bookHolder.Reset(bookOwner, bookPropertyPath);
+            _pageIndex = 0;
+            _commandIndex = 0;
             Rebind();
         }
 
@@ -293,6 +296,7 @@ namespace Kairou.Editor
             _headerPanel.OnUndoRedoPerformed();
             _pageListPanel.OnUndoRedoPerformed();
             _commandListPanel.OnUndoRedoPerformed();
+            _variablePanel.OnUndoRedoPerformed();
         }
     }
 }
