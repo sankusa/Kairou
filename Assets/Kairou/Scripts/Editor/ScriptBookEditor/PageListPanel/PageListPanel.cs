@@ -55,18 +55,29 @@ namespace Kairou.Editor
                 // the move is first reverted, recorded with Undo, and then moved again.
                 _bookHolder.Book.MovePage(toIndex, fromIndex);
                 BookUtilForEditor.MovePage(_bookHolder.Owner, _bookHolder.Book, fromIndex, toIndex);
-                _listView.RefreshItems();
+                // _listView.RefreshItems();
                 onCollectionChanged?.Invoke();
                 // When dragging and swapping ListView elements, selectedIndicesChanged is not triggered, so it is manually triggered here instead.
-                onSelectionChanged?.Invoke(_bookHolder.BookId, toIndex);
+                // onSelectionChanged?.Invoke(_bookHolder.BookId, toIndex);
+                _listView.selectedIndex = toIndex;
             };
 
-            _listView.selectedIndicesChanged += pageIndices =>
+            // _listView.selectedIndicesChanged += pageIndices =>
+            // {
+            //     _selectedPageIndex = _listView.selectedIndex;
+            //     if (_bookHolder.Book == null) return;
+            //     var selectedPageIndex = pageIndices.FirstOrDefault();
+            //     onSelectionChanged?.Invoke(_bookHolder.BookId, selectedPageIndex);
+            // };
+
+            _listView.selectedIndicesChanged += indices =>
             {
-                _selectedPageIndex = _listView.selectedIndex;
                 if (_bookHolder.Book == null) return;
-                var selectedPageIndex = pageIndices.FirstOrDefault();
-                onSelectionChanged?.Invoke(_bookHolder.BookId, selectedPageIndex);
+                if (_listView.selectedIndex != -1 && _listView.selectedIndex != _selectedPageIndex)
+                {
+                    _selectedPageIndex = _listView.selectedIndex;
+                    onSelectionChanged?.Invoke(_bookHolder.BookId, _selectedPageIndex);
+                }
             };
 
             Reload();

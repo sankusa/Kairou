@@ -119,8 +119,8 @@ namespace Kairou.Editor
                 },
                 () =>
                 {
+                    _serializedObject.UpdateIfRequiredOrScript();
                     _commandListPanel.Reload();
-                    _variablePanel.Reload();
                 }
             );
 
@@ -128,7 +128,7 @@ namespace Kairou.Editor
                 centerPane,
                 _commandListPanelUXML,
                 (bookId, pageIndex, commandIndex) => SetCommandIndex(commandIndex),
-                () => {_serializedObject.UpdateIfRequiredOrScript();_commandPanel.Reload();}
+                () => {_serializedObject.UpdateIfRequiredOrScript();}
             );
 
             var (commandPaneParent, commandPickerPane) = UIToolkitUtil.CreateSplitView(rightPane, 1, 200f, TwoPaneSplitViewOrientation.Vertical, viewDataKey: "Split3");
@@ -176,6 +176,7 @@ namespace Kairou.Editor
             _headerPanel.SetTarget(_bookHolder.BookId);
             _pageListPanel.SetTarget(_bookHolder.BookId);
             _bookHeaderPanel.Bind(_serializedObject, _bookProp?.propertyPath);
+            _variablePanel.BindBookVariable(_serializedObject, _bookProp?.propertyPath);
             SetPageIndex(_pageIndex, _commandIndex);
         }
 
@@ -206,7 +207,7 @@ namespace Kairou.Editor
             }
             _pageHeaderPanel.Bind(_serializedObject, _pageProp?.propertyPath);
             _commandListPanel.SetTarget(_bookHolder.BookId, pageIndex);
-            _variablePanel.Bind(_serializedObject, _bookProp?.propertyPath, _pageProp?.propertyPath);
+            _variablePanel.BindPageVariable(_pageProp?.propertyPath);
             SetCommandIndex(commandIndex);
         }
 

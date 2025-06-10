@@ -69,34 +69,53 @@ namespace Kairou.Editor
         {
             if (IsInitialized == false) return;
             _bookListView.Unbind();
-            _pageListView.Unbind();
 
             _serializedObject = serializedObject;
             if (_serializedObject == null || bookPropertyPath == null)
             {
                 _bookVariablesProp = null;
-                _pageVariablesProp = null;
                 _bookListView.bindingPath = null;
-                _pageListView.bindingPath = null;
+                BindPageVariable(null);
                 return;
             }
 
             _bookVariablesProp = serializedObject.FindProperty($"{bookPropertyPath}._variables");
             _bookListView.bindingPath = _bookVariablesProp.propertyPath;
             _bookListView.Bind(_serializedObject);
-            
-            if (pagePropertyPath != null)
+            BindPageVariable(pagePropertyPath);
+        }
+
+        public void BindBookVariable(SerializedObject serializedObject, string bookPropertyPath)
+        {
+            if (IsInitialized == false) return;
+            _bookListView.Unbind();
+
+            _serializedObject = serializedObject;
+            if (_serializedObject == null || bookPropertyPath == null)
             {
-                _pageVariablesProp = serializedObject.FindProperty($"{pagePropertyPath}._variables");
-                _pageListView.bindingPath = _pageVariablesProp.propertyPath;
-                _pageListView.Bind(_serializedObject);
+                _bookVariablesProp = null;
+                _bookListView.bindingPath = null;
+                return;
             }
-            else
+
+            _bookVariablesProp = serializedObject.FindProperty($"{bookPropertyPath}._variables");
+            _bookListView.bindingPath = _bookVariablesProp.propertyPath;
+            _bookListView.Bind(_serializedObject);
+        }
+
+        public void BindPageVariable(string pagePropertyPath)
+        {
+            if (IsInitialized == false) return;
+            _pageListView.Unbind();
+            if (pagePropertyPath == null)
             {
                 _pageVariablesProp = null;
                 _pageListView.bindingPath = null;
-                _pageListView.Unbind();
+                return;
             }
+            _pageVariablesProp = _serializedObject.FindProperty($"{pagePropertyPath}._variables");
+            _pageListView.bindingPath = _pageVariablesProp.propertyPath;
+            _pageListView.Bind(_serializedObject);
         }
 
         public void Reload() {}

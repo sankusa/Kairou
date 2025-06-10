@@ -234,15 +234,29 @@ namespace Kairou.Editor
                 _listView.selectedIndex = toIndex;
             };
 
+            // _listView.selectedIndicesChanged += indices =>
+            // {Debug.Log(_listView.selectedIndex);
+            //     _selectedCommandIndex = _listView.selectedIndex;
+            //     UpdateOverlayColor(_selectedIndicesOld);
+            //     UpdateOverlayColor(indices);
+            //     if (ExistsTargetPage == false) return;
+            //     var selectedCommandIndex = indices.FirstOrDefault();
+            //     onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, selectedCommandIndex);
+            //     _selectedCommandIndexOld = _selectedCommandIndex;
+            //     _selectedIndicesOld = indices.ToList();
+            // };
+
             _listView.selectedIndicesChanged += indices =>
             {
-                _selectedCommandIndex = _listView.selectedIndex;
+                if (ExistsTargetPage == false) return;
                 UpdateOverlayColor(_selectedIndicesOld);
                 UpdateOverlayColor(indices);
-                if (ExistsTargetPage == false) return;
-                var selectedCommandIndex = indices.FirstOrDefault();
-                onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, selectedCommandIndex);
-                _selectedIndicesOld = indices.ToList();
+                if (_listView.selectedIndex != -1 && _listView.selectedIndex != _selectedCommandIndex)
+                {
+                    _selectedCommandIndex = _listView.selectedIndex;
+                    onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, _selectedCommandIndex);
+                    _selectedIndicesOld = indices.ToList();
+                }
             };
 
             _listView.RegisterCallback<KeyDownEvent>(evt =>
