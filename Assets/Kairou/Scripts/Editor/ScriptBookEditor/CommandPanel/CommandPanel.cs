@@ -92,7 +92,7 @@ namespace Kairou.Editor
             /* body*/ {
                 _bodyRoot = new ScrollView() { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
                 _bodyRoot.style.flexGrow = 1;
-                _propertyField = new();
+                _propertyField = new(onCommandChanged);
                 //_propertyField.RegisterValueChangeCallback(evt => _onCommandChanged?.Invoke());
                 _propertyField.style.display = DisplayStyle.Flex;
                 _bodyRoot.Add(_propertyField);

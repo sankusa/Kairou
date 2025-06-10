@@ -13,17 +13,22 @@ namespace Kairou.Editor
         SerializedObject _serializedObject;
         SerializedProperty _managedReferenceProperty;
 
-        public LightManagedReferenceField()
+        Action _onValueChanged;
+
+        public LightManagedReferenceField(Action onValueChanged)
         {
             _tmpObj = ScriptableObject.CreateInstance<TmpObject>();
             _serializedObject = new SerializedObject(_tmpObj);
 
             _propertyField = new PropertyField();
             _propertyField.bindingPath = "_object";
-            _propertyField.TrackSerializedObjectValue(_serializedObject, _ =>
+            _propertyField.RegisterValueChangeCallback(_ =>
             {
                 _managedReferenceProperty.serializedObject.ApplyModifiedProperties();
+                _onValueChanged?.Invoke();
             });
+
+            _onValueChanged = onValueChanged;
 
             Add(_propertyField);
         }
@@ -53,22 +58,24 @@ namespace Kairou.Editor
         SerializedObject _serializedObject;
         Action<T> _onValueChanged;
 
-        public SerializableAnythingField()
+        public SerializableAnythingField(Action<T> onValueChanged)
         {
             _tmpObj = ScriptableObject.CreateInstance<TmpObject>();
             _serializedObject = new SerializedObject(_tmpObj);
 
             _propertyField = new PropertyField();
             _propertyField.bindingPath = "_object";
-            _propertyField.TrackSerializedObjectValue(_serializedObject, _ =>
+            _propertyField.RegisterValueChangeCallback(_ =>
             {
                 _onValueChanged?.Invoke(_tmpObj.Object as T);
             });
 
+            _onValueChanged = onValueChanged;
+
             Add(_propertyField);
         }
 
-        public void Attach(T target, Action<T> onValueChanged)
+        public void Attach(T target)
         {
             _propertyField.Unbind();
 
@@ -76,7 +83,6 @@ namespace Kairou.Editor
             _serializedObject = new SerializedObject(_tmpObj);
 
             _propertyField.Bind(_serializedObject);
-            _onValueChanged = onValueChanged;
         }
     }
 

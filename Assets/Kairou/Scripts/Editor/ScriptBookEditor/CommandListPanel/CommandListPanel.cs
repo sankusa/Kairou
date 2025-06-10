@@ -42,7 +42,7 @@ namespace Kairou.Editor
 
         Action _onCollectionChanged;
 
-        ActionDebouncer _refleshDebouncer;
+        ActionDebouncer _refreshDebouncer;
 
         CommandDatabase _commandDatabase;
         CommandDatabase CommandDatabase => _commandDatabase ??= CommandDatabase.Load();
@@ -296,7 +296,7 @@ namespace Kairou.Editor
                 }
             });
 
-            _refleshDebouncer = new ActionDebouncer(_listView, 0.05f, 5, () => _listView.RefreshItems());
+            _refreshDebouncer = new ActionDebouncer(_listView, 0.05f, 5, () => _listView.RefreshItems());
             
             Reload();
         }
@@ -348,7 +348,7 @@ namespace Kairou.Editor
             _listView.SetSelectionWithoutNotify(new int[] {selectedCommandIndex});
         }
 
-        public void Reflesh() => _refleshDebouncer.Schedule();
+        public void Refresh() => _refreshDebouncer.Schedule();
 
         public void OnProjectOrHierarchyChanged()
         {

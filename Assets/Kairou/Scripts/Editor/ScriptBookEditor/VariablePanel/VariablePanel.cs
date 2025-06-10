@@ -20,7 +20,7 @@ namespace Kairou.Editor
 
         SerializedObject _serializedObject;
 
-        public void Initialize(VisualElement parent, VisualTreeAsset variablePanelUXML)
+        public void Initialize(VisualElement parent, VisualTreeAsset variablePanelUXML, Action onValueChanged)
         {
             var variablePanel = variablePanelUXML.Instantiate();
             parent.Add(variablePanel);
@@ -56,12 +56,16 @@ namespace Kairou.Editor
             };
             _bookListView.makeItem = () =>
             {
-                return new SerializableAnythingField<VariableDefinition>();
+                return new SerializableAnythingField<VariableDefinition>(_ =>
+                {
+                    _serializedObject.UpdateIfRequiredOrScript();
+                    onValueChanged?.Invoke();
+                });
             };
             _bookListView.bindItem = (element, index) =>
             {
                 var field = element as SerializableAnythingField<VariableDefinition>;
-                field.Attach((VariableDefinition)_bookListView.itemsSource[index], obj => _serializedObject.UpdateIfRequiredOrScript());
+                field.Attach((VariableDefinition)_bookListView.itemsSource[index]);
             };
             _bookListView.itemIndexChanged += (fromIndex, toIndex) =>
             {
@@ -107,12 +111,16 @@ namespace Kairou.Editor
             };
             _pageListView.makeItem = () =>
             {
-                return new SerializableAnythingField<VariableDefinition>();
+                return new SerializableAnythingField<VariableDefinition>(_ =>
+                {
+                    _serializedObject.UpdateIfRequiredOrScript();
+                    onValueChanged?.Invoke();
+                });
             };
             _pageListView.bindItem = (element, index) =>
             {
                 var field = element as SerializableAnythingField<VariableDefinition>;
-                field.Attach((VariableDefinition)_pageListView.itemsSource[index], obj => _serializedObject.UpdateIfRequiredOrScript());
+                field.Attach((VariableDefinition)_pageListView.itemsSource[index]);
             };
             _pageListView.itemIndexChanged += (fromIndex, toIndex) =>
             {
