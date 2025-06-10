@@ -67,11 +67,12 @@ namespace Kairou.Editor
             var variableField = new PropertyField(variableProp);
             root.Add(variableField);
 
-            variableField.RegisterCallbackOnce<GeometryChangedEvent>(evt =>
+            variableField.RegisterCallback<GeometryChangedEvent>(evt =>
             {
                 var mainBox = variableField.Q<VisualElement>("MainBox");
-                mainBox.style.borderTopWidth = 0;
+                if (mainBox == null) return;
                 var header = variableField.Q<VisualElement>("Header");
+                mainBox.style.borderTopWidth = 0;
                 header.style.display = DisplayStyle.None;
             });
 

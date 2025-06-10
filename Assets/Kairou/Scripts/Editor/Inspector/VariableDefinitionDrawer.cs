@@ -69,10 +69,11 @@ namespace Kairou.Editor
                 }
             });
 
-            root.RegisterCallbackOnce<GeometryChangedEvent>(evt =>
+            root.RegisterCallback<GeometryChangedEvent>(evt =>
             {
                 root.Query<Label>().Where(x => x.ClassListContains("unity-property-field__label")).ForEach(x =>
                 {
+                    if (x == null) return;
                     x.style.minWidth = _labelWidth;
                     x.style.width = _labelWidth;
                 });
