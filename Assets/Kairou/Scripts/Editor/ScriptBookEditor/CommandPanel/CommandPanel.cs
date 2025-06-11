@@ -14,7 +14,7 @@ namespace Kairou.Editor
     {
         VisualElement _header;
         ScrollView _bodyRoot;
-        LightManagedReferenceField _propertyField;
+        PropertyField _propertyField;
 
         bool IsInitialized => _bodyRoot != null;
 
@@ -92,8 +92,8 @@ namespace Kairou.Editor
             /* body*/ {
                 _bodyRoot = new ScrollView() { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
                 _bodyRoot.style.flexGrow = 1;
-                _propertyField = new(onCommandChanged);
-                //_propertyField.RegisterValueChangeCallback(evt => _onCommandChanged?.Invoke());
+                _propertyField = new PropertyField();
+                _propertyField.RegisterValueChangeCallback(evt => onCommandChanged?.Invoke());
                 _propertyField.style.display = DisplayStyle.Flex;
                 _bodyRoot.Add(_propertyField);
                 parent.Add(_bodyRoot);
@@ -119,13 +119,15 @@ namespace Kairou.Editor
             _propertyField.Unbind();
             if (serializedObject == null || commandPropertyPath == null)
             {
+                _propertyField.bindingPath = null;
                 _propertyField.style.display = DisplayStyle.None;
                 UpdateHeader(null);
                 return;
             }
 
             var commandProp = serializedObject.FindProperty(commandPropertyPath);
-            _propertyField.Attach(commandProp);
+            _propertyField.bindingPath = commandPropertyPath;
+            _propertyField.Bind(serializedObject);
             _propertyField.style.display = DisplayStyle.Flex;
 
             UpdateHeader(commandProp);
@@ -133,7 +135,7 @@ namespace Kairou.Editor
 
         public void Refresh()
         {
-            _propertyField.Refresh();
+            
         }
 
         void UpdateHeader(SerializedProperty commandProp)

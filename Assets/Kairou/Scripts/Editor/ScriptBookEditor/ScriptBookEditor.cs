@@ -115,7 +115,7 @@ namespace Kairou.Editor
                 _pageListPanelUXML,
                 (bookId, pageIndex) =>
                 {
-                    SetPageIndex(pageIndex);
+                    OnPageIndexChanged(pageIndex);
                 },
                 () =>
                 {
@@ -127,7 +127,10 @@ namespace Kairou.Editor
             _commandListPanel.Initialize(
                 centerPane,
                 _commandListPanelUXML,
-                (bookId, pageIndex, commandIndex) => SetCommandIndex(commandIndex),
+                (bookId, pageIndex, commandIndex) =>
+                {
+                    OnCommandIndexChanged(commandIndex);
+                },
                 () => {_serializedObject.UpdateIfRequiredOrScript();}
             );
 
@@ -155,8 +158,8 @@ namespace Kairou.Editor
                 _variablePanelUXML,
                 () =>
                 {
-                    _commandListPanel.Refresh();
                     _commandPanel.Refresh();
+                    _commandListPanel.Refresh();
                 }
             );
 
@@ -239,6 +242,27 @@ namespace Kairou.Editor
             }
             _commandPanel.Bind(_serializedObject, _commandProp?.propertyPath);
         }
+        
+        void OnPageIndexChanged(int pageIndex)
+        {
+            SetPageIndex(pageIndex);
+            // VisualElementへBindをするとポーリング処理が発生する。
+            // Bindを同じタイミングで行えば、ポーリング処理は一本化されるが、一部要素のみ再度Bindを行うとポーリングが新たに発生し
+            // 元のポーリングと二重で走ることになる。
+            // オブジェクトのサイズが大きくなると、ポーリングの度に発生するSerializedObject.UpdateIfRequiredOrScript()
+            // がそれなりのコストになるため、ポーリングの一本化のため、一部の要素にBindする場合は全ての要素にBindし直す。
+            // オブジェクトのサイズが大きくなることを想定するならBindはなるべく避けたい。
+            // Bindもそれなりのコストがかかることに注意
+            _variablePanel.RebindBookVariable();
+        }
+
+        void OnCommandIndexChanged(int commandIndex)
+        {
+            SetCommandIndex(commandIndex);
+            // OnPageIndexChangedのコメントを参照
+            _variablePanel.RebindBookVariable();
+            _variablePanel.RebindPageVariable();
+        }
 
         void Reload()
         {
@@ -300,7 +324,6 @@ namespace Kairou.Editor
             _headerPanel.OnUndoRedoPerformed();
             _pageListPanel.OnUndoRedoPerformed();
             _commandListPanel.OnUndoRedoPerformed();
-            _variablePanel.OnUndoRedoPerformed();
         }
     }
 }
