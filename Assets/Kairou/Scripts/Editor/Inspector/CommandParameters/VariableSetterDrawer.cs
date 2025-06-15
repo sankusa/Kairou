@@ -18,11 +18,11 @@ namespace Kairou
         static VariableSetterDrawer()
         {
             _variableTypes = VariableTypeCache
-                .GetVariableType()
+                .GetVariableTargetType()
                 .Prepend(null)
                 .ToArray();
             _variableTypeNames = VariableTypeCache
-                .GetVariableType()
+                .GetVariableTargetType()
                 .Select(x => TypeNameUtil.ConvertToPrimitiveTypeName(x.Name))
                 .Prepend("null")
                 .ToArray();

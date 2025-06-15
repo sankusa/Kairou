@@ -1,4 +1,5 @@
 using System;
+using Kairou.DataStore;
 using UnityEngine;
 
 namespace Kairou
@@ -87,23 +88,60 @@ namespace Kairou
 
         void SetToStoreIfNeeded()
         {
-            if (_definition.Store)
+            if (_definition.DataBankLink == DataBankLinkType.None)
             {
-                IDataStore.Instance.SetValue(_definition.StoreKey, _value);
+
+            }
+            else if (_definition.DataBankLink == DataBankLinkType.DefaultStorage)
+            {
+                if (VariableTypeCache<T>.VariableType is IDataStorageAccessor<T> linkableType)
+                {
+                    linkableType.Set(DataBank.GetStorage(), _definition.DataKey, _value);
+                }
+            }
+            else if (_definition.DataBankLink == DataBankLinkType.SelectStorage)
+            {
+                if (VariableTypeCache<T>.VariableType is IDataStorageAccessor<T> linkableType)
+                {
+                    linkableType.Set(DataBank.GetStorage(_definition.StorageKey), _definition.DataKey, _value);
+                }
             }
         }
 
         void SyncWithStoreIfNeeded()
         {
-            if (_definition.Store)
+            if (_definition.DataBankLink == DataBankLinkType.None)
             {
-                if (IDataStore.Instance.TryGetValue(_definition.Name, out T value))
+
+            }
+            else if (_definition.DataBankLink == DataBankLinkType.DefaultStorage)
+            {
+                if (VariableTypeCache<T>.VariableType is IDataStorageAccessor<T> accessor)
                 {
-                    _value = value;
+                    var storage = DataBank.GetStorage();
+                    if (accessor.TryGet(storage, _definition.DataKey, out T value))
+                    {
+                        _value = value;
+                    }
+                    else
+                    {
+                        accessor.Set(storage, _definition.DataKey, _value);
+                    }
                 }
-                else
+            }
+            else if (_definition.DataBankLink == DataBankLinkType.SelectStorage)
+            {
+                if (VariableTypeCache<T>.VariableType is IDataStorageAccessor<T> accessor)
                 {
-                    IDataStore.Instance.SetValue(_definition.StoreKey, _value);
+                    var storage = DataBank.GetStorage(_definition.StorageKey);
+                    if (accessor.TryGet(storage, _definition.DataKey, out T value))
+                    {
+                        _value = value;
+                    }
+                    else
+                    {
+                        accessor.Set(storage, _definition.DataKey, _value);
+                    }
                 }
             }
         }

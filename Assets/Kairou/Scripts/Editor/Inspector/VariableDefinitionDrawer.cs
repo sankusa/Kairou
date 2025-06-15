@@ -10,7 +10,7 @@ namespace Kairou.Editor
     [CustomPropertyDrawer(typeof(VariableDefinition<>))]
     public class VariableDefinitionDrawer : PropertyDrawer
     {
-        const float _labelWidth = 80;
+        const float _labelWidth = 90;
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
@@ -18,8 +18,14 @@ namespace Kairou.Editor
 
             var nameProp = property.FindPropertyRelative("_name");
             var defaultValueProp = property.FindPropertyRelative("_defaultValue");
-            var storeProp = property.FindPropertyRelative("_store");
-            var storeKeyProp = property.FindPropertyRelative("_storeKey");
+            var dataBankLinkProp = property.FindPropertyRelative("_dataBankLink");
+            var storageKeyProp = property.FindPropertyRelative("_storageKey");
+            var dataKeyProp = property.FindPropertyRelative("_dataKey");
+
+            var variableDefinition = property.GetObject() as VariableDefinition;
+            var variableType = VariableTypeCache.GetVariableType(variableDefinition.TargetType);
+            var variableTypeType = variableType.GetType();
+            bool accessableToStorage = typeof(IDataStorageAccessor<>).MakeGenericType(variableDefinition.TargetType).IsAssignableFrom(variableTypeType);
 
             string typeFullName = property.managedReferenceFullTypename;
             var typeArgTypeFullName = typeFullName.AsSpan()[(typeFullName.IndexOf('[') + 2)..typeFullName.LastIndexOf(',')];
@@ -52,22 +58,34 @@ namespace Kairou.Editor
                 root.Add(new PropertyField(defaultValueProp));
             }
             
-            var storeField = new PropertyField(storeProp);
-            root.Add(storeField);
-            var storeKeyField = new PropertyField(storeKeyProp);
-            root.Add(storeKeyField);
-
-            storeField.RegisterValueChangeCallback(_ =>
+            if (accessableToStorage)
             {
-                if (storeProp.boolValue)
+                var dataBankLinkField = new PropertyField(dataBankLinkProp);
+                root.Add(dataBankLinkField);
+                var storageKeyField = new PropertyField(storageKeyProp);
+                root.Add(storageKeyField);
+                var dataKeyField = new PropertyField(dataKeyProp);
+                root.Add(dataKeyField);
+
+                dataBankLinkField.RegisterValueChangeCallback(_ =>
                 {
-                    storeKeyField.style.display = DisplayStyle.Flex;
-                }
-                else
-                {
-                    storeKeyField.style.display = DisplayStyle.None;
-                }
-            });
+                    if (dataBankLinkProp.enumValueIndex == (int)DataBankLinkType.None)
+                    {
+                        storageKeyField.style.display = DisplayStyle.None;
+                        dataKeyField.style.display = DisplayStyle.None;
+                    }
+                    else if (dataBankLinkProp.enumValueIndex == (int)DataBankLinkType.DefaultStorage)
+                    {
+                        storageKeyField.style.display = DisplayStyle.None;
+                        dataKeyField.style.display = DisplayStyle.Flex;
+                    }
+                    else if (dataBankLinkProp.enumValueIndex == (int)DataBankLinkType.SelectStorage)
+                    {
+                        storageKeyField.style.display = DisplayStyle.Flex;
+                        dataKeyField.style.display = DisplayStyle.Flex;
+                    }
+                });
+            }
 
             root.RegisterCallback<GeometryChangedEvent>(evt =>
             {
@@ -86,8 +104,14 @@ namespace Kairou.Editor
         {
             var nameProp = property.FindPropertyRelative("_name");
             var defaultValueProp = property.FindPropertyRelative("_defaultValue");
-            var storeProp = property.FindPropertyRelative("_store");
-            var storeKeyProp = property.FindPropertyRelative("_storeKey");
+            var dataBankLinkProp = property.FindPropertyRelative("_dataBankLink");
+            var storageKeyProp = property.FindPropertyRelative("_storageKey");
+            var dataKeyProp = property.FindPropertyRelative("_dataKey");
+
+            var variableDefinition = property.GetObject() as VariableDefinition;
+            var variableType = VariableTypeCache.GetVariableType(variableDefinition.TargetType);
+            var variableTypeType = variableType.GetType();
+            bool accessableToStorage = typeof(IDataStorageAccessor<>).MakeGenericType(variableDefinition.TargetType).IsAssignableFrom(variableTypeType);
 
             var typeRect = new Rect(position.x - 12, position.y, position.width + 12, EditorGUIUtility.singleLineHeight);
             position.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
@@ -120,15 +144,31 @@ namespace Kairou.Editor
                 EditorGUI.PropertyField(defaultValueRect, defaultValueProp, true);
             }
 
-            var storeRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
-            position.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-            EditorGUI.PropertyField(storeRect, storeProp);
-
-            if (storeProp.boolValue)
+            if (accessableToStorage)
             {
-                var storeKeyRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+                var dataBankLinkRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
                 position.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-                EditorGUI.PropertyField(storeKeyRect, storeKeyProp);
+                EditorGUI.PropertyField(dataBankLinkRect, dataBankLinkProp);
+
+                if (dataBankLinkProp.enumValueIndex == (int)DataBankLinkType.None)
+                {
+
+                }
+                else if (dataBankLinkProp.enumValueIndex == (int)DataBankLinkType.DefaultStorage)
+                {
+                    var storeKeyRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+                    position.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                    EditorGUI.PropertyField(storeKeyRect, dataKeyProp);
+                }
+                else if (dataBankLinkProp.enumValueIndex == (int)DataBankLinkType.SelectStorage)
+                {
+                    var storeKeyRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+                    position.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                    EditorGUI.PropertyField(storeKeyRect, storageKeyProp);
+                    var dataKeyRect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+                    position.yMin += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                    EditorGUI.PropertyField(dataKeyRect, dataKeyProp);
+                }
             }
         }
 
@@ -136,8 +176,16 @@ namespace Kairou.Editor
         {
             float height = 0;
 
+            var nameProp = property.FindPropertyRelative("_name");
             var defaultValueProp = property.FindPropertyRelative("_defaultValue");
-            var storeProp = property.FindPropertyRelative("_store");
+            var dataBankLinkProp = property.FindPropertyRelative("_dataBankLink");
+            var storageKeyProp = property.FindPropertyRelative("_storageKey");
+            var dataKeyProp = property.FindPropertyRelative("_dataKey");
+
+            var variableDefinition = property.GetObject() as VariableDefinition;
+            var variableType = VariableTypeCache.GetVariableType(variableDefinition.TargetType);
+            var variableTypeType = variableType.GetType();
+            bool accessableToStorage = typeof(IDataStorageAccessor<>).MakeGenericType(variableDefinition.TargetType).IsAssignableFrom(variableTypeType);
 
             height += EditorGUIUtility.singleLineHeight;
             height += EditorGUIUtility.standardVerticalSpacing;
@@ -153,12 +201,24 @@ namespace Kairou.Editor
                 height += EditorGUI.GetPropertyHeight(defaultValueProp, true);
                 height += EditorGUIUtility.standardVerticalSpacing;
             }
-            height += EditorGUIUtility.singleLineHeight;
-            height += EditorGUIUtility.standardVerticalSpacing;
-            if (storeProp.boolValue)
+
+            if (accessableToStorage)
             {
                 height += EditorGUIUtility.singleLineHeight;
                 height += EditorGUIUtility.standardVerticalSpacing;
+                if (dataBankLinkProp.enumValueIndex != (int)DataBankLinkType.None) {}
+                else if (dataBankLinkProp.enumValueIndex == (int)DataBankLinkType.DefaultStorage)
+                {
+                    height += EditorGUIUtility.singleLineHeight;
+                    height += EditorGUIUtility.standardVerticalSpacing;
+                }
+                else if (dataBankLinkProp.enumValueIndex == (int)DataBankLinkType.SelectStorage)
+                {
+                    height += EditorGUIUtility.singleLineHeight;
+                    height += EditorGUIUtility.standardVerticalSpacing;
+                    height += EditorGUIUtility.singleLineHeight;
+                    height += EditorGUIUtility.standardVerticalSpacing;
+                }
             }
 
             return height;

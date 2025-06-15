@@ -1,4 +1,5 @@
 using System;
+using Kairou.DataStore;
 
 namespace Kairou
 {
@@ -28,5 +29,11 @@ namespace Kairou
         public virtual T Multiply(T value1, T value2) => throw new NotImplementedException();
         public virtual T Divide(T value1, T value2) => throw new NotImplementedException();
         public virtual T Modulo(T value1, T value2) => throw new NotImplementedException();
+    }
+
+    public interface IDataStorageAccessor<T>
+    {
+        bool TryGet(IDataStorage storage, string key, out T value);
+        void Set(IDataStorage storage, string key, T value);
     }
 }

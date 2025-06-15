@@ -5,13 +5,15 @@ namespace Kairou
 {
     public static class VariableTypeCache
     {
-        public static IEnumerable<Type> GetVariableType()
+        public static IEnumerable<Type> GetVariableTargetType()
         {
             foreach (var key in VariableTypeDictionary.Dic.Keys)
             {
                 yield return key;
             }
         }
+
+        public static VariableType GetVariableType(Type type) => VariableTypeDictionary.Dic[type];
     }
 
     public static class VariableTypeCache<T>
