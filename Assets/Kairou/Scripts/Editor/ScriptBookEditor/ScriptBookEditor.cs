@@ -172,6 +172,10 @@ namespace Kairou.Editor
             {
                 if (_serializedObject == null || _serializedObject.targetObject != _bookHolder.Owner)
                 {
+                    if (SerializationUtility.HasManagedReferencesWithMissingTypes(_bookHolder.Owner))
+                    {
+                        EditorUtility.DisplayDialog("Warning", "Book has managed references with missing types.\nThis may destroy their data when saving.\nIf you edit it in its current state, missing-type data may be lost.\nPlease consider using [UnityEngine.Scripting.APIUpdating.MovedFrom] attributes or other methods to aid in migration.", "OK");
+                    }
                     _serializedObject = new SerializedObject(_bookHolder.Owner);
                 }
                 _bookProp = _serializedObject.FindProperty(_bookHolder.BookPropertyPath);

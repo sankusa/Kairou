@@ -127,14 +127,6 @@ namespace Kairou.Editor
             _listView.bindItem = (element, i) =>
             {
                 element.userData = i;
-                Command command = _bookHolder.Book.Pages[_pageIndex].Commands[i];
-                Type commandType = command.GetType();
-                AsyncCommand asyncCommand = command as AsyncCommand;
-                CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
-                var commandProfile = CommandDatabase.GetProfile(commandType);
-                var icon = commandProfile.Icon;
-                var iconColor = commandProfile.IconColor;
-                int blockLevel = command.CalculateBlockLevel();
 
                 element.parent.style.paddingTop = 0;
                 element.parent.style.paddingBottom = 0;
@@ -145,30 +137,58 @@ namespace Kairou.Editor
                 rowNumberLabel.text = (i + 1).ToString();
                 rowNumberLabel.style.width = _bookHolder.Book.Pages[_pageIndex].Commands.Count.ToString().Length * 8 + 2;
                 var asyncCommandMark = element.Q<VisualElement>("AsyncCommandMark");
-                asyncCommandMark.visible = asyncCommand != null;
                 var notAwaitIcon = element.Q<VisualElement>("NotAwaitIcon");
-                notAwaitIcon.style.display = (asyncCommand != null && asyncCommand.AsyncCommandParameter.Await == false) ? DisplayStyle.Flex : DisplayStyle.None;
                 var summaryBox = element.Q<VisualElement>("SummaryBox");
-                summaryBox.style.backgroundColor = commandProfile.BackgoundColor;
                 var iconBox = element.Q<VisualElement>("IconBox");
-                iconBox.style.display = icon == null ? DisplayStyle.None : DisplayStyle.Flex;
                 var iconImage = iconBox.Q<Image>();
-                iconImage.image = icon;
-                iconImage.tintColor = iconColor;
                 var nameLabel = element.Q<Label>("NameLabel");
-                nameLabel.text = commandProfile.Name;
-                nameLabel.style.color = commandProfile.LabelColor;
                 var summaryLabel = element.Q<Label>("SummaryLabel");
-                summaryLabel.text = command.GetSummary();
                 summaryLabel.style.color = GUISkin.Instance.DefaultSummaryColor;
                 var indentBox = element.Q<VisualElement>("IndentBox");
-                indentBox.style.display = blockLevel == 0 ? DisplayStyle.None : DisplayStyle.Flex;
-                indentBox.style.width = 10 * blockLevel;
                 indentBox.style.flexShrink = 0;
                 indentBox.style.flexGrow = 0;
-
                 var summaryMainBox = element.Q<VisualElement>("SummaryMainBox");
                 var summaryIndent = element.Q<VisualElement>("SummaryIndent");
+                var errorBox = element.Q<VisualElement>("ErrorBox");
+
+                Command command = _bookHolder.Book.Pages[_pageIndex].Commands[i];
+                if (command == null)
+                {
+                    asyncCommandMark.visible = false;
+                    notAwaitIcon.style.display = DisplayStyle.None;
+                    summaryBox.style.backgroundColor = Color.clear;
+                    iconBox.style.display = DisplayStyle.None;
+                    iconImage.image = null;
+                    iconImage.tintColor = Color.clear;
+                    nameLabel.text = "Null";
+                    nameLabel.style.color = Color.red;
+                    summaryLabel.text = string.Empty;
+                    indentBox.style.display = DisplayStyle.None;
+                    summaryIndent.style.display = DisplayStyle.None;
+                    errorBox.style.display = DisplayStyle.None;
+                    return;
+                }
+
+                Type commandType = command.GetType();
+                AsyncCommand asyncCommand = command as AsyncCommand;
+                CommandInfoAttribute commandInfo = command.GetType().GetCustomAttribute<CommandInfoAttribute>();
+                var commandProfile = CommandDatabase.GetProfile(commandType);
+                var icon = commandProfile.Icon;
+                var iconColor = commandProfile.IconColor;
+                int blockLevel = command.CalculateBlockLevel();
+
+                asyncCommandMark.visible = asyncCommand != null;
+                notAwaitIcon.style.display = (asyncCommand != null && asyncCommand.AsyncCommandParameter.Await == false) ? DisplayStyle.Flex : DisplayStyle.None;
+                summaryBox.style.backgroundColor = commandProfile.BackgoundColor;
+                iconBox.style.display = icon == null ? DisplayStyle.None : DisplayStyle.Flex;
+                iconImage.image = icon;
+                iconImage.tintColor = iconColor;
+                nameLabel.text = commandProfile.Name;
+                nameLabel.style.color = commandProfile.LabelColor;
+                summaryLabel.text = command.GetSummary();
+                indentBox.style.display = blockLevel == 0 ? DisplayStyle.None : DisplayStyle.Flex;
+                indentBox.style.width = 10 * blockLevel;
+
                 if (commandProfile.SummaryPositionType == SummaryPositionType.Right)
                 {
                     summaryMainBox.style.flexDirection = FlexDirection.Row;
@@ -187,12 +207,10 @@ namespace Kairou.Editor
                 string errorMessage = string.Join('\n', command.InvokeValidate());
                 if (string.IsNullOrEmpty(errorMessage))
                 {
-                    var errorBox = element.Q<VisualElement>("ErrorBox");
                     errorBox.style.display = DisplayStyle.None;
                 }
                 else
                 {
-                    var errorBox = element.Q<VisualElement>("ErrorBox");
                     errorBox.style.display = DisplayStyle.Flex;
 
                     var helpBox = errorBox.Q<HelpBox>();

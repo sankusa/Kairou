@@ -117,6 +117,7 @@ namespace Kairou.Editor
 
         public void RebindPageVariable()
         {
+            if (_pageVariablesProp == null) return;
             BindPageVariable(_pageVariablesProp.propertyPath.Substring(0, _pageVariablesProp.propertyPath.LastIndexOf('.')));
         }
 

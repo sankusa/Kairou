@@ -146,9 +146,9 @@ namespace Kairou.Editor
             var scriptField = _header.Q<ObjectField>("ScriptField");
             var delayedFieldToggle = header.Q<ToolbarToggle>("DelayedField");
 
-            if (commandProp != null)
+
+            if (commandProp != null && commandProp?.GetObject() is Command command)
             {
-                Command command = commandProp.GetObject() as Command;
                 Type commandType = command.GetType();
                 var commandProfile = CommandDatabase.Load().GetProfile(commandType);
 
