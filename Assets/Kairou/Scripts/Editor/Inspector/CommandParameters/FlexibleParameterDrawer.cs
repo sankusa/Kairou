@@ -58,6 +58,15 @@ namespace Kairou.Editor
                 mainBox.Add(textField);
                 valueField = textField;
             }
+            else if (valueProp.propertyType == SerializedPropertyType.String)
+            {
+                var textField = new TextField();
+                textField.label = "Value";
+                textField.multiline = true;
+                textField.BindProperty(valueProp);
+                mainBox.Add(textField);
+                valueField = textField;
+            }
             else
             {
                 valueField = new PropertyField(valueProp);

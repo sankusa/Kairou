@@ -53,6 +53,14 @@ namespace Kairou.Editor
                 textField.labelElement.style.width = _labelWidth;
                 root.Add(textField);
             }
+            else if (defaultValueProp.propertyType == SerializedPropertyType.String)
+            {
+                var textField = new TextField();
+                textField.multiline = true;
+                textField.label = "Default Value";
+                textField.BindProperty(defaultValueProp);
+                root.Add(textField);
+            }
             else
             {
                 root.Add(new PropertyField(defaultValueProp));
@@ -89,7 +97,7 @@ namespace Kairou.Editor
 
             root.RegisterCallback<GeometryChangedEvent>(evt =>
             {
-                root.Query<Label>().Where(x => x.ClassListContains("unity-property-field__label")).ForEach(x =>
+                root.Query<Label>().Where(x => x.ClassListContains("unity-base-field__label")).ForEach(x =>
                 {
                     if (x == null) return;
                     x.style.minWidth = _labelWidth;
