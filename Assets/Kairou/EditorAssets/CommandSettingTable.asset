@@ -17,9 +17,9 @@ MonoBehaviour:
     _values:
     - _typeFullName: Kairou.LogCommand
       _name: log
-      _category: Debug
-      _icon: {fileID: 2800000, guid: e75eca1da841e6e4da960dccfb9c020f, type: 3}
-      _iconColor: {r: 0, g: 0, b: 0, a: 0}
+      _category: Develop
+      _icon: {fileID: 0}
+      _iconColor: {r: 0.5803922, g: 0.62352943, b: 0.39607847, a: 1}
       _summaryPosition: 1
       _script: {fileID: 11500000, guid: 02759cb6298aa824f838600ee371ec53, type: 3}
     - _typeFullName: Kairou.ExitCommand
@@ -162,3 +162,17 @@ MonoBehaviour:
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
       _summaryPosition: 0
       _script: {fileID: 11500000, guid: 62056ed081abf084faff9df98227d2a2, type: 3}
+    - _typeFullName: Kairou.UnityEventCommand
+      _name: UnityEvent
+      _category: Unity
+      _icon: {fileID: 0}
+      _iconColor: {r: 0, g: 0, b: 0, a: 0}
+      _summaryPosition: 0
+      _script: {fileID: 11500000, guid: 60f2205016e166446ad214e379c22fd3, type: 3}
+    - _typeFullName: Kairou.CommentCommand
+      _name: comment
+      _category: Develop
+      _icon: {fileID: 0}
+      _iconColor: {r: 0, g: 0, b: 0, a: 0}
+      _summaryPosition: 0
+      _script: {fileID: 11500000, guid: 60f2205016e166446ad214e379c22fd3, type: 3}

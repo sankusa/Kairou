@@ -45,3 +45,15 @@ MonoBehaviour:
       _defaultCommandIconColor: {r: 0.38861695, g: 0.6698113, b: 0.59708863, a: 1}
       _labelColor: {r: 0.39607844, g: 0.62352943, b: 0.5637317, a: 1}
       _backgroundColor: {r: 0.14128695, g: 0.23584908, b: 0.21133298, a: 1}
+    - _name: Unity
+      _priority: 1000
+      _defaultCommandIcon: {fileID: 2800000, guid: fb2032c7eb3033d459208105e6082b3b, type: 3}
+      _defaultCommandIconColor: {r: 0.4627451, g: 0.5647059, b: 0.6431373, a: 1}
+      _labelColor: {r: 0.46297613, g: 0.5649951, b: 0.6415094, a: 1}
+      _backgroundColor: {r: 0.16078432, g: 0.1764706, b: 0.19215688, a: 1}
+    - _name: Develop
+      _priority: 1000
+      _defaultCommandIcon: {fileID: 0}
+      _defaultCommandIconColor: {r: 0.6698113, g: 0.6698113, b: 0.6698113, a: 1}
+      _labelColor: {r: 0.5471698, g: 0.5471698, b: 0.5471698, a: 1}
+      _backgroundColor: {r: 0.1509434, g: 0.1509434, b: 0.1509434, a: 1}
