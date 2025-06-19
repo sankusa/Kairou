@@ -18,6 +18,9 @@ namespace Kairou
         public void GoToIndex(int commandIndex) => _pageProcess.GoToIndex(commandIndex);
         public void GoToEnd() => _pageProcess.GoToEnd();
 
+        public void Pause() => _pageProcess.Pause();
+        public void Resume() => _pageProcess.Resume();
+
         public void PushBlock(Block block) => _pageProcess.PushBlock(block);
         public Block PopBlock() => _pageProcess.PopBlock();
         public Block PeekBlock() => _pageProcess.PeekBlock();

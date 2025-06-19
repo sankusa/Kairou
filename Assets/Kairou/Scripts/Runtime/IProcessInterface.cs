@@ -10,6 +10,9 @@ namespace Kairou
         void GoToIndex(int commandIndex);
         void GoToEnd();
 
+        void Pause();
+        void Resume();
+
         void PushBlock(Block block);
         Block PopBlock();
         Block PeekBlock();

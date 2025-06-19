@@ -40,6 +40,9 @@ namespace Kairou
 
         int _currentCommandIndex;
         public int NextCommandIndex { get; private set; }
+
+        bool _isPaused;
+        public bool IsPaused => _isPaused;
         
         public SubsequentProcessInfo SubsequentProcessInfo { get; set; }
 
@@ -162,6 +165,11 @@ namespace Kairou
                         throw;
                     }
 
+                    while (_isPaused)
+                    {
+                        await UniTask.Yield(_cts.Token);
+                    }
+
                     // ブロックの範囲を越えていたらブロックを破棄
                     while(true)
                     {
@@ -228,6 +236,9 @@ namespace Kairou
         {
             NextCommandIndex = _page.Commands.Count;
         }
+
+        public void Pause() => _isPaused = true;
+        public void Resume() => _isPaused = false;
 
         public void PushBlock(Block block) => _blockStack.Push(block);
 
