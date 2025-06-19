@@ -111,13 +111,13 @@ namespace Kairou
             }
         }
 
-        public void GetPreloadTargetBooks(ICollection<ScriptBook> books)
+        public void GetChainPreloadTargetBooks(ICollection<ScriptBook> books)
         {
             foreach (Page page in _pages)
             {
                 for (int i = 0; i < page.Commands.Count; i++)
                 {
-                    page.Commands[i].GetPreloadTargetBooks(books);
+                    page.Commands[i].GetChainPreloadTargetBooks(books);
                 }
             }
         }

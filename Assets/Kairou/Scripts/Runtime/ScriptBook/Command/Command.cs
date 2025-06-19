@@ -59,7 +59,7 @@ namespace Kairou
             yield break;
         }
 
-        public virtual void GetPreloadTargetBooks(ICollection<ScriptBook> books) {}
+        public virtual void GetChainPreloadTargetBooks(ICollection<ScriptBook> books) {}
 
 #if UNITY_EDITOR
         public Command Copy()

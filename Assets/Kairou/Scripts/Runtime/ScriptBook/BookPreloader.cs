@@ -41,7 +41,7 @@ namespace Kairou
                 _preloadKeys.Add(preloadKey);
 
                 var bookSet = _preloadTargetBookPool.Rent();
-                _book.GetPreloadTargetBooks(bookSet);
+                _book.GetChainPreloadTargetBooks(bookSet);
                 foreach (ScriptBook book in bookSet)
                 {
                     await book.Preloader.PreloadAsync(preloadKey);
@@ -84,7 +84,7 @@ namespace Kairou
             _preloadKeys.Remove(preloadKey);
 
             var bookSet = _preloadTargetBookPool.Rent();
-            _book.GetPreloadTargetBooks(bookSet);
+            _book.GetChainPreloadTargetBooks(bookSet);
             foreach (ScriptBook book in bookSet)
             {
                 book.Preloader.Release(preloadKey);

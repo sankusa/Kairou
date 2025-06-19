@@ -10,6 +10,8 @@ namespace Kairou
         [GenerateValidation]
         [SerializeField] BookAndPageSelector _target;
 
+        [SerializeField] bool _chainPreload = true;
+
         [CommandExecute]
         void Execute(IProcessInterface process)
         {
@@ -36,10 +38,10 @@ namespace Kairou
             }
         }
 
-        public override void GetPreloadTargetBooks(ICollection<ScriptBook> books)
+        public override void GetChainPreloadTargetBooks(ICollection<ScriptBook> books)
         {
             if (_target.Book == null) return;
-            books.Add(_target.Book);
+            if (_chainPreload) books.Add(_target.Book);
         }
     }
 }
