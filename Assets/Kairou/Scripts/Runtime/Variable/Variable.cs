@@ -10,7 +10,7 @@ namespace Kairou
         public string Name => _definition.Name;
 
         public abstract object ValueAsObject { get; }
-        public abstract Type Type { get; }
+        public abstract Type TargetType { get; }
 
         internal abstract void ReturnToPool();
 
@@ -75,7 +75,7 @@ namespace Kairou
         }
 
         public override object ValueAsObject => Value;
-        public override Type Type => typeof(T);
+        public override Type TargetType => typeof(T);
 
         private Variable() {}
 
@@ -186,7 +186,7 @@ namespace Kairou
             _variable = variable;
             if (variable != null && variable.CanConvertTo<T>() == false)
             {
-                throw new InvalidOperationException($"Variable<{variable.Type.Name}> cannot convert to {typeof(T).Name}. VariableName: {variable.Name}.");
+                throw new InvalidOperationException($"Variable<{variable.TargetType.Name}> cannot convert to {typeof(T).Name}. VariableName: {variable.Name}.");
             }
         }
         public readonly bool HasVariable => _variable != null;
@@ -203,7 +203,7 @@ namespace Kairou
             _variable = variable;
             if (variable != null && variable.CanConvertFrom<T>() == false)
             {
-                throw new InvalidOperationException($"Variable<{variable.Type.Name}> cannot convert from {typeof(T).Name}. VariableName: {variable.Name}.");
+                throw new InvalidOperationException($"Variable<{variable.TargetType.Name}> cannot convert from {typeof(T).Name}. VariableName: {variable.Name}.");
             }
         }
         public readonly bool HasVariable => _variable != null;
@@ -220,7 +220,7 @@ namespace Kairou
             _variable = variable;
             if (variable != null && variable.CanMutuallyConvert<T>() == false)
             {
-                throw new InvalidOperationException($"Variable<{variable.Type.Name}> cannot convert mutually {typeof(T).Name}. VariableName: {variable.Name}.");
+                throw new InvalidOperationException($"Variable<{variable.TargetType.Name}> cannot convert mutually {typeof(T).Name}. VariableName: {variable.Name}.");
             }
         }
         public readonly bool HasVariable => _variable != null;

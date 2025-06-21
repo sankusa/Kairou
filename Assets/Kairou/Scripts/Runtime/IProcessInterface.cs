@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -39,12 +40,16 @@ namespace Kairou
 
         Variable FindVariable(string name, TargetVariableScope targetScope = TargetVariableScope.None);
         Variable<T> FindVariable<T>(string name, TargetVariableScope targetScope = TargetVariableScope.None);
+        Variable FindVariable(Type type, string name, TargetVariableScope targetScope = TargetVariableScope.None);
         VariableValueGetter<T> FindVariableValueGetter<T>(string name, TargetVariableScope targetScope = TargetVariableScope.None);
         VariableValueSetter<T> FindVariableValueSetter<T>(string name, TargetVariableScope targetScope = TargetVariableScope.None);
         VariableValueAccessor<T> FindVariableValueAccessor<T>(string name, TargetVariableScope targetScope = TargetVariableScope.None);
 
         T Resolve<T>();
+        object Resolve(Type type);
         bool TryResolve<T>(out T value);
+        bool TryResolve(Type type, out object value);
         IEnumerable<T> ResolveAll<T>();
+        IEnumerable<object> ResolveAll(Type type);
     }
 }

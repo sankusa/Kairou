@@ -64,6 +64,11 @@ namespace Kairou
             return FindVariableInternal(_pageProcess, name, targetScope, static variable => variable is Variable<T>) as Variable<T>;
         }
 
+        public Variable FindVariable(Type type, string name, TargetVariableScope targetScope = TargetVariableScope.None)
+        {
+            return FindVariableInternal(_pageProcess, name, targetScope, variable => variable.TargetType == type);
+        }
+
         public VariableValueGetter<T> FindVariableValueGetter<T>(string name, TargetVariableScope targetScope = TargetVariableScope.None)
         {
             return new VariableValueGetter<T>(FindVariableInternal(_pageProcess, name, targetScope, static variable => variable.CanConvertTo<T>()));
@@ -100,14 +105,29 @@ namespace Kairou
             return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.Resolve<T>();
         }
 
+        public object Resolve(Type type)
+        {
+            return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.Resolve(type);
+        }
+
         public bool TryResolve<T>(out T value)
         {
             return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.TryResolve(out value);
         }
 
+        public bool TryResolve(Type type, out object value)
+        {
+            return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.TryResolve(type, out value);
+        }
+
         public IEnumerable<T> ResolveAll<T>()
         {
             return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.ResolveAll<T>();
+        }
+
+        public IEnumerable<object> ResolveAll(Type type)
+        {
+            return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.ResolveAll(type);
         }
     }
 }

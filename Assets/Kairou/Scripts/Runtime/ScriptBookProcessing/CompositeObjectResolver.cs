@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 #if KAIROU_VCONTAINER_SUPPORT
@@ -76,6 +77,35 @@ namespace Kairou
             return default;
         }
 
+        public object Resolve(Type type)
+        {
+            foreach (IObjectResolver resolver in _resolvers)
+            {
+                object obj = resolver.Resolve(type);
+                if (obj != null) return obj;
+            }
+#if KAIROU_VCONTAINER_SUPPORT
+            if (_vcontainerResolver != null)
+            {
+                if (_vcontainerResolver.TryResolve(type, out var resolved)) return resolved;
+            }
+#endif
+#if KAIROU_EXTENJECT_SUPPORT
+            if (_extenjectDiContainer != null)
+            {
+                // TryResolve()は値型に対応していないため不使用
+                // 例外処理は重いので何とかしたい
+                try
+                {
+                    var resolved = _extenjectDiContainer.Resolve(type);
+                    if (resolved != null) return resolved;
+                }
+                catch (ZenjectException) {}
+            }
+#endif
+            return default;
+        }
+
         public bool TryResolve<T>(out T value)
         {
             foreach (IObjectResolver resolver in _resolvers)
@@ -117,6 +147,48 @@ namespace Kairou
             return false;
         }
 
+        public bool TryResolve(Type type, out object value)
+        {
+            foreach (IObjectResolver resolver in _resolvers)
+            {
+                object obj = resolver.Resolve(type);
+                if (obj != null)
+                {
+                    value = obj;
+                    return true;
+                }
+            }
+#if KAIROU_VCONTAINER_SUPPORT
+            if (_vcontainerResolver != null)
+            {
+                if (_vcontainerResolver.TryResolve(type, out var resolved))
+                {
+                    value = resolved;
+                    return true;
+                }
+            }
+#endif
+#if KAIROU_EXTENJECT_SUPPORT
+            if (_extenjectDiContainer != null)
+            {
+                // TryResolve()は値型に対応していないため不使用
+                // 例外処理は重いので何とかしたい
+                try
+                {
+                    var resolved = _extenjectDiContainer.Resolve(type);
+                    if (resolved != null)
+                    {
+                        value = resolved;
+                        return true;
+                    }
+                }
+                catch (ZenjectException) {}
+            }
+#endif
+            value = default;
+            return false;
+        }
+
         public IEnumerable<T> ResolveAll<T>()
         {
             foreach (IObjectResolver resolver in _resolvers)
@@ -138,6 +210,32 @@ namespace Kairou
                 foreach (T t in _extenjectDiContainer.ResolveAll<T>())
                 {
                     yield return t;
+                }
+            }
+#endif
+        }
+
+        public IEnumerable<object> ResolveAll(Type type)
+        {
+            foreach (IObjectResolver resolver in _resolvers)
+            {
+                foreach (var obj in resolver.ResolveAll(type))
+                {
+                    yield return obj;
+                }
+            }
+#if KAIROU_VCONTAINER_SUPPORT
+            if (_vcontainerResolver != null)
+            {
+                if (_vcontainerResolver.TryResolve(type, out var resolved)) yield return resolved;
+            }
+#endif
+#if KAIROU_EXTENJECT_SUPPORT
+            if (_extenjectDiContainer != null)
+            {
+                foreach (var obj in _extenjectDiContainer.ResolveAll(type))
+                {
+                    yield return obj;
                 }
             }
 #endif
