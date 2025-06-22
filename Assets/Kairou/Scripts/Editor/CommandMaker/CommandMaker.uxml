@@ -1,0 +1,40 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:VisualElement name="TypeArea" style="flex-grow: 1; flex-direction: row; align-items: center;">
+        <engine:Label text="Type" style="-unity-font-style: bold; margin-top: 0; margin-right: 4px; margin-bottom: 0; margin-left: 4px;" />
+        <Kairou.Editor.ToolbarSeparator />
+        <engine:Label name="TypeLabel" style="flex-grow: 1; flex-shrink: 1;" />
+        <engine:Button text="Select Type" name="TypeSelectButton" />
+    </engine:VisualElement>
+    <engine:VisualElement style="flex-grow: 0; flex-shrink: 0; height: 1px; background-color: rgb(34, 34, 34); margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px;" />
+    <engine:VisualElement name="MethodArea" style="flex-grow: 1; flex-direction: row; align-items: center;">
+        <engine:Label text="Method" style="-unity-font-style: bold; margin-top: 0; margin-right: 4px; margin-bottom: 0; margin-left: 4px;" />
+        <Kairou.Editor.ToolbarSeparator />
+        <engine:Label name="MethodLabel" style="flex-grow: 1; flex-shrink: 1;" />
+        <engine:Button text="SelectMethod" name="MethodSelectButton" />
+    </engine:VisualElement>
+    <engine:VisualElement style="flex-grow: 0; flex-shrink: 0; height: 1px; background-color: rgb(34, 34, 34); margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px;" />
+    <engine:VisualElement name="InstanceArea" style="flex-grow: 1; flex-direction: row; align-items: center;">
+        <engine:Label text="Instance" style="-unity-font-style: bold; margin-top: 0; margin-right: 4px; margin-bottom: 0; margin-left: 4px;" />
+        <Kairou.Editor.ToolbarSeparator />
+        <engine:VisualElement name="InstanceMainArea" style="flex-grow: 1;" />
+    </engine:VisualElement>
+    <engine:VisualElement style="flex-grow: 0; flex-shrink: 0; height: 1px; background-color: rgb(34, 34, 34); margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px;" />
+    <engine:Label text="Args" style="-unity-font-style: bold; margin-top: 0; margin-right: 4px; margin-bottom: 0; margin-left: 4px;" />
+    <engine:VisualElement name="ParameterArea" style="flex-grow: 1;" />
+    <engine:VisualElement style="flex-grow: 0; flex-shrink: 0; height: 1px; background-color: rgb(34, 34, 34); margin-top: 2px; margin-right: 2px; margin-bottom: 2px; margin-left: 2px;" />
+    <engine:VisualElement name="OtherHeader" style="flex-grow: 1; flex-direction: row; align-items: center;">
+        <engine:Label text="Other" style="-unity-font-style: bold; margin-top: 0; margin-right: 4px; margin-bottom: 0; margin-left: 4px;" />
+        <engine:Button text="Generate Names" name="NameGenerateButton" />
+    </engine:VisualElement>
+    <engine:TextField label="Namespace" name="NamespaceField" />
+    <engine:TextField label="ClassName" name="ClassNameField" />
+    <engine:VisualElement name="LocationArea" style="flex-grow: 1; flex-direction: row; align-items: center;">
+        <engine:TextField label="Location" enabled="false" name="LocationField" style="flex-grow: 1;" />
+        <engine:Button text="Select Folder" name="FolderSelectButton" />
+    </engine:VisualElement>
+    <engine:VisualElement name="FileNameArea" style="flex-grow: 1; flex-direction: row; align-items: center;">
+        <engine:TextField label="FileName" name="FileNameField" style="flex-grow: 1;" />
+        <engine:Label text=".cs" />
+    </engine:VisualElement>
+    <engine:Button text="Generate" name="GenerateButton" />
+</engine:UXML>

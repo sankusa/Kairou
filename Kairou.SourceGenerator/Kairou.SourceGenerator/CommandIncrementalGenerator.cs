@@ -163,28 +163,28 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
                 {
                     if (field.Type.IsSubclassOf(Symbols.VariableKey(compilation)))
                     {
-                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.Find(process).Value;");
+                        builder.AppendIndentedLine($"var {parameter.Name} = this.{fieldName}.Find(process).Value;");
                         if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
                         paramListBuilder.Append(parameter.Name);
                         continue;
                     }
                     else if (field.Type.IsSubclassOf(Symbols.VariableValueGetterKey(compilation)))
                     {
-                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.Find(process).GetValue();");
+                        builder.AppendIndentedLine($"var {parameter.Name} = this.{fieldName}.Find(process).GetValue();");
                         if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
                         paramListBuilder.Append(parameter.Name);
                         continue;
                     }
                     else if (field.Type.IsSubclassOf(Symbols.VariableValueAccessorKey(compilation)))
                     {
-                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.Find(process).GetValue();");
+                        builder.AppendIndentedLine($"var {parameter.Name} = this.{fieldName}.Find(process).GetValue();");
                         if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
                         paramListBuilder.Append(parameter.Name);
                         continue;
                     }
                     else if (field.Type.IsSubclassOf(Symbols.FlexibleParameter(compilation)))
                     {
-                        builder.AppendIndentedLine($"var {parameter.Name} = {fieldName}.ResolveValue(process);");
+                        builder.AppendIndentedLine($"var {parameter.Name} = this.{fieldName}.ResolveValue(process);");
                         if (paramListBuilder.Length > 0) paramListBuilder.Append(", ");
                         paramListBuilder.Append(parameter.Name);
                         continue;
