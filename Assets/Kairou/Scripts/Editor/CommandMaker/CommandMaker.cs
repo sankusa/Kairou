@@ -58,19 +58,15 @@ namespace Kairou.Editor
 
             var typeDropdown = new TypeAdvancedDropdown(new AdvancedDropdownState());
 
+            /* ---- Main ---- */
             var typeSelectButton = panel.Q<Button>("TypeSelectButton");
             typeSelectButton.clicked += () => typeDropdown.Show(typeSelectButton.parent.layout);
-
             var typeLabel = panel.Q<Label>("TypeLabel");
-
             var methodSelectButton = panel.Q<Button>("MethodSelectButton");
             methodSelectButton.style.display = DisplayStyle.None;
-
             var methodLabel = panel.Q<Label>("MethodLabel");
-
             var instanceArea = panel.Q<VisualElement>("InstanceMainArea");
             var parameterArea = panel.Q<VisualElement>("ParameterArea");
-
             var generateButton = panel.Q<Button>("GenerateButton");
             generateButton.enabledSelf = false;
 
@@ -89,6 +85,7 @@ namespace Kairou.Editor
             var fileNameField = panel.Q<TextField>("FileNameField");
             var folderSelectButton = panel.Q<Button>("FolderSelectButton");
 
+            /* ---- イベント登録 ---- */
             nameGenerateButton.clicked += () =>
             {
                 string name = $"Command_{_targetType.Name}_{_targetMethod.Name}";
@@ -103,25 +100,24 @@ namespace Kairou.Editor
                     locationField.value = selectedFolder.Substring(Application.dataPath.Length - "Assets".Length);
                 }
             };
-
             typeDropdown.OnSelected += SetTargetType;
-
             methodSelectButton.clicked += () =>
             {
                 var menu = new GenericMenu();
                 foreach (var method in _targetType.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
                 {
-                    menu.AddItem(new GUIContent(ToString(method)), false, () =>
+                    menu.AddItem(new GUIContent(method.GetDisplayLabel()), false, () =>
                     {
                         SetMethod(method);
                     });
                 }
                 menu.ShowAsContext();
             };
-
             generateButton.clicked += () =>
             {
-                ProjectWindowUtil.CreateScriptAssetWithContent(locationField.value + "/" + fileNameField.value + ".cs", GenerateCode());
+                ProjectWindowUtil.CreateScriptAssetWithContent(
+                    locationField.value + "/" + fileNameField.value + ".cs",
+                    GenerateCode(_targetType, _targetMethod, _instanceResolveWay, _argResolveWays, namespaceField.value, classNameField.value));
             };
 
             void SetTargetType(Type type)
@@ -135,7 +131,7 @@ namespace Kairou.Editor
             void SetMethod(MethodInfo methodInfo)
             {
                 _targetMethod = methodInfo;
-                methodLabel.text = ToString(_targetMethod);
+                methodLabel.text = _targetMethod.GetDisplayLabel();
 
                 instanceArea.Clear();
                 parameterArea.Clear();
@@ -202,192 +198,199 @@ namespace Kairou.Editor
                     parameterArea.Add(dropdown);
                 }
             }
-
-            string GenerateCode()
-            {
-                var properties = _targetType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
-                var getter = properties.FirstOrDefault(x => x.GetGetMethod() == _targetMethod);
-                var setter = properties.FirstOrDefault(x => x.GetSetMethod() == _targetMethod);
-
-                var builder = new CodeBuilder();
-                builder.AppendLine("using UnityEngine;");
-                builder.AppendLine("using Kairou;");
-                builder.AppendLine();
-
-                bool hasNamespace = string.IsNullOrEmpty(namespaceField.value) == false;
-                if (hasNamespace)
-                {
-                    builder.AppendLine($"namespace {namespaceField.value}");
-                    builder.BeginBlock();
-                }
-
-                builder.AppendIndentedLine($"[CommandInfo(\"Generated\", nameof({_targetType.FullName}) + \".\" + nameof({_targetType.FullName}.{(setter == null ? _targetMethod.Name : setter.Name)}))]");
-                builder.AppendIndentedLine($"public partial class {classNameField.value} : Command");
-                using (new BlockScope(builder))
-                {
-                    if (_instanceResolveWay == InstanceResolveWay.Serialize)
-                    {
-                        builder.AppendIndentedLine($"[SerializeField] {_targetType.FullName} instance;");
-                    }
-
-                    for (int i = 0; i < _argResolveWays.Count; i++)
-                    {
-                        if (_argResolveWays[i] == ArgResolveWay.Serialize)
-                        {
-                            var parameter = _targetMethod.GetParameters()[i];
-                            builder.AppendIndentedLine($"[SerializeField] {parameter.ParameterType.FullName} {parameter.Name};");
-                        }
-                        else if (_argResolveWays[i] == ArgResolveWay.Variable)
-                        {
-                            var parameter = _targetMethod.GetParameters()[i];
-                            builder.AppendIndentedLine($"[SerializeField] VariableValueGetterKey<{parameter.ParameterType.FullName}> {parameter.Name};");
-                        }
-                    }
-
-                    builder.AppendLine();
-                    builder.AppendIndentedLine("[CommandExecute]");
-                    builder.AppendIndent();
-                    builder.Append("void Exeute(");
-                    int argCount = 0;
-                    if (_instanceResolveWay == InstanceResolveWay.FromResolver)
-                    {
-                        builder.Append("[Inject] ");
-                        builder.Append(_targetType.FullName);
-                        builder.Append(" instance");
-                        argCount++;
-                    }
-                    
-                    for (int i = 0; i < _argResolveWays.Count; i++)
-                    {
-                        if (_argResolveWays[i] == ArgResolveWay.Variable)
-                        {
-                            if (argCount > 0)
-                            {
-                                builder.Append(", ");
-                            }
-                            var parameter = _targetMethod.GetParameters()[i];
-                            builder.Append($"[From(nameof({parameter.Name}))] ");
-                            builder.Append(parameter.ParameterType.FullName);
-                            builder.Append(" ");
-                            builder.Append(parameter.Name);
-
-                            argCount++;
-                        }
-                        else if (_argResolveWays[i] == ArgResolveWay.FromResolver)
-                        {
-                            if (argCount > 0)
-                            {
-                                builder.Append(", ");
-                            }
-                            var parameter = _targetMethod.GetParameters()[i];
-                            builder.Append("[Inject] ");
-                            builder.Append(parameter.ParameterType.FullName);
-                            builder.Append(" ");
-                            builder.Append(parameter.Name);
-                            argCount++;
-                        }
-                    }
-                    builder.AppendLine(")");
-                    using (new BlockScope(builder))
-                    {
-                        if (_targetMethod.IsStatic)
-                        {
-                            builder.AppendIndent();
-                            builder.Append(_targetType.FullName);
-                            builder.Append(".");
-                        }
-                        else
-                        {
-                            builder.AppendIndent();
-                            builder.Append("instance.");
-                        }
-
-                        if (setter != null)
-                        {
-                            builder.AppendLine($"{setter.Name} = value;");
-                        }
-                        
-                        if (getter == null && setter == null)
-                        {
-                            builder.Append(_targetMethod.Name);
-                            builder.Append("(");
-                            for (int i = 0; i < _argResolveWays.Count; i++)
-                            {
-                                if (i > 0 && _argResolveWays[i] != ArgResolveWay.DefaultValue)
-                                {
-                                    builder.Append(", ");
-                                }
-                                if (_argResolveWays[i] == ArgResolveWay.Null)
-                                {
-                                    builder.Append("null");
-                                }
-                                else if (_argResolveWays[i] == ArgResolveWay.Serialize)
-                                {
-                                    var parameter = _targetMethod.GetParameters()[i];
-                                    builder.Append(parameter.Name);
-                                }
-                                else if (_argResolveWays[i] == ArgResolveWay.Variable)
-                                {
-                                    var parameter = _targetMethod.GetParameters()[i];
-                                    builder.Append(parameter.Name);
-                                }
-                                else if (_argResolveWays[i] == ArgResolveWay.FromResolver)
-                                {
-                                    var parameter = _targetMethod.GetParameters()[i];
-                                    builder.Append(parameter.Name);
-                                }
-                                else if (_argResolveWays[i] == ArgResolveWay.DefaultValue)
-                                {
-
-                                }
-                            }
-                            builder.AppendLine(");");
-                        }
-                    }
-                }
-
-                if (hasNamespace)
-                {
-                    builder.EndBlock();
-                }
-
-                return builder.ToString();
-            }
         }
 
-
-
-        string ToString(MethodInfo methodInfo)
+        static string GenerateCode(Type targetType, MethodInfo targetMethod, InstanceResolveWay instanceResolveWay, List<ArgResolveWay> argResolveWays, string namespaceName, string className)
         {
-            if (methodInfo == null)
+            var properties = targetType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+            var getter = properties.FirstOrDefault(x => x.GetGetMethod() == targetMethod);
+            var setter = properties.FirstOrDefault(x => x.GetSetMethod() == targetMethod);
+
+            var builder = new CodeBuilder();
+            builder.AppendLine("using UnityEngine;");
+            builder.AppendLine("using Kairou;");
+            builder.AppendLine();
+
+            bool hasNamespace = string.IsNullOrEmpty(namespaceName) == false;
+            if (hasNamespace)
             {
-                return "";
+                builder.AppendLine($"namespace {namespaceName}");
+                builder.BeginBlock();
             }
-            var sb = new StringBuilder();
-            if (methodInfo.IsStatic) sb.Append("static ");
-            sb.Append(TypeNameUtil.ConvertToPrimitiveTypeName(methodInfo.ReturnType.Name));
-            sb.Append(" ");
-            sb.Append(methodInfo.Name);
-            sb.Append("(");
-            var parameters = methodInfo.GetParameters();
-            for (int i = 0; i < parameters.Length; i++)
+
+            builder.AppendIndentedLine($"[CommandInfo(\"Generated\", nameof({targetType.FullName}) + \".\" + nameof({targetType.FullName}.{(setter == null ? targetMethod.Name : setter.Name)}))]");
+            builder.AppendIndentedLine($"public partial class {className} : Command");
+            using (new BlockScope(builder))
             {
-                var parameter = parameters[i];
-                sb.Append(TypeNameUtil.ConvertToPrimitiveTypeName(parameter.ParameterType.Name));
-                sb.Append(" ");
-                sb.Append(parameter.Name);
-                if (parameter.HasDefaultValue)
+                if (instanceResolveWay == InstanceResolveWay.Serialize)
                 {
-                    sb.Append(" = ");
-                    sb.Append(parameter.DefaultValue);
+                    builder.AppendIndentedLine($"[SerializeField] {targetType.FullName} instance;");
                 }
-                if (i < parameters.Length - 1)
+
+                for (int i = 0; i < argResolveWays.Count; i++)
                 {
-                    sb.Append(", ");
+                    if (argResolveWays[i] == ArgResolveWay.Serialize)
+                    {
+                        var parameter = targetMethod.GetParameters()[i];
+                        builder.AppendIndentedLine($"[SerializeField] {parameter.ParameterType.FullName} {parameter.Name};");
+                    }
+                    else if (argResolveWays[i] == ArgResolveWay.Variable)
+                    {
+                        var parameter = targetMethod.GetParameters()[i];
+                        builder.AppendIndentedLine($"[GenerateValidation]");
+                        builder.AppendIndentedLine($"[SerializeField] VariableValueGetterKey<{parameter.ParameterType.FullName}> {parameter.Name};");
+                    }
+                }
+
+                builder.AppendLine();
+                builder.AppendIndentedLine("[CommandExecute]");
+                builder.AppendIndent();
+                builder.Append("void Exeute(");
+                int argCount = 0;
+                if (instanceResolveWay == InstanceResolveWay.FromResolver)
+                {
+                    builder.Append("[Inject] ");
+                    builder.Append(targetType.FullName);
+                    builder.Append(" instance");
+                    argCount++;
+                }
+                
+                for (int i = 0; i < argResolveWays.Count; i++)
+                {
+                    if (argResolveWays[i] == ArgResolveWay.Variable)
+                    {
+                        if (argCount > 0)
+                        {
+                            builder.Append(", ");
+                        }
+                        var parameter = targetMethod.GetParameters()[i];
+                        builder.Append($"[From(nameof({parameter.Name}))] ");
+                        builder.Append(parameter.ParameterType.FullName);
+                        builder.Append(" ");
+                        builder.Append(parameter.Name);
+
+                        argCount++;
+                    }
+                    else if (argResolveWays[i] == ArgResolveWay.FromResolver)
+                    {
+                        if (argCount > 0)
+                        {
+                            builder.Append(", ");
+                        }
+                        var parameter = targetMethod.GetParameters()[i];
+                        builder.Append("[Inject] ");
+                        builder.Append(parameter.ParameterType.FullName);
+                        builder.Append(" ");
+                        builder.Append(parameter.Name);
+                        argCount++;
+                    }
+                }
+                builder.AppendLine(")");
+                using (new BlockScope(builder))
+                {
+                    if (targetMethod.IsStatic)
+                    {
+                        builder.AppendIndent();
+                        builder.Append(targetType.FullName);
+                        builder.Append(".");
+                    }
+                    else
+                    {
+                        builder.AppendIndent();
+                        builder.Append("instance.");
+                    }
+
+                    if (setter != null)
+                    {
+                        builder.AppendLine($"{setter.Name} = value;");
+                    }
+                    
+                    if (getter == null && setter == null)
+                    {
+                        builder.Append(targetMethod.Name);
+                        builder.Append("(");
+                        for (int i = 0; i < argResolveWays.Count; i++)
+                        {
+                            if (i > 0 && argResolveWays[i] != ArgResolveWay.DefaultValue)
+                            {
+                                builder.Append(", ");
+                            }
+                            if (argResolveWays[i] == ArgResolveWay.Null)
+                            {
+                                builder.Append("null");
+                            }
+                            else if (argResolveWays[i] == ArgResolveWay.Serialize)
+                            {
+                                var parameter = targetMethod.GetParameters()[i];
+                                builder.Append(parameter.Name);
+                            }
+                            else if (argResolveWays[i] == ArgResolveWay.Variable)
+                            {
+                                var parameter = targetMethod.GetParameters()[i];
+                                builder.Append(parameter.Name);
+                            }
+                            else if (argResolveWays[i] == ArgResolveWay.FromResolver)
+                            {
+                                var parameter = targetMethod.GetParameters()[i];
+                                builder.Append(parameter.Name);
+                            }
+                            else if (argResolveWays[i] == ArgResolveWay.DefaultValue)
+                            {
+
+                            }
+                        }
+                        builder.AppendLine(");");
+                    }
+                }
+
+                builder.AppendIndentedLine("public override string GetSummary()");
+                using (new BlockScope(builder))
+                {
+                    builder.AppendIndentedLine("string summary = \"\";");
+                    int count = 0;
+                    for (int i = 0; i < argResolveWays.Count; i++)
+                    {
+                        if (argResolveWays[i] == ArgResolveWay.Null || argResolveWays[i] == ArgResolveWay.Serialize || argResolveWays[i] == ArgResolveWay.Variable || argResolveWays[i] == ArgResolveWay.FromResolver)
+                        {
+                            if (count > 0)
+                            {
+                                builder.AppendIndentedLine("summary += \", \";");
+                            }
+                        }
+                        if (argResolveWays[i] == ArgResolveWay.Null)
+                        {
+                            builder.AppendIndentedLine($"summary += \"null\";");
+                            count++;
+                        }
+                        else if (argResolveWays[i] == ArgResolveWay.Serialize)
+                        {
+                            var parameter = targetMethod.GetParameters()[i];
+                            builder.AppendIndentedLine($"summary += {parameter.Name}.ToString();");
+                            count++;
+                        }
+                        else if (argResolveWays[i] == ArgResolveWay.Variable)
+                        {
+                            var parameter = targetMethod.GetParameters()[i];
+                            builder.AppendIndentedLine($"summary += {parameter.Name}.GetSummary();");
+                            count++;
+                        }
+                        else if (argResolveWays[i] == ArgResolveWay.FromResolver)
+                        {
+                            var parameter = targetMethod.GetParameters()[i];
+                            builder.AppendIndentedLine($"summary += \"FromResolver\";");
+                            count++;
+                        }
+                    }
+                    builder.AppendIndentedLine("return summary;");
                 }
             }
-            sb.Append(")");
-            return sb.ToString();
+
+            if (hasNamespace)
+            {
+                builder.EndBlock();
+            }
+
+            return builder.ToString();
         }
     }
 }
