@@ -258,7 +258,7 @@ namespace Kairou
 
         string CreateErrorMessage(Command command)
         {
-            return $"Error: PageId[{_page.Id}], CommandIndex[{command.Index}], CommandType[{command?.GetType()}]";
+            return $"Error:BookId[{command.ParentPage.ParentBook.Id}] PageId[{_page.Id}], CommandIndex[{command.Index}], CommandType[{command?.GetType()}]";
         }
     }
 }

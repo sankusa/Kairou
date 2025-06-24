@@ -15,7 +15,7 @@ namespace Kairou
             initialElements: 2
         );
 
-        public SeriesProcess SeriesProcess { get; private set; }
+        public RootProcess RootProcess { get; private set; }
 
         ScriptBook _book;
         public ScriptBook Book => _book;
@@ -30,19 +30,19 @@ namespace Kairou
 
         private BookProcess() {}
 
-        internal static BookProcess Rent(SeriesProcess parentProcess, ScriptBook book)
+        internal static BookProcess Rent(RootProcess parentProcess, ScriptBook book)
         {
             var process = _pool.Rent();
             process.SetUp(parentProcess, book);
             return process;
         }
 
-        void SetUp(SeriesProcess parentProcess, ScriptBook book)
+        void SetUp(RootProcess parentProcess, ScriptBook book)
         {
             if (parentProcess == null) throw new ArgumentNullException(nameof(parentProcess));
             if (book == null) throw new ArgumentNullException(nameof(book));
 
-            SeriesProcess = parentProcess;
+            RootProcess = parentProcess;
             _book = book;
             _variables.GenerateVariables(book.Variables);
 
@@ -57,7 +57,7 @@ namespace Kairou
 
         void Clear()
         {
-            SeriesProcess = null;
+            RootProcess = null;
             _book = null;
 
             _unfinishedPageProcesses.Clear();

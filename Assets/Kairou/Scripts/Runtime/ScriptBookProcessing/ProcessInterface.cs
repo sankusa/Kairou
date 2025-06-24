@@ -36,20 +36,11 @@ namespace Kairou
             _pageProcess.GoToEnd();
             _pageProcess.SubsequentProcessInfo = new SubsequentProcessInfo(book, pageId);
         }
-        public void SwitchBookAsNewSeries(ScriptBook book, string pageId)
-        {
-            _pageProcess.GoToEnd();
-            _pageProcess.SubsequentProcessInfo = new SubsequentProcessInfo(true, book, pageId);
-        }
         public async UniTask RunPageAsync(string pageId, CancellationToken cancellationToken)
         {
             await ProcessRunner.RunPageAsBookProcessSubSequenceAsync(_pageProcess, pageId, cancellationToken);
         }
         public async UniTask RunBookAsync(ScriptBook book, string pageId, CancellationToken cancellationToken)
-        {
-            await ProcessRunner.RunBookAsSeriesProcessSubSequenceAsync(_pageProcess, book, pageId, cancellationToken);
-        }
-        public async UniTask RunBookAsNewSeriesAsync(ScriptBook book, string pageId, CancellationToken cancellationToken)
         {
             await ProcessRunner.RunBookAsRootProcessSubSequenceAsync(_pageProcess, book, pageId, cancellationToken);
         }
@@ -102,32 +93,32 @@ namespace Kairou
 
         public T Resolve<T>()
         {
-            return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.Resolve<T>();
+            return _pageProcess.BookProcess.RootProcess.ObjectResolver.Resolve<T>();
         }
 
         public object Resolve(Type type)
         {
-            return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.Resolve(type);
+            return _pageProcess.BookProcess.RootProcess.ObjectResolver.Resolve(type);
         }
 
         public bool TryResolve<T>(out T value)
         {
-            return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.TryResolve(out value);
+            return _pageProcess.BookProcess.RootProcess.ObjectResolver.TryResolve(out value);
         }
 
         public bool TryResolve(Type type, out object value)
         {
-            return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.TryResolve(type, out value);
+            return _pageProcess.BookProcess.RootProcess.ObjectResolver.TryResolve(type, out value);
         }
 
         public IEnumerable<T> ResolveAll<T>()
         {
-            return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.ResolveAll<T>();
+            return _pageProcess.BookProcess.RootProcess.ObjectResolver.ResolveAll<T>();
         }
 
         public IEnumerable<object> ResolveAll(Type type)
         {
-            return _pageProcess.BookProcess.SeriesProcess.RootProcess.ObjectResolver.ResolveAll(type);
+            return _pageProcess.BookProcess.RootProcess.ObjectResolver.ResolveAll(type);
         }
     }
 }

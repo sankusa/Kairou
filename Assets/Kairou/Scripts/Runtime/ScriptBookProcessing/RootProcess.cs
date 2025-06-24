@@ -18,7 +18,7 @@ namespace Kairou
 
         public CompositeObjectResolver ObjectResolver { get; } = new();
 
-        readonly List<SeriesProcess> _unfinishedSeriesProcesses = new(2);
+        readonly List<BookProcess> _unfinishedBookProcesses = new(2);
 
         bool _isRunning;
         internal bool IsTerminated { get; private set; }
@@ -44,7 +44,7 @@ namespace Kairou
         void Clear()
         {
             ObjectResolver.Clear();
-            _unfinishedSeriesProcesses.Clear();
+            _unfinishedBookProcesses.Clear();
             _isRunning = false;
             IsTerminated = false;
         }
@@ -56,11 +56,11 @@ namespace Kairou
             return true;
         }
 
-        internal SeriesProcess CreateSeriesProcess()
+        internal BookProcess CreateBookProcess(ScriptBook book)
         {
-            var seriesProcess = SeriesProcess.Rent(this);
-            _unfinishedSeriesProcesses.Add(seriesProcess);
-            return seriesProcess;
+            var bookProcess = BookProcess.Rent(this, book);
+            _unfinishedBookProcesses.Add(bookProcess);
+            return bookProcess;
         }
 
         public async UniTask StartTerminationAsync(Action<RootProcess> onTerminated, CancellationToken cancellationToken)
@@ -69,16 +69,16 @@ namespace Kairou
             {
                 while(true)
                 {
-                    for (int i = _unfinishedSeriesProcesses.Count - 1; i >= 0; i--)
+                    for (int i = _unfinishedBookProcesses.Count - 1; i >= 0; i--)
                     {
-                        var p = _unfinishedSeriesProcesses[i];
+                        var p = _unfinishedBookProcesses[i];
                         if (p.IsTerminated)
                         {
-                            _unfinishedSeriesProcesses.Remove(p);
-                            SeriesProcess.Return(p);
+                            _unfinishedBookProcesses.Remove(p);
+                            BookProcess.Return(p);
                         }
                     }
-                    if (_unfinishedSeriesProcesses.Count == 0) break;
+                    if (_unfinishedBookProcesses.Count == 0) break;
                     await UniTask.Yield(cancellationToken);
                 }
             }
