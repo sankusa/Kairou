@@ -50,15 +50,15 @@ namespace Kairou.Editor
         void OnEnable()
         {
             Undo.undoRedoPerformed += OnUndoRedoPerformed;
-            EditorApplication.projectChanged += OnProjectOrHierarchyChanged;
-            EditorApplication.hierarchyChanged += OnProjectOrHierarchyChanged;
+            EditorApplication.projectChanged += OnProjectChanged;
+            EditorApplication.hierarchyChanged += OnHierarchyChanged;
         }
 
         void OnDisable()
         {
             Undo.undoRedoPerformed -= OnUndoRedoPerformed;
-            EditorApplication.projectChanged -= OnProjectOrHierarchyChanged;
-            EditorApplication.hierarchyChanged -= OnProjectOrHierarchyChanged;
+            EditorApplication.projectChanged -= OnProjectChanged;
+            EditorApplication.hierarchyChanged -= OnHierarchyChanged;
         }
 
         void CreateGUI()
@@ -284,24 +284,34 @@ namespace Kairou.Editor
         }
 
         // PlayMode遷移にも呼ばれる
-        void OnProjectOrHierarchyChanged()
+        void OnHierarchyChanged()
         {
             if (_bookHolder.RestoreObjectIfNull())
             {
                 _serializedObject = new SerializedObject(_bookHolder.Owner);
                 Rebind();
             }
-            else if (_serializedObject != null)
+            else if (_serializedObject != null && _serializedObject.targetObject == null)
             {
-                if (_serializedObject.targetObject == null)
-                {
-                    _serializedObject = null;
-                    Rebind();
-                }
-                else if (_serializedObject.UpdateIfRequiredOrScript())
-                {
-                    Rebind();
-                }
+                _serializedObject = null;
+                Rebind();
+            }
+            _headerPanel.OnProjectOrHierarchyChanged();
+            _pageListPanel.OnProjectOrHierarchyChanged();
+            _commandListPanel.OnProjectOrHierarchyChanged();
+        }
+
+        void OnProjectChanged()
+        {
+            if (_bookHolder.RestoreObjectIfNull())
+            {
+                _serializedObject = new SerializedObject(_bookHolder.Owner);
+                Rebind();
+            }
+            else if (_serializedObject != null && _serializedObject.targetObject == null)
+            {
+                _serializedObject = null;
+                Rebind();
             }
             _headerPanel.OnProjectOrHierarchyChanged();
             _pageListPanel.OnProjectOrHierarchyChanged();
