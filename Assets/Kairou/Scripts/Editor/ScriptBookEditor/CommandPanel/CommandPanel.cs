@@ -36,6 +36,13 @@ namespace Kairou.Editor
                     header_body.style.borderBottomColor = Color.black;
 
                     /* header_header elements */ {
+                        var enableToggle = new Toggle();
+                        enableToggle.name = "EnableToggle";
+                        enableToggle.label = "";
+                        enableToggle.style.marginTop = 0;
+                        enableToggle.style.marginBottom = 0;
+                        enableToggle.RegisterValueChangedCallback(evt => onCommandChanged?.Invoke());
+
                         var nameLabel = new Label();
                         nameLabel.name = "NameLabel";
 
@@ -68,6 +75,7 @@ namespace Kairou.Editor
                             }
                         });
 
+                        header_header.Add(enableToggle);
                         header_header.Add(nameLabel);
                         header_header.Add(new VisualElement() { style = { flexGrow = 1 } });
                         header_header.Add(typeFullNameLabel);
@@ -129,6 +137,10 @@ namespace Kairou.Editor
             _propertyField.bindingPath = commandPropertyPath;
             _propertyField.Bind(serializedObject);
             _propertyField.style.display = DisplayStyle.Flex;
+            var header = _header.Q<VisualElement>("Header");
+            var enableToggle = header.Q<Toggle>("EnableToggle");
+            enableToggle.bindingPath = commandPropertyPath + "._enable";
+            enableToggle.Bind(serializedObject);
 
             _propertyField.TrackSerializedObjectValue(serializedObject, so =>
             {
@@ -157,7 +169,6 @@ namespace Kairou.Editor
             var typeFullNameLabel = header.Q<Label>("TypeFullNameLabel");
             var scriptField = _header.Q<ObjectField>("ScriptField");
             var delayedFieldToggle = header.Q<ToolbarToggle>("DelayedField");
-
 
             if (commandProp != null && commandProp?.GetObject() is Command command)
             {

@@ -131,28 +131,31 @@ namespace Kairou
 
                         command = _page.Commands[_currentCommandIndex];
 
-                        if (command is AsyncCommand asyncCommand)
+                        if (command.Enable)
                         {
-                            if (asyncCommand.AsyncCommandParameter.Await)
+                            if (command is AsyncCommand asyncCommand)
                             {
-                                await asyncCommand.InvokeExecuteAsync(_processInterface, _cts.Token);
-                            }
-                            else
-                            {
-                                UniTask awaiter = StartAsync_UnawaitedInvokeAsyncCommandAsync(asyncCommand);
-                                if (asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.IsEmpty())
+                                if (asyncCommand.AsyncCommandParameter.Await)
                                 {
-                                    awaiter.Forget();
+                                    await asyncCommand.InvokeExecuteAsync(_processInterface, _cts.Token);
                                 }
                                 else
                                 {
-                                    asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.Find(_processInterface).SetValue(awaiter);
+                                    UniTask awaiter = StartAsync_UnawaitedInvokeAsyncCommandAsync(asyncCommand);
+                                    if (asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.IsEmpty())
+                                    {
+                                        awaiter.Forget();
+                                    }
+                                    else
+                                    {
+                                        asyncCommand.AsyncCommandParameter.UniTaskStoreVariable.Find(_processInterface).SetValue(awaiter);
+                                    }
                                 }
                             }
-                        }
-                        else
-                        {
-                            command.InvokeExecute(_processInterface);
+                            else
+                            {
+                                command.InvokeExecute(_processInterface);
+                            }
                         }
                     }
                     catch (OperationCanceledException e) when (e.CancellationToken != _cts.Token)

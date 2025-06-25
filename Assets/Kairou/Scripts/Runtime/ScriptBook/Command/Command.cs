@@ -28,6 +28,13 @@ namespace Kairou
 
         public int Index => _parentPage.Commands.IndexOf(this);
 
+        [SerializeField] bool _enable = true;
+        public bool Enable
+        {
+            get => _enable;
+            set => _enable = value;
+        }
+
         void ICommandInternalForPage.SetParentPage(Page parentPage) => _parentPage = parentPage;
 
         public virtual void InvokeExecute(IProcessInterface process) {}

@@ -140,6 +140,7 @@ namespace Kairou.Editor
                 var nameLabel = element.Q<Label>("NameLabel");
                 var summaryLabel = element.Q<Label>("SummaryLabel");
                 summaryLabel.style.color = GUISkin.Instance.DefaultSummaryColor;
+                var disableOverlay = element.Q<VisualElement>("DisableOverlay");
                 var indentBox = element.Q<VisualElement>("IndentBox");
                 indentBox.style.flexShrink = 0;
                 indentBox.style.flexGrow = 0;
@@ -158,6 +159,7 @@ namespace Kairou.Editor
                     iconImage.tintColor = Color.clear;
                     nameLabel.text = "Null";
                     nameLabel.style.color = Color.red;
+                    disableOverlay.style.display = DisplayStyle.None;
                     summaryLabel.text = string.Empty;
                     indentBox.style.display = DisplayStyle.None;
                     summaryIndent.style.display = DisplayStyle.None;
@@ -182,6 +184,7 @@ namespace Kairou.Editor
                 nameLabel.text = commandProfile.Name;
                 nameLabel.style.color = commandProfile.LabelColor;
                 summaryLabel.text = command.GetSummary();
+                disableOverlay.style.display = command.Enable ? DisplayStyle.None : DisplayStyle.Flex;
                 indentBox.style.display = blockLevel == 0 ? DisplayStyle.None : DisplayStyle.Flex;
                 indentBox.style.width = 10 * blockLevel;
 

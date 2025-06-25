@@ -20,6 +20,7 @@ namespace Kairou.Editor
             bool enterChildren = true;
             while (iterator.NextVisible(enterChildren) && SerializedProperty.EqualContents(iterator, endProperty) == false)
             {
+                if (iterator.name == "_enable") continue;
                 var field = new PropertyField(iterator.Copy());
                 field.Bind(iterator.serializedObject);
                 root.Add(field);
