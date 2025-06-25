@@ -93,7 +93,7 @@ namespace Kairou.Editor
                 _bodyRoot = new ScrollView() { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
                 _bodyRoot.style.flexGrow = 1;
                 _propertyField = new PropertyField();
-                _propertyField.RegisterValueChangeCallback(evt => onCommandChanged?.Invoke());
+                _propertyField.RegisterValueChangeCallback(evt => onCommandChanged?.Invoke()); // Commandsの要素が削除されて空いた分が詰められた結果propertyPath(commandIndexを含む)の参照先コマンドが変わった場合にも呼ばれる
                 _propertyField.style.display = DisplayStyle.Flex;
                 _bodyRoot.Add(_propertyField);
                 parent.Add(_bodyRoot);
@@ -129,6 +129,18 @@ namespace Kairou.Editor
             _propertyField.bindingPath = commandPropertyPath;
             _propertyField.Bind(serializedObject);
             _propertyField.style.display = DisplayStyle.Flex;
+
+            _propertyField.TrackSerializedObjectValue(serializedObject, so =>
+            {
+                var commandProp = so.FindProperty(commandPropertyPath);
+                UpdateHeader(commandProp);
+                // Commandsの要素削除時に、参照インデックスにまだ要素があれば、要素の型に合わせてPropertyFieldは勝手に更新されるが、参照インデックスに要素が無くなった場合はPropertyFieldは維持されてしまうので、Clearを呼ぶ。
+                if (commandProp == null)
+                {
+                    _propertyField.Unbind();
+                    _propertyField.Clear();
+                }
+            });
 
             UpdateHeader(commandProp);
         }

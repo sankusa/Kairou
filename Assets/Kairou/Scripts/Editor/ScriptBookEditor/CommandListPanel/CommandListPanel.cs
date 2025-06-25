@@ -6,7 +6,6 @@ using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UnityEngine.UIElements;
-using UnityEditor.UIElements;
 using Object = UnityEngine.Object;
 using System.Collections.Generic;
 
@@ -26,8 +25,6 @@ namespace Kairou.Editor
             }
         }
 
-        public delegate void CommandSpecificAction(BookId bookId, int pageIndex, int commandIndex);
-
         [SerializeField] RestorableBookHolder _bookHolder = new();
         [SerializeField] int _pageIndex;
         bool ExistsTargetPage => _bookHolder.HasValidBook && _bookHolder.Book.Pages.HasElementAt(_pageIndex);
@@ -40,6 +37,7 @@ namespace Kairou.Editor
 
         bool IsInitialized => _listView != null;
 
+        Action<int> _onSelectionChanged;
         Action _onCollectionChanged;
 
         ActionDebouncer _refreshDebouncer;
@@ -49,8 +47,9 @@ namespace Kairou.Editor
 
         List<int> _selectedIndicesOld = new();
 
-        public void Initialize(VisualElement parent, VisualTreeAsset commandListPanelUXML, CommandSpecificAction onSelectionChanged, Action onCollectionChanged)
+        public void Initialize(VisualElement parent, VisualTreeAsset commandListPanelUXML, Action<int> onSelectionChanged, Action onCollectionChanged)
         {
+            _onSelectionChanged = onSelectionChanged;
             _onCollectionChanged = onCollectionChanged;
 
             // AdvancedDropdown
@@ -92,10 +91,7 @@ namespace Kairou.Editor
                 deleteButton.clicked += () =>
                 {
                     int index = (int)item.userData;
-                    var command = _bookHolder.Book.Pages[_pageIndex].Commands[index];
-                    BookUtilForEditor.RemoveCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, index);
-                    _listView.RefreshItems();
-                    _onCollectionChanged?.Invoke();
+                    RemoveCommand(index);
                 };
                 var deleteIcon = new Image() { image = GUISkin.Instance.DeleteIcon };
                 deleteIcon.style.width = 14;
@@ -234,9 +230,7 @@ namespace Kairou.Editor
             _listView.onRemove = _ =>
             {
                 if (ExistsTargetPage == false) return;
-                BookUtilForEditor.RemoveCommand(_bookHolder.Owner,_bookHolder.Book, _pageIndex, _listView.selectedIndex);
-                _listView.RefreshItems();
-                _onCollectionChanged?.Invoke();
+                RemoveCommand(_listView.selectedIndex);
             };
 
             _listView.itemIndexChanged += (fromIndex, toIndex) =>
@@ -252,18 +246,6 @@ namespace Kairou.Editor
                 _listView.selectedIndex = toIndex;
             };
 
-            // _listView.selectedIndicesChanged += indices =>
-            // {Debug.Log(_listView.selectedIndex);
-            //     _selectedCommandIndex = _listView.selectedIndex;
-            //     UpdateOverlayColor(_selectedIndicesOld);
-            //     UpdateOverlayColor(indices);
-            //     if (ExistsTargetPage == false) return;
-            //     var selectedCommandIndex = indices.FirstOrDefault();
-            //     onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, selectedCommandIndex);
-            //     _selectedCommandIndexOld = _selectedCommandIndex;
-            //     _selectedIndicesOld = indices.ToList();
-            // };
-
             _listView.selectedIndicesChanged += indices =>
             {
                 if (ExistsTargetPage == false) return;
@@ -272,7 +254,7 @@ namespace Kairou.Editor
                 if (_listView.selectedIndex != -1 && _listView.selectedIndex != _selectedCommandIndex)
                 {
                     _selectedCommandIndex = _listView.selectedIndex;
-                    onSelectionChanged?.Invoke(_bookHolder.BookId, _pageIndex, _selectedCommandIndex);
+                    _onSelectionChanged?.Invoke(_selectedCommandIndex);
                     _selectedIndicesOld = indices.ToList();
                 }
             };
@@ -336,7 +318,7 @@ namespace Kairou.Editor
 
         public void SetTarget(BookId bookId, int pageIndex)
         {
-            int selectedCommandIndex = (bookId == _bookHolder.BookId && pageIndex == _pageIndex) ? _selectedCommandIndex : 0;
+            int selectedCommandIndex = (bookId == _bookHolder.BookId && pageIndex == _pageIndex) ? _listView.selectedIndex : 0;
             _bookHolder.Reset(bookId);
             _pageIndex = pageIndex;
             if (IsInitialized) Reload(selectedCommandIndex);
@@ -344,7 +326,7 @@ namespace Kairou.Editor
 
         public void Reload()
         {
-            Reload(_selectedCommandIndex);
+            Reload(_listView.selectedIndex);
         }
 
         public void Reload(int selectedCommandIndex)
@@ -389,10 +371,8 @@ namespace Kairou.Editor
 
         public void InsertCommand(Type commandType)
         {
-            ThrowIfNotInitialized();
-
             var command = Command.CreateInstance(commandType);
-            int insertIndex = Mathf.Min(_selectedCommandIndex + 1, _bookHolder.Book.Pages[_pageIndex].Commands.Count);
+            int insertIndex = Mathf.Min(_listView.selectedIndex + 1, _bookHolder.Book.Pages[_pageIndex].Commands.Count);
             BookUtilForEditor.InsertCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, insertIndex, command);
             _listView.RefreshItems();
             _onCollectionChanged?.Invoke();
@@ -402,7 +382,7 @@ namespace Kairou.Editor
 
         void InsertCommands(IEnumerable<Command> commands)
         {
-            int insertIndex = Mathf.Min(_selectedCommandIndex + 1, _bookHolder.Book.Pages[_pageIndex].Commands.Count);
+            int insertIndex = Mathf.Min(_listView.selectedIndex + 1, _bookHolder.Book.Pages[_pageIndex].Commands.Count);
             BookUtilForEditor.InsertCommands(_bookHolder.Owner, _bookHolder.Book, _pageIndex, insertIndex, commands);
             _listView.RefreshItems();
             _onCollectionChanged?.Invoke();
@@ -410,11 +390,33 @@ namespace Kairou.Editor
             _listView.ScrollToItem(insertIndex + commands.Count() - 1);
         }
 
+        void RemoveCommand(int index)
+        {
+            if (_bookHolder.Book.Pages[_pageIndex].Commands.HasElementAt(index) == false) return;
+
+            var command = _bookHolder.Book.Pages[_pageIndex].Commands[index];
+            BookUtilForEditor.RemoveCommand(_bookHolder.Owner, _bookHolder.Book, _pageIndex, index);
+            _listView.RefreshItems();
+            _onCollectionChanged?.Invoke();
+
+            if (index == _listView.selectedIndex)
+            {
+                _onSelectionChanged?.Invoke(index);
+            }
+        }
+
         void RemoveCommands(IEnumerable<Command> commands)
         {
+            var selectedCommand = _bookHolder.Book.Pages[_pageIndex].Commands.HasElementAt(_listView.selectedIndex) ? _bookHolder.Book.Pages[_pageIndex].Commands[_listView.selectedIndex] : null;
+
             BookUtilForEditor.RemoveCommands(_bookHolder.Owner, _bookHolder.Book, _pageIndex, commands);
             _listView.RefreshItems();
             _onCollectionChanged?.Invoke();
+
+            if (commands.Contains(selectedCommand))
+            {
+                _onSelectionChanged?.Invoke(_listView.selectedIndex);
+            }
         }
     }
 }

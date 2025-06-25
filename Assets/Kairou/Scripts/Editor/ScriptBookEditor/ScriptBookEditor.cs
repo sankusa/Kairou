@@ -127,11 +127,14 @@ namespace Kairou.Editor
             _commandListPanel.Initialize(
                 centerPane,
                 _commandListPanelUXML,
-                (bookId, pageIndex, commandIndex) =>
+                (commandIndex) =>
                 {
                     OnCommandIndexChanged(commandIndex);
                 },
-                () => {_serializedObject.UpdateIfRequiredOrScript();}
+                () =>
+                {
+                    _serializedObject.UpdateIfRequiredOrScript();
+                }
             );
 
             var (commandPaneParent, commandPickerPane) = UIToolkitUtil.CreateSplitView(rightPane, 1, 200f, TwoPaneSplitViewOrientation.Vertical, viewDataKey: "Split3");
