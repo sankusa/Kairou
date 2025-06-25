@@ -9,6 +9,9 @@ namespace Kairou.Editor
         public override void OnInspectorGUI()
         {
             var component = (ScriptBookComponent)target;
+            if (PrefabUtility.IsPartOfPrefabAsset(component.gameObject)) return;
+            if (PrefabUtility.IsPartOfPrefabInstance(component.gameObject)) return;
+
             serializedObject.UpdateIfRequiredOrScript();
             var bookProp = serializedObject.FindProperty("_book");
             var idProp = bookProp.FindPropertyRelative("_id");
