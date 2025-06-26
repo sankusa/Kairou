@@ -36,7 +36,7 @@ namespace Kairou.Editor
         }
 
         public void Schedule()
-        {
+        {Debug.Log(_callId);
             _callId++;
             var currentCallId = _callId;
             var frameOnCalled = TickCounter.Count;

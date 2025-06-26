@@ -29,8 +29,6 @@ namespace Kairou.Editor
         [SerializeField] int _pageIndex;
         bool ExistsTargetPage => _bookHolder.HasValidBook && _bookHolder.Book.Pages.HasElementAt(_pageIndex);
 
-        [SerializeField] int _selectedCommandIndex;
-
         [SerializeField] AdvancedDropdownState _commandDropdownState = new();
 
         ListView _listView;
@@ -123,7 +121,7 @@ namespace Kairou.Editor
             _listView.bindItem = (element, i) =>
             {
                 element.userData = i;
-
+if (i == 0) Debug.Log("bindItem");
                 element.parent.style.paddingTop = 0;
                 element.parent.style.paddingBottom = 0;
                 element.parent.style.paddingLeft = 0;
@@ -251,15 +249,20 @@ namespace Kairou.Editor
 
             _listView.schedule.Execute(() =>
             {
+                if (resetViewData)
+                {
+                    var indices = _listView.selectedIndices.ToList();
+                    _listView.selectedIndex = 0;
+                    UpdateOverlayColor(indices);
+                }
                 _listView.selectedIndicesChanged += indices =>
                 {
                     if (ExistsTargetPage == false) return;
                     UpdateOverlayColor(_selectedIndicesOld);
                     UpdateOverlayColor(indices);
-                    if (_listView.selectedIndex != -1 && _listView.selectedIndex != _selectedCommandIndex)
+                    if (_listView.selectedIndex != -1)
                     {
-                        _selectedCommandIndex = _listView.selectedIndex;
-                        _onSelectionChanged?.Invoke(_selectedCommandIndex);
+                        _onSelectionChanged?.Invoke(_listView.selectedIndex);
                         _selectedIndicesOld = indices.ToList();
                     }
                 };
@@ -305,7 +308,7 @@ namespace Kairou.Editor
 
             _refreshDebouncer = new ActionDebouncer(_listView, 0.05f, 5, () => _listView.RefreshItems());
             
-            Reload();
+            Reload(0);
         }
 
         void UpdateOverlayColor(IEnumerable<int> indices)
@@ -346,16 +349,22 @@ namespace Kairou.Editor
                 // _listView.Bind(new SerializedObject(_bookHolder.Owner));
                 _listView.itemsSource = _bookHolder.Book.Pages[_pageIndex].Commands as IList;
                 _listView.enabledSelf = true;
+                selectedCommandIndex = _bookHolder.Book.Pages[_pageIndex].Commands.HasElementAt(selectedCommandIndex) ? selectedCommandIndex : -1;
             }
             else
             {
                 _listView.itemsSource = null;
                 _listView.enabledSelf = false;
+                selectedCommandIndex = -1;
             }
-            _listView.SetSelectionWithoutNotify(new int[] {selectedCommandIndex});
+            _listView.SetSelectionWithoutNotify(new int[] { selectedCommandIndex });
         }
 
-        public void Refresh() => _refreshDebouncer.Schedule();
+        public void Refresh()
+        {
+            _refreshDebouncer.Schedule();
+            Debug.Log("Refresh : XXXX");
+        }
 
         public void OnProjectOrHierarchyChanged()
         {
@@ -392,7 +401,7 @@ namespace Kairou.Editor
             int insertIndex = Mathf.Min(_listView.selectedIndex + 1, _bookHolder.Book.Pages[_pageIndex].Commands.Count);
             BookUtilForEditor.InsertCommands(_bookHolder.Owner, _bookHolder.Book, _pageIndex, insertIndex, commands);
             _listView.RefreshItems();
-            _onCollectionChanged?.Invoke();
+            _onCollectionChanged?.Invoke();Debug.Log(insertIndex);
             _listView.SetSelection(Enumerable.Range(insertIndex, commands.Count()));
             _listView.ScrollToItem(insertIndex + commands.Count() - 1);
         }
@@ -406,7 +415,11 @@ namespace Kairou.Editor
             _listView.RefreshItems();
             _onCollectionChanged?.Invoke();
 
-            if (index == _listView.selectedIndex)
+            if (_bookHolder.Book.Pages[_pageIndex].Commands.HasElementAt(_listView.selectedIndex) == false)
+            {
+                _listView.selectedIndex = _bookHolder.Book.Pages[_pageIndex].Commands.Count - 1;
+            }
+            else if (index == _listView.selectedIndex)
             {
                 _onSelectionChanged?.Invoke(index);
             }

@@ -1,3 +1,4 @@
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -19,6 +20,20 @@ namespace Kairou.Editor
             element.style.borderBottomWidth = width;
             element.style.borderLeftWidth = width;
             element.style.borderRightWidth = width;
+        }
+
+        public static void RegisterValueChangedCallbackWithoutOnRegister(this PropertyField propertyField, EventCallback<SerializedPropertyChangeEvent> callback)
+        {Debug.Log("RegisterValueChangedCallbackWithoutOnRegister");
+            bool first = true;
+            propertyField.RegisterValueChangeCallback(evt =>
+            {
+                if (first)
+                {
+                    first = true;Debug.Log("first");
+                    return;
+                }
+                callback?.Invoke(evt);Debug.Log("callback");
+            });
         }
     }
 }

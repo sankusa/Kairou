@@ -98,8 +98,8 @@ namespace Kairou.Editor
 
         void CreateGUI()
         {
-            bool pageIndexReserved = _pageIndex != -1;
-            bool commandIndexReserved = _commandIndex != -1;
+            bool pageIndexReserved = _reservedPageIndex != -1;
+            bool commandIndexReserved = _reservedCommandIndex != -1;
             ResolveReservedParameters();
 
             var root = rootVisualElement;
@@ -187,7 +187,7 @@ namespace Kairou.Editor
 
             _commandPanel.Initialize(
                 commandPaneInner,
-                () => _commandListPanel.Refresh()
+                () => {_commandListPanel.Refresh();Debug.Log("Refresh");}
             );
 
             _commandPickerPanel.Initialize(
@@ -237,7 +237,7 @@ namespace Kairou.Editor
         }
 
         void SetTarget(Object bookOwner, string bookPropertyPath)
-        {Debug.Log("SetTarget");
+        {
             _bookHolder.Reset(bookOwner, bookPropertyPath);
             _pageIndex = 0;
             _commandIndex = 0;

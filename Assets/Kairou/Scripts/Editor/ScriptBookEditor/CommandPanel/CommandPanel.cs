@@ -15,11 +15,14 @@ namespace Kairou.Editor
         VisualElement _header;
         ScrollView _bodyRoot;
         PropertyField _propertyField;
+        Action _onCommandChanged;
 
         bool IsInitialized => _bodyRoot != null;
 
         public void Initialize(VisualElement parent, Action onCommandChanged)
         {
+            _onCommandChanged = onCommandChanged;
+
             /* header */ {
                 _header = new VisualElement();
                 _header.name = "Header";
@@ -41,7 +44,7 @@ namespace Kairou.Editor
                         enableToggle.label = "";
                         enableToggle.style.marginTop = 0;
                         enableToggle.style.marginBottom = 0;
-                        enableToggle.RegisterValueChangedCallback(evt => onCommandChanged?.Invoke());
+                        //enableToggle.RegisterValueChangedCallback(evt => onCommandChanged?.Invoke());
 
                         var nameLabel = new Label();
                         nameLabel.name = "NameLabel";
@@ -101,7 +104,7 @@ namespace Kairou.Editor
                 _bodyRoot = new ScrollView() { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
                 _bodyRoot.style.flexGrow = 1;
                 _propertyField = new PropertyField();
-                _propertyField.RegisterValueChangeCallback(evt => onCommandChanged?.Invoke()); // Commandsの要素が削除されて空いた分が詰められた結果propertyPath(commandIndexを含む)の参照先コマンドが変わった場合にも呼ばれる
+                //_propertyField.RegisterValueChangeCallback(evt => onCommandChanged?.Invoke()); // Commandsの要素が削除されて空いた分が詰められた結果propertyPath(commandIndexを含む)の参照先コマンドが変わった場合にも呼ばれる
                 _propertyField.style.display = DisplayStyle.Flex;
                 _bodyRoot.Add(_propertyField);
                 parent.Add(_bodyRoot);
@@ -124,7 +127,13 @@ namespace Kairou.Editor
         public void Bind(SerializedObject serializedObject, string commandPropertyPath)
         {
             if (IsInitialized == false) return;
-            _propertyField.Unbind();
+            var header = _header.Q<VisualElement>("Header");
+            var enableToggle = header.Q<Toggle>("EnableToggle");
+            enableToggle.Unbind();
+            var propertyfieldParent = _propertyField.parent;
+            _propertyField.parent.Remove(_propertyField);
+            _propertyField = new PropertyField();
+            propertyfieldParent.Add(_propertyField);
             if (serializedObject == null || commandPropertyPath == null)
             {
                 _propertyField.bindingPath = null;
@@ -136,23 +145,22 @@ namespace Kairou.Editor
             var commandProp = serializedObject.FindProperty(commandPropertyPath);
             _propertyField.bindingPath = commandPropertyPath;
             _propertyField.Bind(serializedObject);
-            _propertyField.style.display = DisplayStyle.Flex;
-            var header = _header.Q<VisualElement>("Header");
-            var enableToggle = header.Q<Toggle>("EnableToggle");
+            _propertyField.style.display = DisplayStyle.Flex;Debug.Log("KKKKK");
+            _propertyField.RegisterValueChangedCallbackWithoutOnRegister(evt => _onCommandChanged?.Invoke());Debug.Log("OOOOO");
             enableToggle.bindingPath = commandPropertyPath + "._enable";
             enableToggle.Bind(serializedObject);
 
-            _propertyField.TrackSerializedObjectValue(serializedObject, so =>
-            {
-                var commandProp = so.FindProperty(commandPropertyPath);
-                UpdateHeader(commandProp);
-                // Commandsの要素削除時に、参照インデックスにまだ要素があれば、要素の型に合わせてPropertyFieldは勝手に更新されるが、参照インデックスに要素が無くなった場合はPropertyFieldは維持されてしまうので、Clearを呼ぶ。
-                if (commandProp == null)
-                {
-                    _propertyField.Unbind();
-                    _propertyField.Clear();
-                }
-            });
+            // _propertyField.TrackSerializedObjectValue(serializedObject, so =>
+            // {
+            //     var commandProp = so.FindProperty(commandPropertyPath);
+            //     UpdateHeader(commandProp);
+            //     // Commandsの要素削除時に、参照インデックスにまだ要素があれば、要素の型に合わせてPropertyFieldは勝手に更新されるが、参照インデックスに要素が無くなった場合はPropertyFieldは維持されてしまうので、Clearを呼ぶ。
+            //     if (commandProp == null)
+            //     {
+            //         _propertyField.Unbind();
+            //         _propertyField.Clear();
+            //     }
+            // });
 
             UpdateHeader(commandProp);
         }
