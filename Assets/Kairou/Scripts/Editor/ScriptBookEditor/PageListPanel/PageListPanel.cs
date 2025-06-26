@@ -10,15 +10,13 @@ namespace Kairou.Editor
     [Serializable]
     public class PageListPanel
     {
-        public delegate void PageSpecificAction(BookId bookId, int pageIndex);
-
         [SerializeField] RestorableBookHolder _bookHolder = new();
 
         ListView _listView;
 
         bool IsInitialized => _listView != null;
 
-        public void Initialize(VisualElement parent, VisualTreeAsset pageListPanelUXML, PageSpecificAction onSelectionChanged, Action onCollectionChanged, bool resetViewData)
+        public void Initialize(VisualElement parent, VisualTreeAsset pageListPanelUXML, Action<int> onSelectionChanged, Action onCollectionChanged, bool resetViewData)
         {
             var pageListPanel = pageListPanelUXML.Instantiate();
             parent.Add(pageListPanel);
@@ -44,6 +42,15 @@ namespace Kairou.Editor
                 BookUtilForEditor.RemovePage(_bookHolder.Owner, _bookHolder.Book, selectedPage);
                 _listView.RefreshItems();
                 onCollectionChanged?.Invoke();
+
+                if (_bookHolder.Book.Pages.HasElementAt(_listView.selectedIndex) == false)
+                {
+                    _listView.selectedIndex = _bookHolder.Book.Pages.Count - 1;
+                }
+                else
+                {
+                    onSelectionChanged?.Invoke(_listView.selectedIndex);
+                }
             };
 
             _listView.itemIndexChanged += (fromIndex, toIndex) =>
@@ -76,7 +83,7 @@ namespace Kairou.Editor
                     if (_bookHolder.Book == null) return;
                     if (_listView.selectedIndex != -1)
                     {
-                        onSelectionChanged?.Invoke(_bookHolder.BookId, _listView.selectedIndex);
+                        onSelectionChanged?.Invoke(_listView.selectedIndex);
                     }
                 };
             })

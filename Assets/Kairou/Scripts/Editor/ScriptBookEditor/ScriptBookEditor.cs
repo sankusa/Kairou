@@ -152,7 +152,7 @@ namespace Kairou.Editor
             _pageListPanel.Initialize(
                 leftPane,
                 _pageListPanelUXML,
-                (bookId, pageIndex) =>
+                pageIndex =>
                 {
                     OnPageIndexChanged(pageIndex);
                 },
