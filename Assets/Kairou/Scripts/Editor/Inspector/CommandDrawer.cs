@@ -22,6 +22,12 @@ namespace Kairou.Editor
             {
                 if (iterator.name == "_enable") continue;
                 var field = new PropertyField(iterator.Copy());
+                // 生成されるListViewは何故か左右の余白がないので
+                if (iterator.isArray)
+                {
+                    field.style.marginLeft = 3;
+                    field.style.marginRight = 3;
+                }
                 field.Bind(iterator.serializedObject);
                 root.Add(field);
                 enterChildren = false;
