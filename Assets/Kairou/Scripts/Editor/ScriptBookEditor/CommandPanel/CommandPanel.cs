@@ -104,7 +104,10 @@ namespace Kairou.Editor
                 _bodyRoot = new ScrollView() { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
                 _bodyRoot.style.flexGrow = 1;
                 _propertyField = new PropertyField();
-                _propertyField.RegisterValueChangeCallback(evt => onCommandChanged?.Invoke()); // Commandsの要素が削除されて空いた分が詰められた結果propertyPath(commandIndexを含む)の参照先コマンドが変わった場合にも呼ばれる
+
+                // Commandsの要素が削除されて空いた分が詰められた結果propertyPath(commandIndexを含む)の参照先コマンドが変わった場合にも呼ばれる
+                // TODO: Register時＋PropertyFieldの中身生成時(exitCommandのようなフィールドを持たないコマンドでは呼ばれなかった)に呼ばれる。1回のBindでonCommandChangedが複数回呼ばれるので何とかしたいが影響は軽微。
+                _propertyField.RegisterValueChangeCallback(evt => onCommandChanged?.Invoke());
                 _propertyField.style.display = DisplayStyle.Flex;
                 _bodyRoot.Add(_propertyField);
                 parent.Add(_bodyRoot);
