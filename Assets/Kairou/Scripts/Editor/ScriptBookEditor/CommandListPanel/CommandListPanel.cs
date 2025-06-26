@@ -47,7 +47,7 @@ namespace Kairou.Editor
 
         List<int> _selectedIndicesOld = new();
 
-        public void Initialize(VisualElement parent, VisualTreeAsset commandListPanelUXML, Action<int> onSelectionChanged, Action onCollectionChanged)
+        public void Initialize(VisualElement parent, VisualTreeAsset commandListPanelUXML, Action<int> onSelectionChanged, Action onCollectionChanged, bool resetViewData)
         {
             _onSelectionChanged = onSelectionChanged;
             _onCollectionChanged = onCollectionChanged;
@@ -249,18 +249,22 @@ namespace Kairou.Editor
                 _listView.selectedIndex = toIndex;
             };
 
-            _listView.selectedIndicesChanged += indices =>
+            _listView.schedule.Execute(() =>
             {
-                if (ExistsTargetPage == false) return;
-                UpdateOverlayColor(_selectedIndicesOld);
-                UpdateOverlayColor(indices);
-                if (_listView.selectedIndex != -1 && _listView.selectedIndex != _selectedCommandIndex)
+                _listView.selectedIndicesChanged += indices =>
                 {
-                    _selectedCommandIndex = _listView.selectedIndex;
-                    _onSelectionChanged?.Invoke(_selectedCommandIndex);
-                    _selectedIndicesOld = indices.ToList();
-                }
-            };
+                    if (ExistsTargetPage == false) return;
+                    UpdateOverlayColor(_selectedIndicesOld);
+                    UpdateOverlayColor(indices);
+                    if (_listView.selectedIndex != -1 && _listView.selectedIndex != _selectedCommandIndex)
+                    {
+                        _selectedCommandIndex = _listView.selectedIndex;
+                        _onSelectionChanged?.Invoke(_selectedCommandIndex);
+                        _selectedIndicesOld = indices.ToList();
+                    }
+                };
+            })
+            .ExecuteLater(1);
 
             _listView.RegisterCallback<KeyDownEvent>(evt =>
             {

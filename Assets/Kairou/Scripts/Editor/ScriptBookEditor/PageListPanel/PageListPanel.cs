@@ -14,13 +14,11 @@ namespace Kairou.Editor
 
         [SerializeField] RestorableBookHolder _bookHolder = new();
 
-        [SerializeField] int _selectedPageIndex;
-
         ListView _listView;
 
         bool IsInitialized => _listView != null;
 
-        public void Initialize(VisualElement parent, VisualTreeAsset pageListPanelUXML, PageSpecificAction onSelectionChanged, Action onCollectionChanged)
+        public void Initialize(VisualElement parent, VisualTreeAsset pageListPanelUXML, PageSpecificAction onSelectionChanged, Action onCollectionChanged, bool resetViewData)
         {
             var pageListPanel = pageListPanelUXML.Instantiate();
             parent.Add(pageListPanel);
@@ -70,29 +68,33 @@ namespace Kairou.Editor
             //     onSelectionChanged?.Invoke(_bookHolder.BookId, selectedPageIndex);
             // };
 
-            _listView.selectedIndicesChanged += indices =>
+            _listView.schedule.Execute(() =>
             {
-                if (_bookHolder.Book == null) return;
-                if (_listView.selectedIndex != -1 && _listView.selectedIndex != _selectedPageIndex)
+                if (resetViewData) _listView.selectedIndex = -1;
+                _listView.selectedIndicesChanged += indices =>
                 {
-                    _selectedPageIndex = _listView.selectedIndex;
-                    onSelectionChanged?.Invoke(_bookHolder.BookId, _selectedPageIndex);
-                }
-            };
+                    if (_bookHolder.Book == null) return;
+                    if (_listView.selectedIndex != -1)
+                    {
+                        onSelectionChanged?.Invoke(_bookHolder.BookId, _listView.selectedIndex);
+                    }
+                };
+            })
+            .ExecuteLater(1);
 
             Reload();
         }
 
         public void SetTarget(BookId bookId)
         {
-            int selectedPageIndex = (bookId == _bookHolder.BookId) ? _selectedPageIndex : 0;
+            if (bookId != _bookHolder.BookId) _listView.SetSelectionWithoutNotify(new int[] { 0 });
             _bookHolder.Reset(bookId);
-            if (IsInitialized) Reload(selectedPageIndex);
+            if (IsInitialized) Reload(_listView.selectedIndex);
         }
 
         public void Reload()
         {
-            Reload(_selectedPageIndex);
+            Reload(_listView.selectedIndex);
         }
 
         public void Reload(int selectedPageIndex)

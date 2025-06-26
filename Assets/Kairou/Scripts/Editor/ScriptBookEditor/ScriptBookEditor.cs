@@ -9,13 +9,23 @@ namespace Kairou.Editor
 {
     public class ScriptBookEditor : EditorWindow
     {
+        static Object _reservedBookOwner = null;
+        static string _reservedBookPropertyPath = null;
+        static int _reservedPageIndex = -1;
+        static int _reservedCommandIndex = -1;
 
         public static void Open(Object bookOwner, string bookPropertyPath)
         {
-            var window = GetWindow<ScriptBookEditor>();
-            window.titleContent = new GUIContent("ScriptBookEditor");
-
-            window.SetTarget(bookOwner, bookPropertyPath);
+            _reservedBookOwner = bookOwner;
+            _reservedBookPropertyPath = bookPropertyPath;
+            _reservedPageIndex = 0;
+            _reservedCommandIndex = 0;
+            var window = GetWindow<ScriptBookEditor>("ScriptBookEditor");
+            // 既にウィンドウが開いている状態で呼ばれたら、CreateGUIは呼ばれないのでこちらで処理
+            if (window.ResolveReservedParameters())
+            {
+                window.Rebind();
+            }
         }
 
         [SerializeField] VisualTreeAsset _headerPanelUXML;
@@ -61,8 +71,37 @@ namespace Kairou.Editor
             EditorApplication.hierarchyChanged -= OnHierarchyChanged;
         }
 
+        bool ResolveReservedParameters()
+        {
+            bool reservedAny = false;
+            if (_reservedBookOwner != null || _reservedBookPropertyPath != null)
+            {
+                _bookHolder.Reset(_reservedBookOwner, _reservedBookPropertyPath);
+                _reservedBookOwner = null;
+                _reservedBookPropertyPath = null;
+                reservedAny = true;
+            }
+            if (_reservedPageIndex != -1)
+            {
+                _pageIndex = _reservedPageIndex;
+                _reservedPageIndex = -1;
+                reservedAny = true;
+            }
+            if (_reservedCommandIndex != -1)
+            {
+                _commandIndex = _reservedCommandIndex;
+                _reservedCommandIndex = -1;
+                reservedAny = true;
+            }
+            return reservedAny;
+        }
+
         void CreateGUI()
         {
+            bool pageIndexReserved = _pageIndex != -1;
+            bool commandIndexReserved = _commandIndex != -1;
+            ResolveReservedParameters();
+
             var root = rootVisualElement;
 
             _headerPanel.Initialize(rootVisualElement, _headerPanelUXML);
@@ -121,7 +160,8 @@ namespace Kairou.Editor
                 {
                     _serializedObject.UpdateIfRequiredOrScript();
                     _commandListPanel.Reload();
-                }
+                },
+                pageIndexReserved
             );
 
             _commandListPanel.Initialize(
@@ -134,7 +174,8 @@ namespace Kairou.Editor
                 () =>
                 {
                     _serializedObject.UpdateIfRequiredOrScript();
-                }
+                },
+                commandIndexReserved
             );
 
             var (commandPaneParent, commandPickerPane) = UIToolkitUtil.CreateSplitView(rightPane, 1, 200f, TwoPaneSplitViewOrientation.Vertical, viewDataKey: "Split3");
@@ -196,7 +237,7 @@ namespace Kairou.Editor
         }
 
         void SetTarget(Object bookOwner, string bookPropertyPath)
-        {
+        {Debug.Log("SetTarget");
             _bookHolder.Reset(bookOwner, bookPropertyPath);
             _pageIndex = 0;
             _commandIndex = 0;
