@@ -29,8 +29,6 @@ namespace Kairou.Editor
         [SerializeField] int _pageIndex;
         bool ExistsTargetPage => _bookHolder.HasValidBook && _bookHolder.Book.Pages.HasElementAt(_pageIndex);
 
-        [SerializeField] int _selectedCommandIndex;
-
         [SerializeField] AdvancedDropdownState _commandDropdownState = new();
 
         ListView _listView;
@@ -251,15 +249,18 @@ namespace Kairou.Editor
 
             _listView.schedule.Execute(() =>
             {
+                if (resetViewData)
+                {
+                    _listView.selectedIndex = -1;
+                }
                 _listView.selectedIndicesChanged += indices =>
                 {
                     if (ExistsTargetPage == false) return;
                     UpdateOverlayColor(_selectedIndicesOld);
                     UpdateOverlayColor(indices);
-                    if (_listView.selectedIndex != -1 && _listView.selectedIndex != _selectedCommandIndex)
+                    if (_listView.selectedIndex != -1)
                     {
-                        _selectedCommandIndex = _listView.selectedIndex;
-                        _onSelectionChanged?.Invoke(_selectedCommandIndex);
+                        _onSelectionChanged?.Invoke(_listView.selectedIndex);
                         _selectedIndicesOld = indices.ToList();
                     }
                 };
@@ -325,10 +326,9 @@ namespace Kairou.Editor
 
         public void SetTarget(BookId bookId, int pageIndex)
         {
-            int selectedCommandIndex = (bookId == _bookHolder.BookId && pageIndex == _pageIndex) ? _listView.selectedIndex : 0;
             _bookHolder.Reset(bookId);
             _pageIndex = pageIndex;
-            if (IsInitialized) Reload(selectedCommandIndex);
+            if (IsInitialized) Reload(_bookHolder.Book.Pages[_pageIndex].Commands.Count > 0 ? 0 : -1);
         }
 
         public void Reload()
@@ -342,17 +342,18 @@ namespace Kairou.Editor
 
             if (ExistsTargetPage)
             {
-                // _listView.bindingPath = $"{_bookHolder.BookPropertyPath}._pages.Array.data[{_pageIndex}]._commands";
-                // _listView.Bind(new SerializedObject(_bookHolder.Owner));
-                _listView.itemsSource = _bookHolder.Book.Pages[_pageIndex].Commands as IList;
+                selectedCommandIndex = _bookHolder.Book.Pages[_pageIndex].Commands.HasElementAt(selectedCommandIndex) ? selectedCommandIndex : -1;
+                _listView.SetSelectionWithoutNotify(new int[] { selectedCommandIndex });
                 _listView.enabledSelf = true;
+                _listView.itemsSource = _bookHolder.Book.Pages[_pageIndex].Commands as IList;
+                // itemSource更新時、refreshが呼ばれるので、その前にインデックスなどは更新しておく
             }
             else
             {
-                _listView.itemsSource = null;
+                _listView.SetSelectionWithoutNotify(new int[] { -1 });
                 _listView.enabledSelf = false;
+                _listView.itemsSource = null;
             }
-            _listView.SetSelectionWithoutNotify(new int[] {selectedCommandIndex});
         }
 
         public void Refresh() => _refreshDebouncer.Schedule();
@@ -406,7 +407,11 @@ namespace Kairou.Editor
             _listView.RefreshItems();
             _onCollectionChanged?.Invoke();
 
-            if (index == _listView.selectedIndex)
+            if (_bookHolder.Book.Pages[_pageIndex].Commands.HasElementAt(_listView.selectedIndex) == false)
+            {
+                _listView.selectedIndex = _bookHolder.Book.Pages[_pageIndex].Commands.Count - 1;
+            }
+            else if (index == _listView.selectedIndex)
             {
                 _onSelectionChanged?.Invoke(index);
             }

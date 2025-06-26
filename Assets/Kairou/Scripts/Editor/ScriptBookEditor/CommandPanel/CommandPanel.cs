@@ -16,10 +16,14 @@ namespace Kairou.Editor
         ScrollView _bodyRoot;
         PropertyField _propertyField;
 
+        Action _onCommandChanged;
+
         bool IsInitialized => _bodyRoot != null;
 
         public void Initialize(VisualElement parent, Action onCommandChanged)
         {
+            _onCommandChanged = onCommandChanged;
+
             /* header */ {
                 _header = new VisualElement();
                 _header.name = "Header";
@@ -36,12 +40,11 @@ namespace Kairou.Editor
                     header_body.style.borderBottomColor = Color.black;
 
                     /* header_header elements */ {
-                        var enableToggle = new Toggle();
+                        var enableToggle = new CustomToggle();
                         enableToggle.name = "EnableToggle";
                         enableToggle.label = "";
                         enableToggle.style.marginTop = 0;
                         enableToggle.style.marginBottom = 0;
-                        enableToggle.RegisterValueChangedCallback(evt => onCommandChanged?.Invoke());
 
                         var nameLabel = new Label();
                         nameLabel.name = "NameLabel";
@@ -124,6 +127,10 @@ namespace Kairou.Editor
         public void Bind(SerializedObject serializedObject, string commandPropertyPath)
         {
             if (IsInitialized == false) return;
+            var header = _header.Q<VisualElement>("Header");
+            var enableToggle = header.Q<CustomToggle>("EnableToggle");
+            enableToggle.UnregisterAll();
+            enableToggle.Unbind();
             _propertyField.Unbind();
             if (serializedObject == null || commandPropertyPath == null)
             {
@@ -134,13 +141,13 @@ namespace Kairou.Editor
             }
 
             var commandProp = serializedObject.FindProperty(commandPropertyPath);
+
+            enableToggle.bindingPath = commandPropertyPath + "._enable";
+            enableToggle.Bind(serializedObject);
+            enableToggle.RegisterValueChangedCallbackAsUnregisterable(_ => _onCommandChanged?.Invoke(), true);
             _propertyField.bindingPath = commandPropertyPath;
             _propertyField.Bind(serializedObject);
             _propertyField.style.display = DisplayStyle.Flex;
-            var header = _header.Q<VisualElement>("Header");
-            var enableToggle = header.Q<Toggle>("EnableToggle");
-            enableToggle.bindingPath = commandPropertyPath + "._enable";
-            enableToggle.Bind(serializedObject);
 
             _propertyField.TrackSerializedObjectValue(serializedObject, so =>
             {
