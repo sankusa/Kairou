@@ -23,7 +23,7 @@ namespace Kairou
             parent.Add(pageHeaderPanel);
 
             _textField = pageHeaderPanel.Q<TextField>();
-            _textField.RegisterValueChangedCallback(evt =>
+            _textField.RegisterValueChangedCallbackWithoutOnRegister(evt =>
             {
                 if (_idProp != null)
                 {

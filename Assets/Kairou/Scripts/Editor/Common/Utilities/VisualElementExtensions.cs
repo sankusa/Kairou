@@ -36,5 +36,19 @@ namespace Kairou.Editor
                 callback?.Invoke(evt);
             });
         }
+
+        public static void RegisterValueChangedCallbackWithoutOnRegister(this TextField textField, EventCallback<ChangeEvent<string>> callback)
+        {
+            bool first = true;
+            textField.RegisterValueChangedCallback(evt =>
+            {
+                if (first)
+                {
+                    first = false;
+                    return;
+                }
+                callback?.Invoke(evt);
+            });
+        }
     }
 }

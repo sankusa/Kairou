@@ -328,7 +328,7 @@ namespace Kairou.Editor
         {
             _bookHolder.Reset(bookId);
             _pageIndex = pageIndex;
-            if (IsInitialized) Reload(_bookHolder.Book.Pages[_pageIndex].Commands.Count > 0 ? 0 : -1);
+            if (IsInitialized) Reload(0);
         }
 
         public void Reload()
@@ -343,16 +343,15 @@ namespace Kairou.Editor
             if (ExistsTargetPage)
             {
                 selectedCommandIndex = _bookHolder.Book.Pages[_pageIndex].Commands.HasElementAt(selectedCommandIndex) ? selectedCommandIndex : -1;
-                _listView.SetSelectionWithoutNotify(new int[] { selectedCommandIndex });
                 _listView.enabledSelf = true;
                 _listView.itemsSource = _bookHolder.Book.Pages[_pageIndex].Commands as IList;
-                // itemSource更新時、refreshが呼ばれるので、その前にインデックスなどは更新しておく
+                _listView.SetSelectionWithoutNotify(new int[] { selectedCommandIndex }); // itemsSourceが設定されていないと-1になってしまうため、itemSource設定後に呼ぶ
             }
             else
             {
-                _listView.SetSelectionWithoutNotify(new int[] { -1 });
                 _listView.enabledSelf = false;
                 _listView.itemsSource = null;
+                _listView.SetSelectionWithoutNotify(new int[] { -1 });
             }
         }
 

@@ -94,9 +94,8 @@ namespace Kairou.Editor
 
         public void SetTarget(BookId bookId)
         {
-            if (bookId != _bookHolder.BookId) _listView.SetSelectionWithoutNotify(new int[] { 0 });
             _bookHolder.Reset(bookId);
-            if (IsInitialized) Reload(_listView.selectedIndex);
+            if (IsInitialized) Reload(0);
         }
 
         public void Reload()
@@ -110,17 +109,17 @@ namespace Kairou.Editor
 
             if (_bookHolder.HasValidBook)
             {
+                selectedPageIndex = _bookHolder.Book.Pages.HasElementAt(selectedPageIndex) ? selectedPageIndex : -1;
                 _listView.itemsSource = _bookHolder.Book.Pages as IList;
                 _listView.enabledSelf = true;
+                _listView.SetSelectionWithoutNotify(new int[] { selectedPageIndex }); // itemsSourceが設定されていないと-1になってしまうため、itemSource設定後に呼ぶ
             }
             else
             {
                 _listView.itemsSource = null;
                 _listView.enabledSelf = false;
+                _listView.SetSelectionWithoutNotify(new int[] { -1 });
             }
-
-            _listView.SetSelectionWithoutNotify(new int[] {selectedPageIndex});
-            _listView.RefreshItems();
         }
 
         public void OnProjectOrHierarchyChanged()
