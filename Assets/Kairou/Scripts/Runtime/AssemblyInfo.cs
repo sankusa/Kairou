@@ -2,5 +2,6 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Kairou.Editor")]
-[assembly: InternalsVisibleTo("Kairou.Tests")]
+[assembly: InternalsVisibleTo("Kairou.Tests.EditMode")]
+[assembly: InternalsVisibleTo("Kairou.Tests.Runtime")]
 #endif

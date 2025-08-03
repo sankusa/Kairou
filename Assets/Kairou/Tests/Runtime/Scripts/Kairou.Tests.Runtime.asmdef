@@ -1,0 +1,17 @@
+{
+    "name": "Kairou.Tests.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:06c66ea33735a5c4da70fc4cba1a6962",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

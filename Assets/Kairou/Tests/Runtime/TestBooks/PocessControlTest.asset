@@ -1,0 +1,962 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6636b9e5c2823c4bba89829b9bd5346, type: 3}
+  m_Name: PocessControlTest
+  m_EditorClassIdentifier: 
+  _book:
+    _id: PocessControlTest
+    _pages:
+    - _id: Entry
+      _commands:
+      - rid: 1402238322812125333
+      - rid: 1402238322812125334
+      - rid: 1402238322812125332
+      - rid: 1402238322812125340
+      - rid: 1402238322812125359
+      - rid: 1402238322812125360
+      - rid: 1402238322812125366
+      - rid: 1402238322812125335
+      _variables: []
+    - _id: GoToIndex
+      _commands:
+      - rid: 1402238322812125262
+      - rid: 1402238322812125264
+      - rid: 1402238322812125263
+      - rid: 1402238322812125267
+      - rid: 1402238322812125268
+      - rid: 1402238322812125269
+      - rid: 1402238322812125281
+      - rid: 1402238322812125278
+      - rid: 1402238322812125368
+      _variables:
+      - rid: 1402238322812125271
+      - rid: 1402238322812125272
+    - _id: GoToEnd
+      _commands:
+      - rid: 1402238322812125373
+      - rid: 1402238322812125378
+      - rid: 1402238322812125381
+      _variables: []
+    - _id: GoToEnd_Sub
+      _commands:
+      - rid: 1402238322812125375
+      - rid: 1402238322812125370
+      - rid: 1402238322812125371
+      _variables: []
+    - _id: PushBlock
+      _commands:
+      - rid: 1402238322812125289
+      - rid: 1402238322812125323
+      - rid: 1402238322812125329
+      - rid: 1402238322812125304
+      - rid: 1402238322812125326
+      - rid: 1402238322812125382
+      _variables:
+      - rid: 1402238322812125324
+    - _id: PauseResume
+      _commands:
+      - rid: 1402238322812125392
+      - rid: 1402238322812125402
+      - rid: 1402238322812125394
+      - rid: 1402238322812125404
+      - rid: 1402238322812125398
+      - rid: 1402238322812125388
+      - rid: 1402238322812125338
+      - rid: 1402238322812125405
+      - rid: 1402238322812125407
+      - rid: 1402238322812125409
+      _variables: []
+    - _id: PauseResume_Sub
+      _commands:
+      - rid: 1402238322812125395
+      - rid: 1402238322812125396
+      - rid: 1402238322812125384
+      - rid: 1402238322812125385
+      _variables: []
+    - _id: Cancel
+      _commands:
+      - rid: 1402238322812125341
+      - rid: 1402238322812125410
+      _variables: []
+    - _id: SwitchPage
+      _commands:
+      - rid: 1402238322812125411
+      - rid: 1402238322812125412
+      - rid: 1402238322812125414
+      _variables: []
+    - _id: SwitchPage_Sub
+      _commands:
+      - rid: 1402238322812125416
+      - rid: 1402238322812125422
+      _variables: []
+    - _id: SwitchPage_Sub2
+      _commands:
+      - rid: 1402238322812125417
+      _variables: []
+    - _id: SwitchBook
+      _commands:
+      - rid: 1402238322812125436
+      - rid: 1402238322812125428
+      - rid: 1402238322812125429
+      _variables: []
+    - _id: SwitchBook_Sub
+      _commands:
+      - rid: 1402238322812125437
+      - rid: 1402238322812125434
+      _variables: []
+    - _id: RunBook
+      _commands:
+      - rid: 1402238322812125364
+      - rid: 1402238322812125440
+      _variables: []
+    _variables:
+    - rid: 1402238322812125374
+    - rid: 1402238322812125383
+    - rid: 1402238322812125391
+    - rid: 1402238322812125420
+    - rid: 1402238322812125439
+  references:
+    version: 2
+    RefIds:
+    - rid: 1402238322812125262
+      type: {class: GoToLabel, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _label: Label1
+    - rid: 1402238322812125263
+      type: {class: LabelCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _label: Label1
+    - rid: 1402238322812125264
+      type: {class: SetVariableCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _variableSetter:
+          rid: 1402238322812125273
+    - rid: 1402238322812125267
+      type: {class: GoToLabel, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _label: Label2
+    - rid: 1402238322812125268
+      type: {class: SetVariableCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _variableSetter:
+          rid: 1402238322812125274
+    - rid: 1402238322812125269
+      type: {class: LabelCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _label: Label2_MissTyped
+    - rid: 1402238322812125271
+      type: {class: 'VariableDefinition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _name: case1
+        _dataBankLink: 0
+        _storageKey: 
+        _dataKey: 
+        _defaultValue: 0
+    - rid: 1402238322812125272
+      type: {class: 'VariableDefinition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _name: case2
+        _dataBankLink: 0
+        _storageKey: 
+        _dataKey: 
+        _defaultValue: 0
+    - rid: 1402238322812125273
+      type: {class: 'VariableSetter`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _variable:
+          _targetScope: 0
+          _variableName: case1
+        _value:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125274
+      type: {class: 'VariableSetter`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _variable:
+          _targetScope: 0
+          _variableName: case2
+        _value:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125278
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125280
+    - rid: 1402238322812125280
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: case2
+        _value2:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125281
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125282
+    - rid: 1402238322812125282
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: case1
+        _value2:
+          _resolveType: 0
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125289
+      type: {class: IfCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125307
+    - rid: 1402238322812125304
+      type: {class: EndIfCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+    - rid: 1402238322812125307
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _value2:
+          _resolveType: 0
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125323
+      type: {class: PeakBlockCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _hasBlock:
+          _targetScope: 0
+          _variableName: hasBlock
+    - rid: 1402238322812125324
+      type: {class: 'VariableDefinition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _name: hasBlock
+        _dataBankLink: 0
+        _storageKey: 
+        _dataKey: 
+        _defaultValue: 0
+    - rid: 1402238322812125326
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125328
+    - rid: 1402238322812125328
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: hasBlock
+        _value2:
+          _resolveType: 0
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125329
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125330
+    - rid: 1402238322812125330
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: hasBlock
+        _value2:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125332
+      type: {class: RunPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _pageId: PushBlock
+    - rid: 1402238322812125333
+      type: {class: RunPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _pageId: GoToIndex
+    - rid: 1402238322812125334
+      type: {class: RunPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _pageId: GoToEnd
+    - rid: 1402238322812125335
+      type: {class: RunPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _pageId: RunBook
+    - rid: 1402238322812125338
+      type: {class: PauseResumeCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _delaySeconds: 2
+    - rid: 1402238322812125340
+      type: {class: RunPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _pageId: PauseResume
+    - rid: 1402238322812125341
+      type: {class: InnerCancelCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+    - rid: 1402238322812125359
+      type: {class: RunPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _pageId: Cancel
+    - rid: 1402238322812125360
+      type: {class: RunPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _pageId: SwitchPage
+    - rid: 1402238322812125364
+      type: {class: RunBookCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _bookSlot:
+            rid: 1402238322812125365
+          _pageId: 
+        _chainPreload: 1
+    - rid: 1402238322812125365
+      type: {class: BookAssetSlot, ns: Kairou, asm: Kairou}
+      data:
+        _bookAsset: {fileID: 11400000, guid: 3d6b9be12a6ae3e49bde63eaaedb74a9, type: 2}
+    - rid: 1402238322812125366
+      type: {class: RunPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _pageId: SwitchBook
+    - rid: 1402238322812125368
+      type: {class: SuccessCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+    - rid: 1402238322812125370
+      type: {class: ExitCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+    - rid: 1402238322812125371
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125372
+    - rid: 1402238322812125372
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _value2:
+          _resolveType: 0
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125373
+      type: {class: RunPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _pageId: GoToEnd_Sub
+    - rid: 1402238322812125374
+      type: {class: 'VariableDefinition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _name: GoToEnd_Flag1
+        _dataBankLink: 0
+        _storageKey: 
+        _dataKey: 
+        _defaultValue: 0
+    - rid: 1402238322812125375
+      type: {class: SetVariableCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _variableSetter:
+          rid: 1402238322812125377
+    - rid: 1402238322812125377
+      type: {class: 'VariableSetter`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _variable:
+          _targetScope: 0
+          _variableName: GoToEnd_Flag1
+        _value:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125378
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125380
+    - rid: 1402238322812125380
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: GoToEnd_Flag1
+        _value2:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125381
+      type: {class: SuccessCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+    - rid: 1402238322812125382
+      type: {class: SuccessCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+    - rid: 1402238322812125383
+      type: {class: 'VariableDefinition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _name: PauseResume_Flag1
+        _dataBankLink: 0
+        _storageKey: 
+        _dataKey: 
+        _defaultValue: 0
+    - rid: 1402238322812125384
+      type: {class: DelayCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _delaytype: 0
+        _seconds:
+          _resolveType: 0
+          _value: 2
+          _variable:
+            _targetScope: 0
+            _variableName: 
+    - rid: 1402238322812125385
+      type: {class: SetVariableCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _variableSetter:
+          rid: 1402238322812125387
+    - rid: 1402238322812125387
+      type: {class: 'VariableSetter`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _variable:
+          _targetScope: 0
+          _variableName: PauseResume_Flag2
+        _value:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125388
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125390
+    - rid: 1402238322812125390
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: PauseResume_Flag2
+        _value2:
+          _resolveType: 0
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125391
+      type: {class: 'VariableDefinition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _name: PauseResume_Flag2
+        _dataBankLink: 0
+        _storageKey: 
+        _dataKey: 
+        _defaultValue: 0
+    - rid: 1402238322812125392
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125393
+    - rid: 1402238322812125393
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: PauseResume_Flag1
+        _value2:
+          _resolveType: 0
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125394
+      type: {class: RunPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 0
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _pageId: PauseResume_Sub
+    - rid: 1402238322812125395
+      type: {class: DelayCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _delaytype: 0
+        _seconds:
+          _resolveType: 0
+          _value: 2
+          _variable:
+            _targetScope: 0
+            _variableName: 
+    - rid: 1402238322812125396
+      type: {class: SetVariableCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _variableSetter:
+          rid: 1402238322812125397
+    - rid: 1402238322812125397
+      type: {class: 'VariableSetter`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _variable:
+          _targetScope: 0
+          _variableName: PauseResume_Flag1
+        _value:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125398
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125399
+    - rid: 1402238322812125399
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: PauseResume_Flag1
+        _value2:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125402
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125403
+    - rid: 1402238322812125403
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: PauseResume_Flag2
+        _value2:
+          _resolveType: 0
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125404
+      type: {class: PauseResumeCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _delaySeconds: 3
+    - rid: 1402238322812125405
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125406
+    - rid: 1402238322812125406
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: PauseResume_Flag1
+        _value2:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125407
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125408
+    - rid: 1402238322812125408
+      type: {class: 'Condition`1[[System.Boolean, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: PauseResume_Flag2
+        _value2:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125409
+      type: {class: SuccessCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+    - rid: 1402238322812125410
+      type: {class: SuccessCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+    - rid: 1402238322812125411
+      type: {class: RunPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _pageId: SwitchPage_Sub
+    - rid: 1402238322812125412
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125413
+    - rid: 1402238322812125413
+      type: {class: 'Condition`1[[System.Int32, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: SwitchPage_Var1
+        _value2:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125414
+      type: {class: SuccessCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+    - rid: 1402238322812125416
+      type: {class: SwitchPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _target:
+          _pageId: SwitchPage_Sub2
+    - rid: 1402238322812125417
+      type: {class: SetVariableCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _variableSetter:
+          rid: 1402238322812125421
+    - rid: 1402238322812125420
+      type: {class: 'VariableDefinition`1[[System.Int32, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _name: SwitchPage_Var1
+        _dataBankLink: 0
+        _storageKey: 
+        _dataKey: 
+        _defaultValue: 0
+    - rid: 1402238322812125421
+      type: {class: 'VariableSetter`1[[System.Int32, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _variable:
+          _targetScope: 0
+          _variableName: SwitchPage_Var1
+        _value:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 2
+    - rid: 1402238322812125422
+      type: {class: SetVariableCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _variableSetter:
+          rid: 1402238322812125423
+    - rid: 1402238322812125423
+      type: {class: 'VariableSetter`1[[System.Int32, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _variable:
+          _targetScope: 0
+          _variableName: SwitchPage_Var1
+        _value:
+          _resolveType: 0
+          _value: 2
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 2
+    - rid: 1402238322812125428
+      type: {class: AssertCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+        _condition:
+          rid: 1402238322812125430
+    - rid: 1402238322812125429
+      type: {class: SuccessCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
+    - rid: 1402238322812125430
+      type: {class: 'Condition`1[[System.Int32, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _value1:
+          _resolveType: 1
+          _value: 0
+          _variable:
+            _targetScope: 0
+            _variableName: SwitchBook_Var1
+        _value2:
+          _resolveType: 0
+          _value: 1
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 0
+    - rid: 1402238322812125434
+      type: {class: SetVariableCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _variableSetter:
+          rid: 1402238322812125435
+    - rid: 1402238322812125435
+      type: {class: 'VariableSetter`1[[System.Int32, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _variable:
+          _targetScope: 0
+          _variableName: SwitchBook_Var1
+        _value:
+          _resolveType: 0
+          _value: 2
+          _variable:
+            _targetScope: 0
+            _variableName: 
+        _operator: 2
+    - rid: 1402238322812125436
+      type: {class: RunPageCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _asyncCommandParameter:
+          _await: 1
+          _uniTaskStoreVariable:
+            _targetScope: 0
+            _variableName: 
+        _target:
+          _pageId: SwitchBook_Sub
+    - rid: 1402238322812125437
+      type: {class: SwitchBookCommand, ns: Kairou, asm: Kairou}
+      data:
+        _enable: 1
+        _target:
+          _bookSlot:
+            rid: 1402238322812125438
+          _pageId: 
+        _chainPreload: 1
+    - rid: 1402238322812125438
+      type: {class: BookAssetSlot, ns: Kairou, asm: Kairou}
+      data:
+        _bookAsset: {fileID: 11400000, guid: 3d6b9be12a6ae3e49bde63eaaedb74a9, type: 2}
+    - rid: 1402238322812125439
+      type: {class: 'VariableDefinition`1[[System.Int32, mscorlib]]', ns: Kairou, asm: Kairou}
+      data:
+        _name: SwitchBook_Var1
+        _dataBankLink: 0
+        _storageKey: 
+        _dataKey: 
+        _defaultValue: 1
+    - rid: 1402238322812125440
+      type: {class: SuccessCommand, ns: Kairou.Tests.Runtime, asm: Kairou.Tests.Runtime}
+      data:
+        _enable: 1
