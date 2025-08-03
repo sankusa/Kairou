@@ -135,7 +135,7 @@ MonoBehaviour:
       _summaryPosition: 0
       _script: {fileID: 11500000, guid: a662916b0ad299748bc90088396f816d, type: 3}
     - _typeFullName: Kairou.RunBookCommand
-      _name: run book
+      _name: call book
       _category: Process
       _icon: {fileID: 0}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
@@ -149,7 +149,7 @@ MonoBehaviour:
       _summaryPosition: 1
       _script: {fileID: 11500000, guid: 0c38a64533be9de48919d44fc3e9ac27, type: 3}
     - _typeFullName: Kairou.RunPageCommand
-      _name: run page
+      _name: call page
       _category: Process
       _icon: {fileID: 0}
       _iconColor: {r: 0, g: 0, b: 0, a: 0}
