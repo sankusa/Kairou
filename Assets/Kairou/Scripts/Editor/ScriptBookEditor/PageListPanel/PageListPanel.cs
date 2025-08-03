@@ -122,6 +122,12 @@ namespace Kairou.Editor
             }
         }
 
+        public void Refresh()
+        {
+            if (IsInitialized == false) return;
+            _listView.RefreshItems();
+        }
+
         public void OnProjectOrHierarchyChanged()
         {
             if (_bookHolder.RestoreObjectIfNull())

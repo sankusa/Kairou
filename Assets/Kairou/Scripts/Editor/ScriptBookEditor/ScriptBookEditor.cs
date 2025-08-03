@@ -144,7 +144,7 @@ namespace Kairou.Editor
             _pageHeaderPanel.Initialize(
                 pagePaneInner,
                 _pageHeaderPanelUXML,
-                () => _pageListPanel.Reload()
+                () => _pageListPanel.Refresh()
             );
 
             var (centerPane, rightPane) = UIToolkitUtil.CreateSplitView(pagePaneInner, 1, 200f, viewDataKey: "Split2");
