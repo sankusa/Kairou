@@ -1,0 +1,23 @@
+﻿<Solution>
+  <Project Path="Kairou.csproj" />
+  <Project Path="Kairou.Editor.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="ScenarioSystem.Editor.csproj" />
+  <Project Path="ScenarioSystem.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="EditorExtensionLib.Editor.csproj" />
+  <Project Path="ScriptCreator.csproj" />
+  <Project Path="Kairou.Tests.Runtime.csproj" />
+  <Project Path="EditorExtensionLib.Runtime.csproj" />
+  <Project Path="Kairou.Tests.EditMode.csproj" />
+  <Project Path="ShirohataLib.General.Runtime.csproj" />
+  <Project Path="ShirohataLib.General.Editor.csproj" />
+  <Project Path="GUIStyleViewer.csproj" />
+  <Project Path="Classes.csproj" />
+  <Project Path="Practice.Editor.csproj" />
+  <Project Path="ConvenientWindow.csproj" />
+  <Project Path="SerializableReferenceList.csproj" />
+  <Project Path="FavoriteAssetWindow.csproj" />
+  <Project Path="NewAssembly.csproj" />
+  <Project Path="ScriptCreator.Tests.csproj" />
+</Solution>

@@ -107,6 +107,7 @@ public class CommandIncrementalGenerator : IIncrementalGenerator
             builder.BeginBlock();
         }
 
+        builder.AppendIndentedLine($"[System.Serializable]");
         builder.AppendIndentedLine($"partial class {commandTypeSymbol.Name}");
         using (new BlockScope(builder))
         {

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 33f2950518612654e84231873ad023ba
+guid: 43dd7b4fe903e264f8bbb74ad67f880e
 labels:
 - RoslynAnalyzer
 PluginImporter:
@@ -36,6 +36,9 @@ PluginImporter:
       enabled: 0
       settings:
         CPU: None
+    WebGL:
+      enabled: 0
+      settings: {}
     Win:
       enabled: 0
       settings:
